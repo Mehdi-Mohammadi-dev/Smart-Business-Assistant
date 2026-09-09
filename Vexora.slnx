@@ -1,5 +1,6 @@
 <Solution>
   <Project Path="Vexora.Api/Vexora.Api.csproj" />
+  <Project Path="Vexora.Application.Test/Vexora.Application.Test.csproj" Id="e0077740-ef5b-48e0-83f0-7cfda02c2423" />
   <Project Path="Vexora.Application/Vexora.Application.csproj" Id="25091108-7214-4f3c-adc9-f103ad2bba6e" />
   <Project Path="Vexora.Domain/Vexora.Domain.csproj" Id="8b0340c7-ec8a-4c2b-83ce-3a4993a3e076" />
   <Project Path="Vexora.Infrastracture/Vexora.Infrastracture.csproj" Id="d0e7b11c-c433-4fc0-854f-5a837a512b2a" />
