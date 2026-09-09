@@ -1,5 +1,5 @@
 ﻿using FluentAssertions;
-using Voxora.Application.NLU.Entities.Number;
+using Voxora.Application.NLU.Parsing.Number;
 using Xunit;
 
 namespace Voxora.Application.Tests.NLU.Number;

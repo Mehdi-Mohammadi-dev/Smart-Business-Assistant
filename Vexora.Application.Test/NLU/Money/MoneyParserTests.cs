@@ -1,7 +1,7 @@
 ﻿using FluentAssertions;
 using Vexora.Application.NLU.Models.Money;
-using Voxora.Application.NLU.Entities.Money;
-using Voxora.Application.NLU.Entities.Number;
+using Vexora.Application.NLU.Normalizations.Parsing.Money;
+using Voxora.Application.NLU.Parsing.Number;
 using Xunit;
 
 namespace Voxora.Application.Tests.NLU.Entities.Money;

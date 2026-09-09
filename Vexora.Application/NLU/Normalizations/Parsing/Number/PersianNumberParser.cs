@@ -1,11 +1,10 @@
 ﻿using System.Globalization;
 using System.Text.RegularExpressions;
 using Vexora.Application.NLU.Abstractions.Number;
-using Vexora.Application.NLU.Entities.Number;
 using Vexora.Application.NLU.Models.Number;
-using Voxora.Application.NLU.Models;
+using Vexora.Application.NLU.Normalizations.Parsing.Number;
 
-namespace Voxora.Application.NLU.Entities.Number;
+namespace Voxora.Application.NLU.Parsing.Number;
 
 public sealed partial class PersianNumberParser : IPersianNumberParser
 {

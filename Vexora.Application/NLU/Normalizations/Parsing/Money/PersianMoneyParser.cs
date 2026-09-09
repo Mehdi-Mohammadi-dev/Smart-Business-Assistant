@@ -2,7 +2,7 @@
 using Vexora.Application.NLU.Abstractions.Number;
 using Vexora.Application.NLU.Models.Money;
 
-namespace Voxora.Application.NLU.Entities.Money;
+namespace Vexora.Application.NLU.Normalizations.Parsing.Money;
 
 public sealed class MoneyParser : IMoneyParser
 {

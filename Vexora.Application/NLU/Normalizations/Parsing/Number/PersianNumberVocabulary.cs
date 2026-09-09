@@ -1,4 +1,4 @@
-﻿namespace Vexora.Application.NLU.Entities.Number;
+﻿namespace Vexora.Application.NLU.Normalizations.Parsing.Number;
 
 internal static class PersianNumberVocabulary
 {
