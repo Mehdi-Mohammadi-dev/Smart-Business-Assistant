@@ -2,7 +2,7 @@
 using Voxora.Application.NLU.Normalizations;
 using Xunit;
 
-namespace Voxora.Application.Tests.NLU.Normalization;
+namespace Voxora.Application.Tests.NLU.Normalizations;
 
 public sealed class PersianTextNormalizerTests
 {
