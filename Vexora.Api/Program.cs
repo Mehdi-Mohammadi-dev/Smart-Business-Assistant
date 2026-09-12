@@ -1,4 +1,5 @@
-using Voxora.Application.DependencyInjections;
+using Vexora.Infrastracture.Percistance.Registrations;
+using Vexora.Application.DependencyInjections;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,6 +8,8 @@ builder.Services.AddApplication();
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+builder.Services.AddInfrastracture(builder.Configuration);
+builder.Services.AddApplication();
 
 var app = builder.Build();
 
