@@ -1,0 +1,12 @@
+﻿namespace Vexora.Application.Conversations;
+
+public enum ConversationStatus
+{
+    None = 0,
+
+    WaitingForCustomerSelection = 1,
+
+    WaitingForCustomerCreationConfirmation = 2,
+
+    WaitingForMissingInformation = 3
+}
