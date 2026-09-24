@@ -1,6 +1,5 @@
 ﻿using FluentAssertions;
 using Vexora.Application.NLU.Models.Intents;
-using Voxora.Application.NLU.Abstractions.Intents;
 using Voxora.Application.NLU.Intent;
 using Xunit;
 

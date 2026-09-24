@@ -40,6 +40,17 @@ public sealed class MoneyParserTests
         result.Unit.Should().Be(expectedUnit);
     }
 
+    [Fact]
+    public void Should_Parse_Million_Toman()
+    {
+        var result = _parser.TryParse(
+            "10 میلیون تومان",
+            out var money);
+
+        result.Should().BeTrue();
+        money!.Amount.Should().Be(10_000_000);
+    }
+
     [Theory]
     [InlineData("سلام")]
     [InlineData("علی")]
