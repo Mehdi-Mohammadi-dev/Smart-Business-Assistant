@@ -1,9 +1,11 @@
-﻿using Vexora.Application.Dtos.Customers;
+﻿using Vexora.Application.NLU.Models.Entities;
 
 namespace Vexora.Application.NLU.Abstractions.Extractions.Customers;
 
 public interface ICustomerExtractor
 {
-    IReadOnlyCollection<CustomerMention> Extract(
+    EntityType EntityType { get; }
+
+    IReadOnlyCollection<EntityResult> Extract(
         string normalizedText);
 }
