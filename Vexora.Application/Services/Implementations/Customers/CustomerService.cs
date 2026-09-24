@@ -5,46 +5,49 @@ using Vexora.Application.Services.Interfaces.Customers;
 
 namespace Vexora.Application.Services.Implementations.Customers;
 
-public sealed class CustomerService(ICustomerRepository customerRepository,ICurrentUser currentUser):ICustomerService
+public sealed class CustomerService(
+    ICustomerRepository customerRepository,
+    ICurrentUser currentUser)
+    : ICustomerService
 {
-    public async Task<CustomerResolutionResultDto> SearchByName(string name,CancellationToken cancellationToken=default)
+    public async Task<CustomerResolutionResultDto> ResolveByNameAsync(
+        string name,
+        CancellationToken cancellationToken = default)
     {
-
-        var customers = await customerRepository.SearchByNameAsync(currentUser.UserId,name,cancellationToken);
+        var customers = await customerRepository
+            .SearchByNameAsync(
+                currentUser.UserId,
+                name,
+                cancellationToken);
 
         if (customers.Count == 0)
         {
-            return new CustomerResolutionResultDto
-            (
-                CustomerResolutionStatus.NotFound,null,[]
-            );
+            return new CustomerResolutionResultDto(
+                CustomerResolutionStatus.NotFound,
+                null,
+                []);
         }
 
-        if (customers.Count == 1)
+
+        var candidates = customers
+            .Select(x => new CustomerCandidateDto(
+                x.Id,
+                $"{x.FirstName} {x.LastName}".Trim()))
+            .ToArray();
+
+
+        if (candidates.Length == 1)
         {
-            var customer = customers.First();
-
-            return new CustomerResolutionResultDto
-            (
+            return new CustomerResolutionResultDto(
                 CustomerResolutionStatus.Resolved,
-                new CustomerCandidateDto
-                (
-                    customer.Id,
-                    customer.FirstName+" "+customer.LastName
-                ), []
-            );
+                candidates[0],
+                []);
         }
-        var condidate = customers.Select(x => new CustomerCandidateDto
-                (
-                    x.Id, x.FirstName + " " + x.LastName
-                ));
-        return new CustomerResolutionResultDto
-        (
-            CustomerResolutionStatus.Ambiguous, null,
-            customers.Select(x => new CustomerCandidateDto
-                (
-                    x.Id, x.FirstName+" "+ x.LastName
-                )).ToArray()
-        );
+
+
+        return new CustomerResolutionResultDto(
+            CustomerResolutionStatus.Ambiguous,
+            null,
+            candidates);
     }
 }
