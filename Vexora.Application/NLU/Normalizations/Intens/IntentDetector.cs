@@ -9,31 +9,28 @@ public sealed class IntentDetector : IIntentDetector
     public IntentDetectionResult Detect(string normalizedText)
     {
         if (string.IsNullOrWhiteSpace(normalizedText))
-        {
             return Unknown();
-        }
 
         var candidates = new List<IntentCandidate>();
 
         foreach (var (intent, keywords) in IntentKeywords.Keywords)
         {
-            var score = CalculateScore(normalizedText, keywords);
+            var score = CalculateScore(
+                normalizedText,
+                intent,
+                keywords);
 
             if (score > 0)
             {
                 candidates.Add(
-                    new IntentCandidate
-                    (
+                    new IntentCandidate(
                         intent,
-                        score
-                    ));
+                        score));
             }
         }
 
         if (candidates.Count == 0)
-        {
             return Unknown();
-        }
 
         var ordered = candidates
             .OrderByDescending(x => x.Score)
@@ -41,49 +38,86 @@ public sealed class IntentDetector : IIntentDetector
 
         var best = ordered[0];
 
+        var secondScore =
+            ordered.Count > 1
+                ? ordered[1].Score
+                : 0;
+
         var confidence = CalculateConfidence(
             best.Score,
-            ordered.Count > 1 ? ordered[1].Score : 0);
+            secondScore);
 
-        return new IntentDetectionResult
-        (
+        return new IntentDetectionResult(
             confidence >= 0.60
                 ? best.Intent
                 : IntentType.Unknown,
             confidence,
-            ordered
-        );
+            ordered);
     }
 
     private static double CalculateScore(
         string text,
+        IntentType intent,
         IEnumerable<string> keywords)
     {
-        double score = 0;
-
-        foreach (var keyword in keywords)
-        {
-            if (text.Contains(
+        var matchedKeywords = keywords
+            .Where(keyword =>
+                text.Contains(
                     keyword,
                     StringComparison.Ordinal))
-            {
-                score += GetKeywordWeight(keyword);
-            }
+            .OrderByDescending(keyword => keyword.Length)
+            .ToList();
+
+        double score = 0;
+
+        foreach (var keyword in matchedKeywords)
+        {
+            // اگر یک keyword طولانی‌تر همین keyword را
+            // پوشش داده، دوباره امتیاز نده.
+            var isCoveredByLongerKeyword =
+                matchedKeywords.Any(longerKeyword =>
+                    longerKeyword.Length > keyword.Length &&
+                    longerKeyword.Contains(
+                        keyword,
+                        StringComparison.Ordinal));
+
+            if (isCoveredByLongerKeyword)
+                continue;
+
+            score += GetKeywordWeight(
+                intent,
+                keyword);
         }
 
         return score;
     }
 
-    private static double GetKeywordWeight(string keyword)
+    private static double GetKeywordWeight(IntentType intent, string keyword)
     {
-        return keyword.Length switch
+        // 1. اولویت اول: عبارت‌های چندکلمه‌ای
+        if (keyword.Contains(' ')) return 4.0;
+
+        // 2. اولویت دوم: تطابق Intent
+        double? specificWeight = intent switch
         {
-            >= 12 => 1.0,
-            >= 8 => 0.8,
-            >= 5 => 0.6,
-            _ => 0.4
+            IntentType.RegisterCheck when keyword == "چک" => 1.8,
+            IntentType.RegisterSale when keyword is "فروش" or "جنس" or "کالا" => 1.5,
+            IntentType.GetTodaySales when keyword == "فروش" => 1.5,
+            IntentType.RegisterPayment when keyword is "پرداخت" or "واریز" => 1.5,
+            _ => null
         };
+
+        if (specificWeight.HasValue) return specificWeight.Value;
+
+        // 3. اولویت سوم: استفاده از if-else برای جلوگیری از خطای Unreachable در Switch
+        int len = keyword.Length;
+        if (len <= 3) return 0.9;
+        if (len == 4) return 0.8;
+        if (len >= 5 && len <= 7) return 0.6;
+        return 0.8; // برای len >= 8 و موارد دیگر
     }
+
+
 
     private static double CalculateConfidence(
         double bestScore,
@@ -93,9 +127,12 @@ public sealed class IntentDetector : IIntentDetector
             return 0;
 
         if (secondScore <= 0)
-            return Math.Min(bestScore / 1.5, 1.0);
+            return Math.Min(
+                bestScore / 1.5,
+                1.0);
 
-        var difference = bestScore - secondScore;
+        var difference =
+            bestScore - secondScore;
 
         return Math.Clamp(
             difference / bestScore,
@@ -105,11 +142,9 @@ public sealed class IntentDetector : IIntentDetector
 
     private static IntentDetectionResult Unknown()
     {
-        return new IntentDetectionResult
-        (
+        return new IntentDetectionResult(
             IntentType.Unknown,
             0,
-            []
-        );
+            []);
     }
 }

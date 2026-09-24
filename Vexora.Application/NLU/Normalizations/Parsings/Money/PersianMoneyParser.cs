@@ -30,13 +30,15 @@ public sealed class MoneyParser : IMoneyParser
 
         var unit = MoneyUnit.Toman;
 
-        var numberTokens = new List<string>();
+        decimal total = 0;
+        decimal currentNumber = 0;
 
         foreach (var token in tokens)
         {
             switch (token)
             {
                 case "تومان":
+                case "تومن":
                     unit = MoneyUnit.Toman;
                     break;
 
@@ -44,33 +46,48 @@ public sealed class MoneyParser : IMoneyParser
                     unit = MoneyUnit.Rial;
                     break;
 
-                case "تومن":
-                    unit = MoneyUnit.Toman;
+                case "و":
+                    break;
+
+                case "هزار":
+                    total += currentNumber * 1_000;
+                    currentNumber = 0;
+                    break;
+
+                case "میلیون":
+                case "میلیونی":
+                    total += currentNumber * 1_000_000;
+                    currentNumber = 0;
+                    break;
+
+                case "میلیارد":
+                case "میلیاردی":
+                    total += currentNumber * 1_000_000_000;
+                    currentNumber = 0;
                     break;
 
                 default:
-                    numberTokens.Add(token);
+
+                    if (!_numberParser.TryParse(
+                            token,
+                            out var parsedNumber))
+                    {
+                        return false;
+                    }
+
+                    currentNumber += parsedNumber!.Value;
                     break;
             }
         }
 
-        if (numberTokens.Count == 0)
+        total += currentNumber;
+
+        if (total <= 0)
             return false;
 
-        var numberText = string.Join(' ', numberTokens);
-
-        if (!_numberParser.TryParse(
-                numberText,
-                out var parsedNumber))
-        {
-            return false;
-        }
-
-        result = new MoneyAmount
-        (
-            parsedNumber!.Value,
-            unit
-        );
+        result = new MoneyAmount(
+            total,
+            unit);
 
         return true;
     }
@@ -80,8 +97,26 @@ public sealed class MoneyParser : IMoneyParser
         return text
             .Trim()
             .Replace("تومن", "تومان")
-            .Replace(
-                "٬",
-                ",");
+            .Replace("٬", ",")
+            .Replace('۰', '0')
+            .Replace('۱', '1')
+            .Replace('۲', '2')
+            .Replace('۳', '3')
+            .Replace('۴', '4')
+            .Replace('۵', '5')
+            .Replace('۶', '6')
+            .Replace('۷', '7')
+            .Replace('۸', '8')
+            .Replace('۹', '9')
+            .Replace('٠', '0')
+            .Replace('١', '1')
+            .Replace('٢', '2')
+            .Replace('٣', '3')
+            .Replace('٤', '4')
+            .Replace('٥', '5')
+            .Replace('٦', '6')
+            .Replace('٧', '7')
+            .Replace('٨', '8')
+            .Replace('٩', '9');
     }
 }
