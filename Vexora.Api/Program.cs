@@ -1,5 +1,5 @@
-using Vexora.Infrastracture.Percistance.Registrations;
 using Vexora.Application.DependencyInjections;
+using Vexora.Infrastracture.Registrations;
 
 var builder = WebApplication.CreateBuilder(args);
 
