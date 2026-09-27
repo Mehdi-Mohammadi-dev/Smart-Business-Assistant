@@ -3,8 +3,6 @@
 public sealed record ChatResponseDto
 (
     string Message,
-
     bool RequiresUserInput,
-
-    IReadOnlyCollection<string> Options
+    IReadOnlyCollection<ChatOptionDto> Options
 );
