@@ -1,4 +1,4 @@
-﻿namespace Vexora.Application.Conversations.Abstracts;
+﻿namespace Vexora.Application.Conversations.Interfaces;  
 
 public interface IConversationStateStore
 {

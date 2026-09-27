@@ -1,9 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Vexora.Application.Conversations.Abstracts;
+using Vexora.Application.Conversations.Interfaces;
 using Vexora.Application.Repositories.Customers;
 using Vexora.Application.Repositories.Payments;
+using Vexora.Application.Services.Interfaces.CurrentUser;
 using Vexora.Application.UnitOfWorks;
 using Vexora.Infrastracture.Caching.Conversations;
 using Vexora.Infrastracture.Percistance.SqlServer.EfCore.Context;
@@ -25,6 +26,8 @@ public static class DependencyInjection
             options.Configuration =
                 configuration.GetConnectionString("Redis");
         });
+
+        services.AddScoped<ICurrentUser, DevelopmentCurrentUser>();
 
         services.AddScoped<ICustomerRepository, CustomerRepository>();
 

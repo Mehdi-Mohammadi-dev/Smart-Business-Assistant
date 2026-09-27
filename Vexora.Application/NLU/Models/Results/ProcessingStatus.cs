@@ -8,5 +8,6 @@ public enum ProcessingStatus
 
     NeedUserInput = 3,
 
-    Failed = 4
+    Failed = 4,
+    NeedCustomerSelection = 5
 }

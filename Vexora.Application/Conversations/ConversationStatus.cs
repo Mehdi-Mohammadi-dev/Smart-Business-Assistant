@@ -8,5 +8,7 @@ public enum ConversationStatus
 
     WaitingForCustomerCreationConfirmation = 2,
 
-    WaitingForMissingInformation = 3
+    WaitingForMissingInformation = 3,
+
+    WaitingForCustomerName = 4
 }

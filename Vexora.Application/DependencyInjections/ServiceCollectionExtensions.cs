@@ -1,4 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Vexora.Application.Conversations.Implementations;
+using Vexora.Application.Conversations.Interfaces;
 using Vexora.Application.NLU.Abstractions.Extractions;
 using Vexora.Application.NLU.Abstractions.Extractions.Customers;
 using Vexora.Application.NLU.Abstractions.Extractions.Money;
@@ -9,8 +11,10 @@ using Vexora.Application.NLU.Abstractions.Pipeline;
 using Vexora.Application.NLU.Extractions;
 using Vexora.Application.NLU.Extractions.Pipelines;
 using Vexora.Application.NLU.Normalizations.Parsing.Money;
+using Vexora.Application.Services.Implementations.Chats;
 using Vexora.Application.Services.Implementations.Customers;
 using Vexora.Application.Services.Implementations.Payments;
+using Vexora.Application.Services.Interfaces.Chats;
 using Vexora.Application.Services.Interfaces.Customers;
 using Vexora.Application.Services.Interfaces.Payments;
 using Voxora.Application.NLU.Abstractions;
@@ -39,6 +43,9 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IIntentDetector, IntentDetector>();
 
         services.AddSingleton<IMoneyExtractor, MoneyExtractor>();
+
+        services.AddScoped<IChatService, ChatService>();
+        services.AddScoped<IConversationProcessor,ConversationProcessor>();
 
         services.AddSingleton<IEntityExtractor>(
             sp => sp.GetRequiredService<IMoneyExtractor>());

@@ -1,57 +1,50 @@
-﻿using Microsoft.Extensions.Caching.Distributed;
+﻿using System.Text;
 using System.Text.Json;
+using Microsoft.Extensions.Caching.Distributed;
 using Vexora.Application.Conversations;
-using Vexora.Application.Conversations.Abstracts;
+using Vexora.Application.Conversations.Interfaces;
 
 namespace Vexora.Infrastracture.Caching.Conversations;
 
-public sealed class RedisConversationStateStore
+public sealed class RedisConversationStateStore(
+    IDistributedCache cache)
     : IConversationStateStore
 {
-    private readonly IDistributedCache _cache;
-
-    private static readonly JsonSerializerOptions JsonOptions = new()
-    {
-        PropertyNameCaseInsensitive = true
-    };
-
-    public RedisConversationStateStore(
-        IDistributedCache cache)
-    {
-        _cache = cache;
-    }
+    private const string KeyPrefix = "vexora:conversation:";
 
     public async Task<ConversationState?> GetAsync(
         string conversationId,
         CancellationToken cancellationToken = default)
     {
-        var key = GetKey(conversationId);
+        var key = BuildKey(conversationId);
 
-        var json = await _cache.GetStringAsync(
+        var value = await cache.GetAsync(
             key,
             cancellationToken);
 
-        if (string.IsNullOrWhiteSpace(json))
+        if (value is null)
             return null;
 
-        return JsonSerializer.Deserialize<ConversationState>(
-            json,
-            JsonOptions);
-    }
+        var json = Encoding.UTF8.GetString(value);
+
+        return JsonSerializer.Deserialize<ConversationState>(json);
+    }   
 
     public async Task SaveAsync(
         ConversationState state,
         CancellationToken cancellationToken = default)
     {
-        var key = GetKey(state.ConversationId);
+        ArgumentNullException.ThrowIfNull(state);
 
-        var json = JsonSerializer.Serialize(
-            state,
-            JsonOptions);
+        var key = BuildKey(state.ConversationId);
 
-        await _cache.SetStringAsync(
+        var json = JsonSerializer.Serialize(state);
+
+        var value = Encoding.UTF8.GetBytes(json);
+
+        await cache.SetAsync(
             key,
-            json,
+            value,
             new DistributedCacheEntryOptions
             {
                 AbsoluteExpirationRelativeToNow =
@@ -60,18 +53,19 @@ public sealed class RedisConversationStateStore
             cancellationToken);
     }
 
-    public Task RemoveAsync(
+    public async Task RemoveAsync(
         string conversationId,
         CancellationToken cancellationToken = default)
     {
-        return _cache.RemoveAsync(
-            GetKey(conversationId),
+        var key = BuildKey(conversationId);
+
+        await cache.RemoveAsync(
+            key,
             cancellationToken);
     }
 
-    private static string GetKey(
-        string conversationId)
+    private static string BuildKey(string conversationId)
     {
-        return $"conversation:{conversationId}";
+        return $"{KeyPrefix}{conversationId}";
     }
 }

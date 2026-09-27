@@ -9,7 +9,7 @@ public sealed record PendingAction
 
     string? CustomerName,
 
-    int? CustomerId,
+    long? CustomerId,
 
     decimal? Amount,
 
