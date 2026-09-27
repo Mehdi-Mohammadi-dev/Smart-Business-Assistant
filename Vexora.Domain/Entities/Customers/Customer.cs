@@ -20,15 +20,14 @@ public sealed class Customer:UserBaseEntity
 
     #region Functions
 
-    public static Customer Create(long userId,string  firstName, string lastName)
+    public static Customer Create(string  firstName, string lastName,long userId)
     {
         Guard.AgainstNegativeId(userId);
-
         CustomerValidations.FirstNameAndLastnameValidator(firstName, lastName);
         
         return new Customer
         {
-            UserId = userId,
+            UserId=userId,
             FirstName = firstName,
             LastName = lastName,
             CreateAt = DateTime.Now,

@@ -19,4 +19,19 @@ public class CustomerRepository(ApplicationDbContext context) : GenericRepositor
                 ))
             .ToListAsync(cancellationToken);
     }
+
+    public async Task<Customer?> GetByExactNameAsync(long userId,string firstName,string lastName,
+    CancellationToken cancellationToken = default)
+    {
+        firstName = firstName.Trim();
+        lastName = lastName.Trim();
+
+        return await context.Customers
+            .FirstOrDefaultAsync(
+                x =>
+                    x.UserId == userId &&
+                    x.FirstName == firstName &&
+                    x.LastName == lastName,
+                cancellationToken);
+    }
 }

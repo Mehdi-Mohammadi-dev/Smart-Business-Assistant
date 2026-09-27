@@ -19,5 +19,13 @@ public sealed class CustomerConfiguration : IEntityTypeConfiguration<Customer>
         builder.Property(x => x.LastName)
             .HasMaxLength(CustomerConstants.NameLength)
             .IsRequired();
+
+        builder.HasIndex(x => new
+        {
+            x.UserId,
+            x.FirstName,
+            x.LastName
+        }).IsUnique();
+
     }
 }

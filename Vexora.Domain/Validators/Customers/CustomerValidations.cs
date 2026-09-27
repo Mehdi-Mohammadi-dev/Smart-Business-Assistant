@@ -9,7 +9,7 @@ public static class CustomerValidations
         if(string.IsNullOrWhiteSpace(firstName))
             throw new CustomerExceptions.FirstNameInvalidException();
 
-        if (string.IsNullOrWhiteSpace(lastname))
-            throw new CustomerExceptions.LastNameInvalidException();
+        //if (string.IsNullOrWhiteSpace(lastname))
+        //    throw new CustomerExceptions.LastNameInvalidException();
     }
 }

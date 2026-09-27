@@ -6,12 +6,8 @@ public interface ICustomerService
 {
     Task<CustomerResolutionResultDto> ResolveByNameAsync(string name, CancellationToken cancellationToken = default);
 
-    //Task<CustomerResolutionResultDto> ResolveAsync(
-    //string name,
-    //CancellationToken cancellationToken = default);
-
-    //Task<CustomerDto> CreateAsync(
-    //    CreateCustomerDto dto,
-    //    CancellationToken cancellationToken = default);
+    Task<CustomerDto> CreateAsync(
+    CreateCustomerDto dto,
+    CancellationToken cancellationToken = default);
 }
 
