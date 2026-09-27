@@ -120,16 +120,14 @@ public sealed class IntentDetector : IIntentDetector
 
 
     private static double CalculateConfidence(
-        double bestScore,
-        double secondScore)
+    double bestScore,
+    double secondScore)
     {
         if (bestScore <= 0)
             return 0;
 
         if (secondScore <= 0)
-            return Math.Min(
-                bestScore / 1.5,
-                1.0);
+            return Math.Min(bestScore, 1.0);
 
         var difference =
             bestScore - secondScore;

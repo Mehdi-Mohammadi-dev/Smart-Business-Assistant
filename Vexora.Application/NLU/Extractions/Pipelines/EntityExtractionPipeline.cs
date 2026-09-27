@@ -37,13 +37,7 @@ public sealed class EntityExtractionPipeline
 
         foreach (var customer in _customerExtractor.Extract(normalizedText))
         {
-            entities.Add(new EntityResult(
-                EntityType.Customer,
-                customer.RawValue,
-                customer,
-                customer.Start,
-                customer.Length,
-                customer.Confidence));
+            entities.Add(customer);
         }
 
         return new EntityExtractionResult(entities);

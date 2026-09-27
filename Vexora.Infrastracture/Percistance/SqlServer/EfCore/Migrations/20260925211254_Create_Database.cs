@@ -3,10 +3,10 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace Vexora.Infrastracture.Migrations
+namespace Vexora.Infrastracture.Percistance.SqlServer.EfCore.Migrations
 {
     /// <inheritdoc />
-    public partial class Initial_Database : Migration
+    public partial class Create_Database : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -63,7 +63,7 @@ namespace Vexora.Infrastracture.Migrations
                     CustomerId = table.Column<long>(type: "bigint", nullable: false),
                     Amount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     DueDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CheckNumber = table.Column<string>(type: "nvarchar(15)", maxLength: 15, nullable: true),
+                    CheckNumber = table.Column<string>(type: "nvarchar(16)", maxLength: 16, nullable: true),
                     CreateAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
                     UpdateAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
                     IsDelete = table.Column<bool>(type: "bit", nullable: false),
