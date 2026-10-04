@@ -1,6 +1,6 @@
-﻿using Voxora.Application.NLU.Models;
+﻿using Vexora.Application.NLU.Models;
 
-namespace Voxora.Application.NLU.Abstractions;
+namespace Vexora.Application.NLU.Abstractions;
 
 public interface ITextNormalizer
 {

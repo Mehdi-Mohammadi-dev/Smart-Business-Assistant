@@ -4,7 +4,7 @@ using Vexora.Application.NLU.Abstractions.Number;
 using Vexora.Application.NLU.Models.Number;
 using Vexora.Application.NLU.Normalizations.Parsing.Number;
 
-namespace Voxora.Application.NLU.Parsing.Number;
+namespace Vexora.Application.NLU.Parsing.Number;
 
 public sealed partial class PersianNumberParser : IPersianNumberParser
 {

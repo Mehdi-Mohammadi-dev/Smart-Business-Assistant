@@ -21,13 +21,13 @@ using Vexora.Application.Services.Interfaces.Chats;
 using Vexora.Application.Services.Interfaces.Checks;
 using Vexora.Application.Services.Interfaces.Customers;
 using Vexora.Application.Services.Interfaces.Payments;
-using Voxora.Application.NLU.Abstractions;
-using Voxora.Application.NLU.Abstractions.Intents;
-using Voxora.Application.NLU.Extractions.Customers;
-using Voxora.Application.NLU.Intent;
-using Voxora.Application.NLU.Normalizations;
-using Voxora.Application.NLU.Parsing.Number;
-using Voxora.Application.NLU.Pipeline;
+using Vexora.Application.NLU.Abstractions;
+using Vexora.Application.NLU.Abstractions.Intents;
+using Vexora.Application.NLU.Extractions.Customers;
+using Vexora.Application.NLU.Intent;
+using Vexora.Application.NLU.Normalizations;
+using Vexora.Application.NLU.Parsing.Number;
+using Vexora.Application.NLU.Pipeline;
 
 namespace Vexora.Application.DependencyInjections;
 

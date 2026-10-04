@@ -2,10 +2,10 @@
 using Vexora.Application.NLU.Abstractions.Pipeline;
 using Vexora.Application.NLU.Models.Intents;
 using Vexora.Application.NLU.Models.Results;
-using Voxora.Application.NLU.Abstractions;
-using Voxora.Application.NLU.Abstractions.Intents;
+using Vexora.Application.NLU.Abstractions;
+using Vexora.Application.NLU.Abstractions.Intents;
 
-namespace Voxora.Application.NLU.Pipeline;
+namespace Vexora.Application.NLU.Pipeline;
 
 public sealed class NluPipeline : INluPipeline
 {

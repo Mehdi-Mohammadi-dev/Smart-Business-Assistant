@@ -1,9 +1,9 @@
 ﻿using FluentAssertions;
 using Vexora.Application.NLU.Models.Intents;
-using Voxora.Application.NLU.Intent;
+using Vexora.Application.NLU.Intent;
 using Xunit;
 
-namespace Voxora.Application.Tests.NLU.Intent;
+namespace Vexora.Application.Tests.NLU.Intent;
 
 public sealed class IntentDetectorTests
 {

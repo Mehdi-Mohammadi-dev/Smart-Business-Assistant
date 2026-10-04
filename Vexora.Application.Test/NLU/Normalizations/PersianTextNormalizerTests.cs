@@ -1,8 +1,8 @@
 ﻿using FluentAssertions;
-using Voxora.Application.NLU.Normalizations;
+using Vexora.Application.NLU.Normalizations;
 using Xunit;
 
-namespace Voxora.Application.Tests.NLU.Normalizations;
+namespace Vexora.Application.Tests.NLU.Normalizations;
 
 public sealed class PersianTextNormalizerTests
 {

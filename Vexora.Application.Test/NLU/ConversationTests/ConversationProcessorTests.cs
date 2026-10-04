@@ -15,7 +15,7 @@ using Vexora.Application.Services.Interfaces.Customers;
 using Vexora.Application.Services.Interfaces.Payments;
 using Xunit;
 
-namespace Voxora.Application.Test.NLU.ConversationTests;
+namespace Vexora.Application.Test.NLU.ConversationTests;
 
 public sealed class ConversationProcessorTests
 {

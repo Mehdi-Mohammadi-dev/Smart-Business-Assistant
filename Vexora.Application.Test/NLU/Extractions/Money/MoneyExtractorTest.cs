@@ -3,7 +3,7 @@ using Vexora.Application.NLU.Extractions;
 using Vexora.Application.NLU.Models.Entities;
 using Vexora.Application.NLU.Models.Money;
 using Vexora.Application.NLU.Normalizations.Parsing.Money;
-using Voxora.Application.NLU.Parsing.Number;
+using Vexora.Application.NLU.Parsing.Number;
 using Xunit;
 
 namespace Vexora.Application.Test.NLU.Extractions.Money;

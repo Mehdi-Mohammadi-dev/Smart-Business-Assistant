@@ -1,5 +1,5 @@
 ﻿using Vexora.Application.NLU.Models.Number;
-using Voxora.Application.NLU.Models;
+using Vexora.Application.NLU.Models;
 
 namespace Vexora.Application.NLU.Abstractions.Number;
 

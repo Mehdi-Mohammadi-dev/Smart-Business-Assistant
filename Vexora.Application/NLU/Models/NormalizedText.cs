@@ -1,4 +1,4 @@
-﻿namespace Voxora.Application.NLU.Models;
+﻿namespace Vexora.Application.NLU.Models;
 
 public sealed record NormalizedText
 (

@@ -1,8 +1,8 @@
 ﻿using Vexora.Application.NLU.Models.Intents;
-using Voxora.Application.NLU.Abstractions.Intents;
-using Voxora.Application.NLU.Intents;
+using Vexora.Application.NLU.Abstractions.Intents;
+using Vexora.Application.NLU.Intents;
 
-namespace Voxora.Application.NLU.Intent;
+namespace Vexora.Application.NLU.Intent;
 
 public sealed class IntentDetector : IIntentDetector
 {

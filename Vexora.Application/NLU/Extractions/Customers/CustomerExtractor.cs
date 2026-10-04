@@ -3,7 +3,7 @@ using Vexora.Application.Dtos.Customers;
 using Vexora.Application.NLU.Abstractions.Extractions.Customers;
 using Vexora.Application.NLU.Models.Entities;
 
-namespace Voxora.Application.NLU.Extractions.Customers;
+namespace Vexora.Application.NLU.Extractions.Customers;
 
 public sealed partial class CustomerExtractor : ICustomerExtractor
 {

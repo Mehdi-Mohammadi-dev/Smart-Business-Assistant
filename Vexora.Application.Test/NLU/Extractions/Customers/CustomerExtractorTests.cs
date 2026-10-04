@@ -1,7 +1,7 @@
 ﻿using FluentAssertions;
 using Vexora.Application.Dtos.Customers;
 using Vexora.Application.NLU.Models.Entities;
-using Voxora.Application.NLU.Extractions.Customers;
+using Vexora.Application.NLU.Extractions.Customers;
 using Xunit;
 
 namespace Vexora.Application.Test.NLU.Extractions.Customer;

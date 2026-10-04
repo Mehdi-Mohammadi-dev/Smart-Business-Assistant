@@ -1,10 +1,10 @@
 ﻿using FluentAssertions;
 using Vexora.Application.NLU.Models.Money;
 using Vexora.Application.NLU.Normalizations.Parsing.Money;
-using Voxora.Application.NLU.Parsing.Number;
+using Vexora.Application.NLU.Parsing.Number;
 using Xunit;
 
-namespace Voxora.Application.Tests.NLU.Entities.Money;
+namespace Vexora.Application.Tests.NLU.Entities.Money;
 
 public sealed class MoneyParserTests
 {

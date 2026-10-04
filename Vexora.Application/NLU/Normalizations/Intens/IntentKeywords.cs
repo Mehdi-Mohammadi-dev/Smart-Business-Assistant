@@ -1,6 +1,6 @@
 ﻿using Vexora.Application.NLU.Models.Intents;
 
-namespace Voxora.Application.NLU.Intents;
+namespace Vexora.Application.NLU.Intents;
 
 internal static class IntentKeywords
 {

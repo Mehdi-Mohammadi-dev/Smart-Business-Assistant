@@ -1,9 +1,9 @@
 ﻿using System.Text;
 using System.Text.RegularExpressions;
-using Voxora.Application.NLU.Abstractions;
-using Voxora.Application.NLU.Models;
+using Vexora.Application.NLU.Abstractions;
+using Vexora.Application.NLU.Models;
 
-namespace Voxora.Application.NLU.Normalizations;    
+namespace Vexora.Application.NLU.Normalizations;    
 
 public sealed partial class PersianTextNormalizer : ITextNormalizer
 {

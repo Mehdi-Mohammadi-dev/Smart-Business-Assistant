@@ -6,7 +6,7 @@ using Vexora.Application.NLU.Models.Results;
 using Vexora.Application.Services.Implementations.Chats;
 using Xunit;
 
-namespace Voxora.Application.Test.NLU.ChatServices;
+namespace Vexora.Application.Test.NLU.ChatServices;
 
 public sealed class ChatServiceTests
 {

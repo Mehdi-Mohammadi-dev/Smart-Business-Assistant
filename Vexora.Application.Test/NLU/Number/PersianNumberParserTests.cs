@@ -1,8 +1,8 @@
 ﻿using FluentAssertions;
-using Voxora.Application.NLU.Parsing.Number;
+using Vexora.Application.NLU.Parsing.Number;
 using Xunit;
 
-namespace Voxora.Application.Tests.NLU.Number;
+namespace Vexora.Application.Tests.NLU.Number;
 
 public sealed class PersianNumberParserTests
 {
