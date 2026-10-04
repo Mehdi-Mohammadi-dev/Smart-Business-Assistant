@@ -11,6 +11,18 @@ public sealed class IntentDetector : IIntentDetector
         if (string.IsNullOrWhiteSpace(normalizedText))
             return Unknown();
 
+        if (normalizedText.Contains("چک"))
+        {
+            return new IntentDetectionResult(
+                IntentType.RegisterCheck,
+                0.95,
+                [
+                    new IntentCandidate(
+                IntentType.RegisterCheck,
+                5)
+                ]);
+        }
+
         var candidates = new List<IntentCandidate>();
 
         foreach (var (intent, keywords) in IntentKeywords.Keywords)
@@ -100,7 +112,7 @@ public sealed class IntentDetector : IIntentDetector
         // 2. اولویت دوم: تطابق Intent
         double? specificWeight = intent switch
         {
-            IntentType.RegisterCheck when keyword == "چک" => 1.8,
+            IntentType.RegisterCheck when keyword == "چک" => 3.5,
             IntentType.RegisterSale when keyword is "فروش" or "جنس" or "کالا" => 1.5,
             IntentType.GetTodaySales when keyword == "فروش" => 1.5,
             IntentType.RegisterPayment when keyword is "پرداخت" or "واریز" => 1.5,

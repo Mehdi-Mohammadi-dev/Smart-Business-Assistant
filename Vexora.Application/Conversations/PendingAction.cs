@@ -15,5 +15,7 @@ public sealed record PendingAction
 
     MoneyUnit? MoneyUnit,
 
-   DateTime? Date
+    DateTime? Date,
+
+    string? CheckNumber = null
 );

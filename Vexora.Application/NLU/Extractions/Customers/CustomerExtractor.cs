@@ -111,7 +111,7 @@ public sealed partial class CustomerExtractor : ICustomerExtractor
 
 
     [GeneratedRegex(
-    @"(?:از|به|برای)\s+(?<name>[\p{L}]{2,}(?:\s+[\p{L}]{2,}){0,2})",
-    RegexOptions.Compiled)]
+     @"(?:از|به|برای)\s+(?<name>[\p{L}]{2,}(?:\s+(?!یک|دو|سه|چهار|پنج|شش|هفت|هشت|نه|ده|چک|فقره)[\p{L}]{2,}){0,2})",
+     RegexOptions.Compiled)]
     private static partial Regex CustomerRegex();
 }

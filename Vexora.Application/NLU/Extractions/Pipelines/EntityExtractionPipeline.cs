@@ -1,4 +1,5 @@
-﻿using Vexora.Application.NLU.Abstractions.Extractions;
+﻿using Vexora.Application.NLU.Abstractions.Dates;
+using Vexora.Application.NLU.Abstractions.Extractions;
 using Vexora.Application.NLU.Abstractions.Extractions.Customers;
 using Vexora.Application.NLU.Abstractions.Extractions.Money;
 using Vexora.Application.NLU.Abstractions.Extractions.Pipelines;
@@ -6,25 +7,17 @@ using Vexora.Application.NLU.Models.Entities;
 
 namespace Vexora.Application.NLU.Extractions.Pipelines;
 
-public sealed class EntityExtractionPipeline
-    : IEntityExtractionPipeline
+public sealed class EntityExtractionPipeline(
+ IMoneyExtractor moneyExtractor,
+ ICustomerExtractor customerExtractor,
+ IDateExtractor dateExtractor)
+        : IEntityExtractionPipeline
 {
-    private readonly IMoneyExtractor _moneyExtractor;
-    private readonly ICustomerExtractor _customerExtractor;
-
-    public EntityExtractionPipeline(
-        IMoneyExtractor moneyExtractor,
-        ICustomerExtractor customerExtractor)
-    {
-        _moneyExtractor = moneyExtractor;
-        _customerExtractor = customerExtractor;
-    }
-
     public EntityExtractionResult Extract(string normalizedText)
     {
         var entities = new List<EntityResult>();
 
-        foreach (var money in _moneyExtractor.Extract(normalizedText))
+        foreach (var money in moneyExtractor.Extract(normalizedText))
         {
             entities.Add(new EntityResult(
                 EntityType.Money,
@@ -35,9 +28,23 @@ public sealed class EntityExtractionPipeline
                 money.Confidence));
         }
 
-        foreach (var customer in _customerExtractor.Extract(normalizedText))
+        foreach (var customer in customerExtractor.Extract(normalizedText))
         {
             entities.Add(customer);
+        }
+
+        var date = dateExtractor.Extract(normalizedText);
+
+        if (date.HasValue)
+        {
+            entities.Add(
+                new EntityResult(
+                    EntityType.Date,
+                    date.Value.ToString("yyyy-MM-dd"),
+                    date.Value,
+                    0,
+                    0,
+                    0.90));
         }
 
         return new EntityExtractionResult(entities);

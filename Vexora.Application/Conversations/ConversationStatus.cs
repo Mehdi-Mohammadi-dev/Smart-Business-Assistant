@@ -10,5 +10,7 @@ public enum ConversationStatus
 
     WaitingForMissingInformation = 3,
 
-    WaitingForCustomerName = 4
+    WaitingForCustomerName = 4,
+
+   WaitingForCheckDate= 5
 }

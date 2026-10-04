@@ -10,6 +10,7 @@ using Vexora.Application.NLU.Models.Entities;
 using Vexora.Application.NLU.Models.Intents;
 using Vexora.Application.NLU.Models.Money;
 using Vexora.Application.NLU.Models.Results;
+using Vexora.Application.Services.Interfaces.Checks;
 using Vexora.Application.Services.Interfaces.Customers;
 using Vexora.Application.Services.Interfaces.Payments;
 using Xunit;
@@ -33,6 +34,9 @@ public sealed class ConversationProcessorTests
 
         var paymentService =
             new Mock<IPaymentService>();
+
+        var checkService =
+            new Mock<ICheckService>();
 
         var candidates = new[]
         {
@@ -65,7 +69,8 @@ public sealed class ConversationProcessorTests
                 nluPipeline.Object,
                 conversationStore.Object,
                 customerService.Object,
-                paymentService.Object);
+                paymentService.Object,
+                checkService.Object);
 
         var request = new ChatRequestDto(
             "conversation-1",
@@ -80,7 +85,7 @@ public sealed class ConversationProcessorTests
             result.Status == ProcessingStatus.Failed);
 
         Assert.Equal(
-            "لطفاً مشتری موردنظر را انتخاب کنید.",
+            "لطفاً شماره یکی از گزینه‌های زیر را وارد کنید:",
             result.Message);
 
         conversationStore.Verify(
@@ -132,6 +137,9 @@ public sealed class ConversationProcessorTests
         var nluPipeline =
             new Mock<INluPipeline>();
 
+        var checkService =
+            new Mock<ICheckService>();
+
         var state = new ConversationState
         {
             ConversationId = "conversation-1",
@@ -171,7 +179,8 @@ public sealed class ConversationProcessorTests
                 nluPipeline.Object,
                 conversationStore.Object,
                 customerService.Object,
-                paymentService.Object);
+                paymentService.Object,
+                checkService.Object);
 
         var request = new ChatRequestDto(
             "conversation-1",
@@ -221,6 +230,9 @@ public sealed class ConversationProcessorTests
         var nluPipeline =
             new Mock<INluPipeline>();
 
+        var checkService =
+              new Mock<ICheckService>();
+
         var state = new ConversationState
         {
             ConversationId = "conversation-1",
@@ -260,7 +272,8 @@ public sealed class ConversationProcessorTests
                 nluPipeline.Object,
                 conversationStore.Object,
                 customerService.Object,
-                paymentService.Object);
+                paymentService.Object,
+                checkService.Object);
 
         // Act
         var result =
@@ -307,6 +320,9 @@ public sealed class ConversationProcessorTests
         var paymentService =
             new Mock<IPaymentService>();
 
+        var checkService =
+            new Mock<ICheckService>();
+
         ConversationState? savedState = null;
 
         nluPipeline
@@ -336,7 +352,8 @@ public sealed class ConversationProcessorTests
                 nluPipeline.Object,
                 conversationStore.Object,
                 customerService.Object,
-                paymentService.Object);
+                paymentService.Object,
+                checkService.Object);
 
         // Act
         var result =

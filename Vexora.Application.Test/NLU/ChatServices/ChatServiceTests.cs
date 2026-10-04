@@ -2,7 +2,6 @@
 using Vexora.Application.Conversations.Interfaces;
 using Vexora.Application.Dtos.Chats;
 using Vexora.Application.Dtos.Customers;
-using Vexora.Application.NLU.Models.Intents;
 using Vexora.Application.NLU.Models.Results;
 using Vexora.Application.Services.Implementations.Chats;
 using Xunit;
@@ -208,9 +207,22 @@ public sealed class ChatServiceTests
 
         Assert.True(result.RequiresUserInput);
 
-        Assert.Equal(
-            ["مهدی محمدی", "مهدی احمدی"],
-            result.Options);
+        Assert.Equal(3, result.Options.Count);
+
+        Assert.Equal(1, result.Options.ElementAt(0).Number);
+        Assert.Equal("مهدی محمدی", result.Options.ElementAt(0).Label);
+        Assert.Equal(ChatOptionType.Customer, result.Options.ElementAt(0).Type);
+        Assert.Equal(1, result.Options.ElementAt(0).CustomerId);
+
+        Assert.Equal(2, result.Options.ElementAt(1).Number);
+        Assert.Equal("مهدی احمدی", result.Options.ElementAt(1).Label);
+        Assert.Equal(ChatOptionType.Customer, result.Options.ElementAt(1).Type);
+        Assert.Equal(2, result.Options.ElementAt(1).CustomerId);
+
+        Assert.Equal(3, result.Options.ElementAt(2).Number);
+        Assert.Equal("ایجاد مشتری جدید", result.Options.ElementAt(2).Label);
+        Assert.Equal(ChatOptionType.CreateCustomer, result.Options.ElementAt(2).Type);
+        Assert.Null(result.Options.ElementAt(2).CustomerId);
     }
 
     [Fact]

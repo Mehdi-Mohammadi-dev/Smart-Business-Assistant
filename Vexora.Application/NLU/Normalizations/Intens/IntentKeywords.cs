@@ -52,7 +52,9 @@ internal static class IntentKeywords
                 "فقره چک",
                 "چک گرفتم",
                 "چک دریافت کردم",
-                "چک دادم"
+                "چک دادم",
+                "یک چک",
+                "چک از"
             ],
 
             [IntentType.GetCustomerBalance] =
