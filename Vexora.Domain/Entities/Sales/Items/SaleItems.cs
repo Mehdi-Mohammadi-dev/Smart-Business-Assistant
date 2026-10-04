@@ -26,7 +26,7 @@ public sealed class SaleItem : BaseEntity
 
     internal static SaleItem Create(long saleId,string description,decimal quantity,decimal unitPrice)
     {
-        Guard.AgainstNegativeId(saleId);
+        Guard.AgainstInvalidId(saleId);
         SaleItemValidations.QuantityValidator(quantity);
         SaleItemValidations.UnitPriceValidator(unitPrice);
 

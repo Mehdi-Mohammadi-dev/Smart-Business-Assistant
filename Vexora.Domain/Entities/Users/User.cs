@@ -23,7 +23,7 @@ public class User : BaseEntity
 
     public static User Register(string firstName, string lastName, string phoneNumber, string password)
     {
-        UserValidations.FirstNameAndLastnameValidator(firstName, lastName);
+        UserValidations.ValidatName(firstName, lastName);
 
         UserValidations.PhoneNumberValidation(phoneNumber);
 
@@ -42,7 +42,7 @@ public class User : BaseEntity
 
     public void Update(string firstName, string lastName, string phoneNumber, string password)
     {
-        UserValidations.FirstNameAndLastnameValidator(firstName, lastName);
+        UserValidations.ValidatName(firstName, lastName);
 
         UserValidations.PhoneNumberValidation(phoneNumber);
 

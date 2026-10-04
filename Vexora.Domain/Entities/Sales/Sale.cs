@@ -33,8 +33,8 @@ public sealed class Sale : UserBaseEntity
 
     public static Sale Create(long userId,long customerId,DateTime saleDate)
     {
-        Guard.AgainstNegativeId(customerId);
-        Guard.AgainstNegativeId(userId);
+        Guard.AgainstInvalidId(customerId);
+        Guard.AgainstInvalidId(userId);
 
         return new Sale
         {
