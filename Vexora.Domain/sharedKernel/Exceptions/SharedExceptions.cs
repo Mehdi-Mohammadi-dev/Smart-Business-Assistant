@@ -7,6 +7,6 @@ public static class SharedExceptions
     public sealed class InvalidIdException() : Exception
         (Messages.IdInvalid);
 
-    public sealed class AmountInvaidException() : Exception
+    public sealed class AmountInvalidException() : Exception    
     (Messages.AmountInvalid);
 }

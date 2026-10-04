@@ -8,7 +8,7 @@ namespace Vexora.Domain.Validators.Users;
 
 public static class UserValidations
 {
-    public static void FirstNameAndLastnameValidator(string firstName, string lastname)
+    public static void ValidatName(string firstName, string lastname)
     {
         if (string.IsNullOrWhiteSpace(firstName))
             throw new UserExceptions.FirstNameInvalidException();

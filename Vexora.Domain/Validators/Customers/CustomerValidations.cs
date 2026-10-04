@@ -4,12 +4,9 @@ namespace Vexora.Domain.Validators.Customers;
 
 public static class CustomerValidations
 {
-    public static void FirstNameAndLastnameValidator(string firstName,string lastname)
+    public static void ValidatName(string firstName)
     { 
         if(string.IsNullOrWhiteSpace(firstName))
             throw new CustomerExceptions.FirstNameInvalidException();
-
-        //if (string.IsNullOrWhiteSpace(lastname))
-        //    throw new CustomerExceptions.LastNameInvalidException();
     }
 }
