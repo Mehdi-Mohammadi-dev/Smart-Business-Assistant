@@ -6,5 +6,7 @@ namespace Vexora.Domain.sharedKernel.Constants;
 
 public static class Messages
 {
+    public const string AmountInvalid = "amount is invalid";
+
     public const string IdInvalid = "Id is invalid";
 }

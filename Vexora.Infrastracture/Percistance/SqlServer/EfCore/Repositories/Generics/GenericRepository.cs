@@ -1,7 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using Vexora.Application.Repositories.Generics;
 using Vexora.Infrastracture.Percistance.SqlServer.EfCore.Context;
 

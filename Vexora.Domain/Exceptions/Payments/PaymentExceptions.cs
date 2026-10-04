@@ -4,6 +4,4 @@ namespace Vexora.Domain.Exceptions.Payments;
 
 public static class PaymentExceptions
 {
-    public sealed class AmountInvaidException() : Exception
-        (PaymentConstants.AmountInvalid);
 }

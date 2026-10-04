@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using static Vexora.Domain.sharedKernel.Exceptions.SharedExceptions;
+﻿using static Vexora.Domain.sharedKernel.Exceptions.SharedExceptions;
 
 namespace Vexora.Domain.sharedKernel.Validators;
 
@@ -11,5 +8,13 @@ public static class Guard
     {
         if (id == 0)
             throw new InvalidIdException();
+    }
+
+    public static void AmountValidations(decimal amount)
+    {
+        if (amount < 0)
+        {
+            throw new AmountInvaidException();
+        }
     }
 }

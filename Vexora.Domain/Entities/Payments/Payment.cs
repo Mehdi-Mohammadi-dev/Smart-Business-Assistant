@@ -34,7 +34,7 @@ public sealed class Payment :UserBaseEntity
         Guard.AgainstNegativeId(customerId);
         Guard.AgainstNegativeId(userId);
 
-        PaymentValidations.AmountValidations(amount);
+        Guard.AmountValidations(amount);
 
         return new Payment 
         {
