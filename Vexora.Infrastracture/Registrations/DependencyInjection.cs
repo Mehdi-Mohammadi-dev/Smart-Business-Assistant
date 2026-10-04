@@ -2,12 +2,14 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Vexora.Application.Conversations.Interfaces;
+using Vexora.Application.Repositories.Checks;
 using Vexora.Application.Repositories.Customers;
 using Vexora.Application.Repositories.Payments;
 using Vexora.Application.Services.Interfaces.CurrentUser;
 using Vexora.Application.UnitOfWorks;
 using Vexora.Infrastracture.Caching.Conversations;
 using Vexora.Infrastracture.Percistance.SqlServer.EfCore.Context;
+using Vexora.Infrastracture.Percistance.SqlServer.EfCore.Repositories.Checks;
 using Vexora.Infrastracture.Percistance.SqlServer.EfCore.Repositories.Customers;
 using Vexora.Infrastracture.Percistance.SqlServer.EfCore.Repositories.Payments;
 using Vexora.Infrastracture.Percistance.SqlServer.EfCore.UnitOfWorks;
@@ -28,6 +30,8 @@ public static class DependencyInjection
         });
 
         services.AddScoped<ICurrentUser, DevelopmentCurrentUser>();
+
+        services.AddScoped<ICheckRepository, CheckRepository>();
 
         services.AddScoped<ICustomerRepository, CustomerRepository>();
 

@@ -12,22 +12,20 @@ builder.Services.AddOpenApi();
 builder.Services.AddInfrastracture(builder.Configuration);
 builder.Services.AddApplication();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(
+        "Frontend",
+        policy =>
+        {
+            policy
+                .AllowAnyOrigin()
+                .AllowAnyHeader()
+                .AllowAnyMethod();
+        });
+});
+
 var app = builder.Build();
-
-using var scope = app.Services.CreateScope();
-
-var cache =
-    scope.ServiceProvider
-        .GetRequiredService<IDistributedCache>();
-
-await cache.SetStringAsync(
-    "test",
-    "hello");
-
-var value =
-    await cache.GetStringAsync("test");
-
-Console.WriteLine(value);
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -40,6 +38,8 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
+
+app.UseCors("Frontend");
 
 app.MapControllers();
 

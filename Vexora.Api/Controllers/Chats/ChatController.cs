@@ -2,11 +2,13 @@
 using Vexora.Application.Dtos.Chats;
 using Vexora.Application.Services.Interfaces.Chats;
 
-namespace Vexora.Api.Controllers;
+namespace Vexora.Api.Controllers.Chats;
 
 [ApiController]
 [Route("api/[controller]")]
-public sealed class ChatController(IChatService chatService): ControllerBase
+public sealed class ChatController(
+    IChatService chatService)
+    : ControllerBase
 {
     [HttpPost]
     public async Task<ActionResult<ChatResponseDto>> Post(
