@@ -59,7 +59,7 @@ namespace Vexora.Infrastracture.Percistance.SqlServer.EfCore.Migrations
 
                     b.HasIndex("CustomerId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserId", "CustomerId");
 
                     b.ToTable("Checks");
                 });

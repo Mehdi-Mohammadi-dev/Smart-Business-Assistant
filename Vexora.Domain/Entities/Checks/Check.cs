@@ -1,7 +1,6 @@
 ﻿using Vexora.Domain.Entities.Customers;
 using Vexora.Domain.sharedKernel.BaseEntities;
 using Vexora.Domain.sharedKernel.Validators;
-using Vexora.Domain.Validators.Payments;
 
 namespace Vexora.Domain.Entities.Checks;
 
@@ -36,7 +35,7 @@ public sealed class Check : UserBaseEntity
         Guard.AgainstNegativeId(customerId);
         Guard.AgainstNegativeId(userId);
 
-        PaymentValidations.AmountValidations(amount);
+        Guard.AmountValidations(amount);
 
         return new Check
         {

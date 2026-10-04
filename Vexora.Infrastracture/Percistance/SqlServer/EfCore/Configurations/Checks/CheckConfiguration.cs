@@ -25,6 +25,16 @@ public sealed class CheckConfiguration : IEntityTypeConfiguration<Check>
             .IsRequired(false)
             .HasMaxLength(CheckConstants.CheckNumberLength);
 
+        #region Indexes
+
+        builder.HasIndex(x => new
+        {
+            x.UserId,
+            x.CustomerId
+        });
+
+        #endregion
+
         #region Relations
 
         builder.HasOne(x => x.Customer)
