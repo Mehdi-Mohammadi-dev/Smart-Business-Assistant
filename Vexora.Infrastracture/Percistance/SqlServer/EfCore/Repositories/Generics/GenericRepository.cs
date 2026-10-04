@@ -15,10 +15,15 @@ public class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEnt
         _dbset = _db.Set<TEntity>();
     }
 
-    public async Task<TEntity?> GetByIdAsync(long id, CancellationToken cancellationToken = default)
+    public async Task<TEntity?> GetByIdAsync(long userId,long id, CancellationToken cancellationToken = default)
     {
-            return await _dbset.FindAsync(id, cancellationToken);
+        return await _dbset
+       .Where(x =>
+           EF.Property<long>(x, "UserId") == userId &&
+           EF.Property<long>(x, "Id") == id)
+       .FirstOrDefaultAsync(cancellationToken);
     }
+
     public async Task InsertAsync(TEntity entity, CancellationToken cancellationToken = default)
     {
             await _dbset.AddAsync(entity, cancellationToken);      

@@ -16,11 +16,11 @@ public sealed class PaymentService(ICustomerRepository customerRepository,ICurre
 {
     public async Task RegisterAsync(RegisterPaymentDto dto, CancellationToken cancellationToken = default)
     {
-        var customer = await customerRepository.GetByIdAsync(dto.CustomerId, cancellationToken)??
+        var customer = await customerRepository.GetByIdAsync(currentUser.UserId,dto.CustomerId, cancellationToken)??
             throw new EntityNotFoundException(nameof(Customer),dto.CustomerId);
 
         var payment = Payment.Create(currentUser.UserId, customer.Id, dto.Amount,
-            dto.PaymentDate ?? DateTime.UtcNow);
+            dto.PaymentDate ?? DateTimeOffset.UtcNow);
 
         await paymentRepository.InsertAsync(payment,cancellationToken);
         await unitOfWork.SaveAsync(cancellationToken);

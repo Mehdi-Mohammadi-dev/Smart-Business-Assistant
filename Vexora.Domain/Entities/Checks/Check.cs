@@ -1,4 +1,7 @@
 ﻿using Vexora.Domain.Entities.Customers;
+using Vexora.Domain.Enums.BankRegistrationStatuses;
+using Vexora.Domain.Enums.CheckSettlementStatuses;
+using Vexora.Domain.Enums.TransactionDirections;
 using Vexora.Domain.sharedKernel.BaseEntities;
 using Vexora.Domain.sharedKernel.Validators;
 
@@ -13,6 +16,12 @@ public sealed class Check : UserBaseEntity
     public DateTime DueDate { get; private set; }
 
     public string? CheckNumber { get; private set; }
+
+    public TransactionDirection Direction { get; private set; }
+
+    public BankRegistrationStatus BankRegistrationStatus { get; private set; }
+
+    public CheckSettlementStatus SettlementStatus { get; private set; }
 
     #region Constractor
 
@@ -30,10 +39,12 @@ public sealed class Check : UserBaseEntity
 
     #region Functions
 
-    public static Check Create(long userId,long customerId, decimal amount, DateTime dueDate, string? checkNumber = null)
+    public static Check Create(long userId,long customerId, decimal amount, DateTime dueDate, string? checkNumber = null,
+        TransactionDirection direction = TransactionDirection.Received,
+        BankRegistrationStatus bankRegistrationStatus = BankRegistrationStatus.NotRegistered)
     {
-        Guard.AgainstNegativeId(customerId);
-        Guard.AgainstNegativeId(userId);
+        Guard.AgainstInvalidId(customerId);
+        Guard.AgainstInvalidId(userId);
 
         Guard.AmountValidations(amount);
 
@@ -44,9 +55,36 @@ public sealed class Check : UserBaseEntity
             Amount = amount,
             DueDate = dueDate,
             CheckNumber = checkNumber,
+            Direction = direction,
+            BankRegistrationStatus = bankRegistrationStatus,
+            SettlementStatus = CheckSettlementStatus.Pending,
             CreateAt = DateTimeOffset.UtcNow,
             UpdateAt = DateTimeOffset.UtcNow
         };
+    }
+
+    public void MarkAsRegistered()
+    {
+        BankRegistrationStatus = BankRegistrationStatus.Registered;
+        Update();
+    }
+
+    public void MarkAsPaid()
+    {
+        if (SettlementStatus != CheckSettlementStatus.Pending)
+            throw new InvalidOperationException();
+
+        SettlementStatus = CheckSettlementStatus.Paid;
+        Update();
+    }
+
+    public void MarkAsBounced()
+    {
+        if (SettlementStatus != CheckSettlementStatus.Pending)
+            throw new InvalidOperationException();
+
+        SettlementStatus = CheckSettlementStatus.Bounced;
+        Update();
     }
 
     #endregion

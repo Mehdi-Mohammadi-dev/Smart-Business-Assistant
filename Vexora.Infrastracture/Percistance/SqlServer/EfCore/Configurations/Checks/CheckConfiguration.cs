@@ -21,6 +21,15 @@ public sealed class CheckConfiguration : IEntityTypeConfiguration<Check>
         builder.Property(x => x.DueDate)
             .IsRequired();
 
+        builder.Property(x => x.Direction)
+            .IsRequired();
+
+        builder.Property(x => x.BankRegistrationStatus)
+            .IsRequired();
+
+        builder.Property(x => x.SettlementStatus)
+            .IsRequired();
+
         builder.Property(x => x.CheckNumber)
             .IsRequired(false)
             .HasMaxLength(CheckConstants.CheckNumberLength);
