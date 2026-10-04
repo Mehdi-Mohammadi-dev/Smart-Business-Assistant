@@ -1,4 +1,6 @@
-﻿using Vexora.Application.Conversations.Interfaces;
+﻿using Vexora.Application.Constants.Messages.Conversations;
+using Vexora.Application.Conversations.Interfaces;
+using Vexora.Application.Conversations.Mappers.CustomerConversations;
 using Vexora.Application.Dtos.Chats;
 using Vexora.Application.Dtos.Checks;
 using Vexora.Application.Dtos.Customers;
@@ -58,250 +60,32 @@ public sealed class ConversationProcessor(
             NluResult nluResult,
             CancellationToken cancellationToken)
     {
-        if (nluResult.Intent == IntentType.Unknown)
+        return nluResult.Intent switch
         {
-            return new ConversationProcessingResult(
-                ProcessingStatus.Failed,
-                "متوجه درخواست شما نشدم.",
-                null);
-        }
+            IntentType.Unknown =>
+                new ConversationProcessingResult(
+                    ProcessingStatus.Failed,
+                    ConversationMessages.UnknownRequest,
+                    null),
 
-        if (nluResult.Intent == IntentType.RegisterPayment)
-        {
-            return await ProcessRegisterPaymentAsync(
-                conversationId,
-                nluResult,
-                cancellationToken);
-        }
+            IntentType.RegisterPayment =>
+                await ProcessRegisterPaymentAsync(
+                    conversationId,
+                    nluResult,
+                    cancellationToken),
 
-        if (nluResult.Intent == IntentType.RegisterCheck)
-        {
-            return await ProcessRegisterCheckAsync(
-                conversationId,
-                nluResult,
-                cancellationToken);
-        }
+            IntentType.RegisterCheck =>
+                await ProcessRegisterCheckAsync(
+                    conversationId,
+                    nluResult,
+                    cancellationToken),
 
-        return new ConversationProcessingResult(
-            ProcessingStatus.Success,
-            "درخواست شناسایی شد.",
-            nluResult);
-    }
-
-    private async Task<ConversationProcessingResult>
-    ProcessRegisterCheckAsync(
-        string conversationId,
-        NluResult nluResult,
-        CancellationToken cancellationToken)
-    {
-        var customerEntity =
-            nluResult.Entities
-                .FirstOrDefault(x =>
-                    x.Type == EntityType.Customer);
-
-        var moneyEntity =
-            nluResult.Entities
-                .FirstOrDefault(x =>
-                    x.Type == EntityType.Money);
-
-        var dateEntity =
-            nluResult.Entities
-                .FirstOrDefault(x =>
-                    x.Type == EntityType.Date);
-
-        if (customerEntity?.Value is not CustomerMention customer)
-        {
-            return new ConversationProcessingResult(
-                ProcessingStatus.Failed,
-                "لطفاً نام مشتری را مشخص کنید.",
-                null);
-        }
-
-        if (moneyEntity?.Value is not MoneyAmount money)
-        {
-            return new ConversationProcessingResult(
-                ProcessingStatus.Failed,
-                "مبلغ چک را مشخص کنید.",
-                null);
-        }
-
-        var resolution =
-            await customerService.ResolveByNameAsync(
-                customer.RawValue,
-                cancellationToken);
-
-        if (resolution.Status ==
-            CustomerResolutionStatus.Ambiguous)
-        {
-            var pendingAction = new PendingAction(
-                IntentType.RegisterCheck,
-                customer.RawValue,
-                null,
-                money.Amount,
-                money.Unit,
-                dateEntity?.Value as DateTime?);
-
-            var state = new ConversationState
-            {
-                ConversationId = conversationId,
-                Status =
-                    ConversationStatus.WaitingForCustomerSelection,
-                PendingAction = pendingAction,
-                CustomerCandidates = resolution.Candidates
-            };
-
-            await conversationStateStore.SaveAsync(
-                state,
-                cancellationToken);
-
-            return new ConversationProcessingResult(
-                ProcessingStatus.Failed,
-                "لطفاً شماره یکی از گزینه‌های زیر را وارد کنید:",
-                resolution.Candidates);
-        }
-
-        if (resolution.Status ==
-            CustomerResolutionStatus.NotFound)
-        {
-            var pendingAction = new PendingAction(
-                IntentType.RegisterCheck,
-                customer.RawValue,
-                null,
-                money.Amount,
-                money.Unit,
-                dateEntity?.Value as DateTime?);
-
-            var state = new ConversationState
-            {
-                ConversationId = conversationId,
-                Status =
-                    ConversationStatus.WaitingForCustomerCreationConfirmation,
-                PendingAction = pendingAction,
-                CustomerCandidates = []
-            };
-
-            await conversationStateStore.SaveAsync(
-                state,
-                cancellationToken);
-
-            return new ConversationProcessingResult(
-                ProcessingStatus.Failed,
-                $"مشتری «{customer.RawValue}» پیدا نشد. آیا می‌خواهید او را ثبت کنید؟",
-                null);
-        }
-
-        if (resolution.Customer is null)
-        {
-            return new ConversationProcessingResult(
-                ProcessingStatus.Failed,
-                "اطلاعات مشتری معتبر نیست.",
-                null);
-        }
-
-        if (dateEntity?.Value is not DateTime date)
-        {
-            await conversationStateStore.SaveAsync(
-                new ConversationState
-                {
-                    ConversationId = conversationId,
-                    Status =
-                        ConversationStatus.WaitingForCheckDate,
-                    PendingAction = new PendingAction(
-                        IntentType.RegisterCheck,
-                        customer.RawValue,
-                        resolution.Customer.CustomerId,
-                        money.Amount,
-                        money.Unit,
-                        null)
-                },
-                cancellationToken);
-
-            return new ConversationProcessingResult(
-                ProcessingStatus.Failed,
-                "تاریخ سررسید چک را وارد کنید.",
-                null);
-        }
-
-        await checkService.RegisterAsync(
-            new RegisterCheckDto(
-                resolution.Customer.CustomerId,
-                money.Amount,
-                date,
-                null),
-            cancellationToken);
-
-        return new ConversationProcessingResult(
-            ProcessingStatus.Success,
-            $"چک {money.Amount} برای {resolution.Customer.DisplayName} با موفقیت ثبت شد.",
-            null);
-    }
-
-    private async Task<ConversationProcessingResult>
-    HandleRegisterCheckAsync(
-        ConversationState? state,
-        NluResult nluResult,
-        CancellationToken cancellationToken)
-    {
-        var customerEntity =
-            nluResult.Entities
-                .FirstOrDefault(x =>
-                    x.Type == EntityType.Customer);
-
-
-        if (customerEntity is null)
-        {
-            return new ConversationProcessingResult(
-                ProcessingStatus.Failed,
-                "لطفاً نام مشتری را مشخص کنید.",
-                null);
-        }
-
-
-        var moneyEntity =
-            nluResult.Entities
-                .FirstOrDefault(x =>
-                    x.Type == EntityType.Money);
-
-
-        if (moneyEntity is null)
-        {
-            return new ConversationProcessingResult(
-                ProcessingStatus.Failed,
-                "مبلغ چک مشخص نشده است.",
-                null);
-        }
-
-
-        var dateEntity =
-            nluResult.Entities
-                .FirstOrDefault(x =>
-                    x.Type == EntityType.Date);
-
-
-        if (dateEntity is null)
-        {
-            return new ConversationProcessingResult(
-                ProcessingStatus.Failed,
-                "تاریخ سررسید چک را مشخص کنید.",
-                null);
-        }
-
-
-        var customerName =
-            customerEntity.RawValue;
-
-
-        return new ConversationProcessingResult(
-            ProcessingStatus.Success,
-            $"چک {moneyEntity.RawValue} برای {customerName} در تاریخ {dateEntity.RawValue} ثبت خواهد شد.",
-            new PendingAction(
-                IntentType.RegisterCheck,
-                customerName,
-                null,
-                ((MoneyAmount)moneyEntity.Value!).Amount,
-                ((MoneyAmount)moneyEntity.Value!).Unit,
-                (DateTime)dateEntity.Value!
-            ));
+            _ =>
+                new ConversationProcessingResult(
+                    ProcessingStatus.Success,
+                    ConversationMessages.RequestRecognized,
+                    nluResult)
+        };
     }
 
     private async Task<ConversationProcessingResult>
@@ -322,7 +106,7 @@ public sealed class ConversationProcessor(
         {
             return new ConversationProcessingResult(
                 ProcessingStatus.Failed,
-                "لطفاً نام مشتری را مشخص کنید.",
+                ConversationMessages.CustomerNameRequired,
                 null);
         }
 
@@ -330,7 +114,7 @@ public sealed class ConversationProcessor(
         {
             return new ConversationProcessingResult(
                 ProcessingStatus.Failed,
-                "مبلغ پرداخت را مشخص کنید.",
+                ConversationMessages.PaymentAmountRequired,
                 null);
         }
 
@@ -350,22 +134,15 @@ public sealed class ConversationProcessor(
                 money.Unit,
                 DateTime.Now);
 
-            var state = new ConversationState
-            {
-                ConversationId = conversationId,
-                Status =
-                    ConversationStatus.WaitingForCustomerSelection,
-                PendingAction = pendingAction,
-                CustomerCandidates = resolution.Candidates
-            };
-
-            await conversationStateStore.SaveAsync(
-                state,
+            await SaveCustomerSelectionStateAsync(
+                conversationId,
+                pendingAction,
+                resolution.Candidates,
                 cancellationToken);
 
             return new ConversationProcessingResult(
                 ProcessingStatus.Failed,
-                "لطفاً شماره یکی از گزینه‌های زیر را وارد کنید:",
+                ConversationMessages.CustomerSelectionRequired,
                 resolution.Candidates);
         }
 
@@ -380,22 +157,15 @@ public sealed class ConversationProcessor(
                 money.Unit,
                 DateTime.Now);
 
-            var state = new ConversationState
-            {
-                ConversationId = conversationId,
-                Status =
-                    ConversationStatus.WaitingForCustomerCreationConfirmation,
-                PendingAction = pendingAction,
-                CustomerCandidates = []
-            };
-
-            await conversationStateStore.SaveAsync(
-                state,
+            await SaveCustomerCreationConfirmationStateAsync(
+                conversationId,
+                pendingAction,
                 cancellationToken);
 
             return new ConversationProcessingResult(
                 ProcessingStatus.Failed,
-                $"مشتری «{customer.RawValue}» پیدا نشد. آیا می‌خواهید او را ثبت کنید؟",
+                ConversationMessages.CustomerNotFound(
+                    customer.RawValue),
                 null);
         }
 
@@ -403,7 +173,7 @@ public sealed class ConversationProcessor(
         {
             return new ConversationProcessingResult(
                 ProcessingStatus.Failed,
-                "اطلاعات مشتری معتبر نیست.",
+                ConversationMessages.CustomerInformationInvalid,
                 null);
         }
 
@@ -416,63 +186,191 @@ public sealed class ConversationProcessor(
 
         return new ConversationProcessingResult(
             ProcessingStatus.Success,
-            $"دریافت مبلغ {money.Amount:N0} تومان از {resolution.Customer.DisplayName} ثبت شد.",
+            ConversationMessages.PaymentRegistered(
+                money.Amount,
+                resolution.Customer.DisplayName),
             null);
     }
 
     private async Task<ConversationProcessingResult>
-    ContinueConversationAsync(
-        ConversationState state,
-        string message,
-        CancellationToken cancellationToken)
+        ProcessRegisterCheckAsync(
+            string conversationId,
+            NluResult nluResult,
+            CancellationToken cancellationToken)
     {
-        if (state.Status ==
-            ConversationStatus.WaitingForCheckDate)
+        var customerEntity =
+            nluResult.Entities.FirstOrDefault(
+                x => x.Type == EntityType.Customer);
+
+        var moneyEntity =
+            nluResult.Entities.FirstOrDefault(
+                x => x.Type == EntityType.Money);
+
+        var dateEntity =
+            nluResult.Entities.FirstOrDefault(
+                x => x.Type == EntityType.Date);
+
+        if (customerEntity?.Value is not CustomerMention customer)
         {
-            return await HandleCheckDateAsync(
-                state,
-                message,
-                cancellationToken);
+            return new ConversationProcessingResult(
+                ProcessingStatus.Failed,
+                ConversationMessages.CustomerNameRequired,
+                null);
         }
 
-        if (state.Status ==
-            ConversationStatus.WaitingForCustomerCreationConfirmation)
+        if (moneyEntity?.Value is not MoneyAmount money)
         {
-            return await HandleCustomerCreationConfirmationAsync(
-                state,
-                message,
-                cancellationToken);
+            return new ConversationProcessingResult(
+                ProcessingStatus.Failed,
+                ConversationMessages.CheckAmountRequired,
+                null);
         }
 
-        if (state.Status ==
-            ConversationStatus.WaitingForCustomerSelection)
-        {
-            return await HandleCustomerSelectionAsync(
-                state,
-                message,
+        var resolution =
+            await customerService.ResolveByNameAsync(
+                customer.RawValue,
                 cancellationToken);
+
+        if (resolution.Status ==
+            CustomerResolutionStatus.Ambiguous)
+        {
+            var pendingAction = new PendingAction(
+                IntentType.RegisterCheck,
+                customer.RawValue,
+                null,
+                money.Amount,
+                money.Unit,
+                dateEntity?.Value as DateTime?);
+
+            await SaveCustomerSelectionStateAsync(
+                conversationId,
+                pendingAction,
+                resolution.Candidates,
+                cancellationToken);
+
+            return new ConversationProcessingResult(
+                ProcessingStatus.Failed,
+                ConversationMessages.CustomerSelectionRequired,
+                resolution.Candidates);
         }
 
-        if (state.Status ==
-            ConversationStatus.WaitingForCustomerName)
+        if (resolution.Status ==
+            CustomerResolutionStatus.NotFound)
         {
-            return await HandleNewCustomerNameAsync(
-                state,
-                message,
+            var pendingAction = new PendingAction(
+                IntentType.RegisterCheck,
+                customer.RawValue,
+                null,
+                money.Amount,
+                money.Unit,
+                dateEntity?.Value as DateTime?);
+
+            await SaveCustomerCreationConfirmationStateAsync(
+                conversationId,
+                pendingAction,
                 cancellationToken);
+
+            return new ConversationProcessingResult(
+                ProcessingStatus.Failed,
+                ConversationMessages.CustomerNotFound(
+                    customer.RawValue),
+                null);
         }
+
+        if (resolution.Customer is null)
+        {
+            return new ConversationProcessingResult(
+                ProcessingStatus.Failed,
+                ConversationMessages.CustomerInformationInvalid,
+                null);
+        }
+
+        if (dateEntity?.Value is not DateTime date)
+        {
+            var pendingAction = new PendingAction(
+                IntentType.RegisterCheck,
+                resolution.Customer.DisplayName,
+                resolution.Customer.CustomerId,
+                money.Amount,
+                money.Unit,
+                null);
+
+            await conversationStateStore.SaveAsync(
+                new ConversationState
+                {
+                    ConversationId = conversationId,
+                    Status = ConversationStatus.WaitingForCheckDate,
+                    PendingAction = pendingAction
+                },
+                cancellationToken);
+
+            return new ConversationProcessingResult(
+                ProcessingStatus.Failed,
+                ConversationMessages.CheckDueDateRequired,
+                null);
+        }
+
+        await checkService.RegisterAsync(
+            new RegisterCheckDto(
+                resolution.Customer.CustomerId,
+                money.Amount,
+                date,
+                null),
+            cancellationToken);
 
         return new ConversationProcessingResult(
-            ProcessingStatus.Failed,
-            "ادامه مکالمه مشخص نیست.",
+            ProcessingStatus.Success,
+            ConversationMessages.CheckRegistered(
+                money.Amount,
+                resolution.Customer.DisplayName),
             null);
     }
 
     private async Task<ConversationProcessingResult>
-     HandleCheckDateAsync(
-         ConversationState state,
-         string message,
-         CancellationToken cancellationToken)
+        ContinueConversationAsync(
+            ConversationState state,
+            string message,
+            CancellationToken cancellationToken)
+    {
+        return state.Status switch
+        {
+            ConversationStatus.WaitingForCheckDate =>
+                await HandleCheckDateAsync(
+                    state,
+                    message,
+                    cancellationToken),
+
+            ConversationStatus.WaitingForCustomerCreationConfirmation =>
+                await HandleCustomerCreationConfirmationAsync(
+                    state,
+                    message,
+                    cancellationToken),
+
+            ConversationStatus.WaitingForCustomerSelection =>
+                await HandleCustomerSelectionAsync(
+                    state,
+                    message,
+                    cancellationToken),
+
+            ConversationStatus.WaitingForCustomerName =>
+                await HandleNewCustomerNameAsync(
+                    state,
+                    message,
+                    cancellationToken),
+
+            _ =>
+                new ConversationProcessingResult(
+                    ProcessingStatus.Failed,
+                    ConversationMessages.ConversationContinuationUnknown,
+                    null)
+        };
+    }
+
+    private async Task<ConversationProcessingResult>
+        HandleCheckDateAsync(
+            ConversationState state,
+            string message,
+            CancellationToken cancellationToken)
     {
         var date = dateExtractor.Extract(message);
 
@@ -480,7 +378,7 @@ public sealed class ConversationProcessor(
         {
             return new ConversationProcessingResult(
                 ProcessingStatus.Failed,
-                "تاریخ معتبر وارد کنید.",
+                ConversationMessages.InvalidDate,
                 null);
         }
 
@@ -496,7 +394,7 @@ public sealed class ConversationProcessor(
 
             return new ConversationProcessingResult(
                 ProcessingStatus.Failed,
-                "اطلاعات چک در مکالمه پیدا نشد.",
+                ConversationMessages.CheckInformationNotFound,
                 null);
         }
 
@@ -505,7 +403,7 @@ public sealed class ConversationProcessor(
                 action.CustomerId.Value,
                 action.Amount.Value,
                 date.Value,
-                null),
+                action.CheckNumber),
             cancellationToken);
 
         await conversationStateStore.RemoveAsync(
@@ -514,81 +412,80 @@ public sealed class ConversationProcessor(
 
         return new ConversationProcessingResult(
             ProcessingStatus.Success,
-            "چک با موفقیت ثبت شد.",
+            ConversationMessages.CheckRegistered(
+                action.Amount.Value,
+                action.CustomerName ?? string.Empty),
             null);
     }
 
     private async Task<ConversationProcessingResult>
-    HandleNewCustomerNameAsync(
-        ConversationState state,
-        string message,
-        CancellationToken cancellationToken)
+        HandleNewCustomerNameAsync(
+            ConversationState state,
+            string message,
+            CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(message))
         {
             return new ConversationProcessingResult(
                 ProcessingStatus.Failed,
-                "لطفاً نام مشتری را وارد کنید.",
+                ConversationMessages.CustomerNameRequired,
                 null);
         }
 
-        var createCustomerDto =
-            BuildCreateCustomerDto(message);
+        var pendingAction = state.PendingAction;
+
+        if (pendingAction is null)
+        {
+            await conversationStateStore.RemoveAsync(
+                state.ConversationId,
+                cancellationToken);
+
+            return new ConversationProcessingResult(
+                ProcessingStatus.Failed,
+                ConversationMessages.PreviousActionNotFound,
+                null);
+        }
+
+        var customerDto =
+            CustomerConversationMapper.ToCreateCustomerDto(
+                message);
 
         var customer =
             await customerService.CreateAsync(
-                createCustomerDto,
+                customerDto,
                 cancellationToken);
 
-        var pendingAction = state.PendingAction;
+        var customerDisplayName =
+            BuildDisplayName(
+                customer.FirstName,
+                customer.LastName);
 
-        if (pendingAction is not null &&
-            pendingAction.Intent == IntentType.RegisterPayment)
-        {
-            if (!pendingAction.Amount.HasValue)
+        var updatedPendingAction =
+            pendingAction with
             {
-                await conversationStateStore.RemoveAsync(
-                    state.ConversationId,
-                    cancellationToken);
+                CustomerId = customer.CustomerId,
+                CustomerName = customerDisplayName
+            };
 
-                return new ConversationProcessingResult(
-                    ProcessingStatus.Failed,
-                    "مبلغ پرداخت در مکالمه پیدا نشد.",
-                    null);
-            }
-
-            await paymentService.RegisterAsync(
-                new RegisterPaymentDto(
-                    customer.CustomerId,
-                    pendingAction.Amount.Value,
-                    pendingAction.Date),
-                cancellationToken);
-        }
-
-        var displayName =
-            $"{customer.FirstName} {customer.LastName}".Trim();
-
-        await conversationStateStore.RemoveAsync(
-            state.ConversationId,
+        return await CompletePendingActionAsync(
+            state,
+            updatedPendingAction,
             cancellationToken);
-
-        return new ConversationProcessingResult(
-            ProcessingStatus.Success,
-            $"مشتری «{displayName}» ثبت شد و عملیات با موفقیت انجام شد.",
-            null);
     }
 
     private async Task<ConversationProcessingResult>
-     HandleCustomerSelectionAsync(
-         ConversationState state,
-         string message,
-         CancellationToken cancellationToken)
+        HandleCustomerSelectionAsync(
+            ConversationState state,
+            string message,
+            CancellationToken cancellationToken)
     {
-        if (!int.TryParse(message.Trim(), out var selection))
+        if (!int.TryParse(
+                message.Trim(),
+                out var selection))
         {
             return new ConversationProcessingResult(
                 ProcessingStatus.Failed,
-                "لطفاً شماره یکی از گزینه‌های زیر را وارد کنید.",
+                ConversationMessages.CustomerSelectionRequired,
                 state.CustomerCandidates);
         }
 
@@ -609,7 +506,7 @@ public sealed class ConversationProcessor(
 
             return new ConversationProcessingResult(
                 ProcessingStatus.Failed,
-                "لطفاً نام و در صورت تمایل نام خانوادگی مشتری جدید را وارد کنید.",
+                ConversationMessages.CustomerNameEnter,
                 null);
         }
 
@@ -618,7 +515,7 @@ public sealed class ConversationProcessor(
         {
             return new ConversationProcessingResult(
                 ProcessingStatus.Failed,
-                "شماره واردشده معتبر نیست. لطفاً شماره یکی از گزینه‌ها را وارد کنید.",
+                ConversationMessages.InvalidCustomerSelection,
                 candidates);
         }
 
@@ -636,114 +533,34 @@ public sealed class ConversationProcessor(
 
             return new ConversationProcessingResult(
                 ProcessingStatus.Failed,
-                "اطلاعات عملیات قبلی پیدا نشد.",
+                ConversationMessages.PreviousActionNotFound,
                 null);
         }
 
-        if (pendingAction.Intent ==
-            IntentType.RegisterPayment)
-        {
-            if (!pendingAction.Amount.HasValue)
+        var updatedPendingAction =
+            pendingAction with
             {
-                await conversationStateStore.RemoveAsync(
-                    state.ConversationId,
-                    cancellationToken);
+                CustomerId = selectedCustomer.CustomerId,
+                CustomerName = selectedCustomer.DisplayName
+            };
 
-                return new ConversationProcessingResult(
-                    ProcessingStatus.Failed,
-                    "مبلغ پرداخت در مکالمه پیدا نشد.",
-                    null);
-            }
-
-            await paymentService.RegisterAsync(
-                new RegisterPaymentDto(
-                    selectedCustomer.CustomerId,
-                    pendingAction.Amount.Value,
-                    pendingAction.Date),
-                cancellationToken);
-
-            await conversationStateStore.RemoveAsync(
-                state.ConversationId,
-                cancellationToken);
-
-            return new ConversationProcessingResult(
-                ProcessingStatus.Success,
-                $"دریافت مبلغ {pendingAction.Amount.Value:N0} تومان از {selectedCustomer.DisplayName} ثبت شد.",
-                null);
-        }
-
-        if (pendingAction.Intent ==
-            IntentType.RegisterCheck)
-        {
-            if (!pendingAction.Amount.HasValue)
-            {
-                await conversationStateStore.RemoveAsync(
-                    state.ConversationId,
-                    cancellationToken);
-
-                return new ConversationProcessingResult(
-                    ProcessingStatus.Failed,
-                    "مبلغ چک در مکالمه پیدا نشد.",
-                    null);
-            }
-
-            if (!pendingAction.Date.HasValue)
-            {
-                state.PendingAction =
-                    pendingAction with
-                    {
-                        CustomerId =
-                            selectedCustomer.CustomerId
-                    };
-
-                state.Status =
-                    ConversationStatus.WaitingForCheckDate;
-
-                await conversationStateStore.SaveAsync(
-                    state,
-                    cancellationToken);
-
-                return new ConversationProcessingResult(
-                    ProcessingStatus.Failed,
-                    "تاریخ سررسید چک را وارد کنید.",
-                    null);
-            }
-
-            await checkService.RegisterAsync(
-                new RegisterCheckDto(
-                    selectedCustomer.CustomerId,
-                    pendingAction.Amount.Value,
-                    pendingAction.Date.Value,
-                    null),
-                cancellationToken);
-
-            await conversationStateStore.RemoveAsync(
-                state.ConversationId,
-                cancellationToken);
-
-            return new ConversationProcessingResult(
-                ProcessingStatus.Success,
-                $"چک {pendingAction.Amount.Value:N0} تومانی برای «{selectedCustomer.DisplayName}» با موفقیت ثبت شد.",
-                null);
-        }
-
-        return new ConversationProcessingResult(
-            ProcessingStatus.Failed,
-            "نوع درخواست قبلی پشتیبانی نمی‌شود.",
-            null);
+        return await CompletePendingActionAsync(
+            state,
+            updatedPendingAction,
+            cancellationToken);
     }
 
     private async Task<ConversationProcessingResult>
-    HandleCustomerCreationConfirmationAsync(
-        ConversationState state,
-        string message,
-        CancellationToken cancellationToken)
+        HandleCustomerCreationConfirmationAsync(
+            ConversationState state,
+            string message,
+            CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(message))
         {
             return new ConversationProcessingResult(
                 ProcessingStatus.Failed,
-                "لطفاً پاسخ دهید که آیا مشتری ثبت شود یا خیر.",
+                ConversationMessages.CustomerCreationResponseRequired,
                 null);
         }
 
@@ -762,14 +579,217 @@ public sealed class ConversationProcessor(
 
             return new ConversationProcessingResult(
                 ProcessingStatus.Success,
-                "ثبت مشتری لغو شد.",
+                ConversationMessages.CustomerCreationCancelled,
                 null);
         }
 
         return new ConversationProcessingResult(
             ProcessingStatus.Failed,
-            "لطفاً با «بله» یا «خیر» پاسخ دهید.",
+            ConversationMessages.YesOrNoRequired,
             null);
+    }
+
+    private async Task<ConversationProcessingResult>
+        CreateCustomerAndCompleteActionAsync(
+            ConversationState state,
+            CancellationToken cancellationToken)
+    {
+        var pendingAction = state.PendingAction;
+
+        if (pendingAction is null ||
+            string.IsNullOrWhiteSpace(
+                pendingAction.CustomerName))
+        {
+            await conversationStateStore.RemoveAsync(
+                state.ConversationId,
+                cancellationToken);
+
+            return new ConversationProcessingResult(
+                ProcessingStatus.Failed,
+                ConversationMessages.CustomerInformationNotFound,
+                null);
+        }
+
+        var createCustomerDto =
+            CustomerConversationMapper.ToCreateCustomerDto(
+                pendingAction.CustomerName);
+
+        var customer =
+            await customerService.CreateAsync(
+                createCustomerDto,
+                cancellationToken);
+
+        var customerDisplayName =
+            BuildDisplayName(
+                customer.FirstName,
+                customer.LastName);
+
+        var updatedPendingAction =
+            pendingAction with
+            {
+                CustomerId = customer.CustomerId,
+                CustomerName = customerDisplayName
+            };
+
+        return await CompletePendingActionAsync(
+            state,
+            updatedPendingAction,
+            cancellationToken);
+    }
+
+    private async Task<ConversationProcessingResult>
+        CompletePendingActionAsync(
+            ConversationState state,
+            PendingAction pendingAction,
+            CancellationToken cancellationToken)
+    {
+        if (pendingAction.Intent == IntentType.RegisterPayment)
+        {
+            if (!pendingAction.Amount.HasValue)
+            {
+                await conversationStateStore.RemoveAsync(
+                    state.ConversationId,
+                    cancellationToken);
+
+                return new ConversationProcessingResult(
+                    ProcessingStatus.Failed,
+                    ConversationMessages.PaymentAmountNotFound,
+                    null);
+            }
+
+            await paymentService.RegisterAsync(
+                new RegisterPaymentDto(
+                    pendingAction.CustomerId!.Value,
+                    pendingAction.Amount.Value,
+                    pendingAction.Date),
+                cancellationToken);
+
+            await conversationStateStore.RemoveAsync(
+                state.ConversationId,
+                cancellationToken);
+
+            return new ConversationProcessingResult(
+                ProcessingStatus.Success,
+                ConversationMessages.PaymentRegistered(
+                    pendingAction.Amount.Value,
+                    pendingAction.CustomerName ?? string.Empty),
+                null);
+        }
+
+        if (pendingAction.Intent == IntentType.RegisterCheck)
+        {
+            if (!pendingAction.Amount.HasValue)
+            {
+                await conversationStateStore.RemoveAsync(
+                    state.ConversationId,
+                    cancellationToken);
+
+                return new ConversationProcessingResult(
+                    ProcessingStatus.Failed,
+                    ConversationMessages.CheckAmountNotFound,
+                    null);
+            }
+
+            if (!pendingAction.CustomerId.HasValue)
+            {
+                await conversationStateStore.RemoveAsync(
+                    state.ConversationId,
+                    cancellationToken);
+
+                return new ConversationProcessingResult(
+                    ProcessingStatus.Failed,
+                    ConversationMessages.CustomerInformationNotFound,
+                    null);
+            }
+
+            if (!pendingAction.Date.HasValue)
+            {
+                state.PendingAction =
+                    pendingAction;
+
+                state.Status =
+                    ConversationStatus.WaitingForCheckDate;
+
+                await conversationStateStore.SaveAsync(
+                    state,
+                    cancellationToken);
+
+                return new ConversationProcessingResult(
+                    ProcessingStatus.Failed,
+                    ConversationMessages.CheckDueDateRequired,
+                    null);
+            }
+
+            await checkService.RegisterAsync(
+                new RegisterCheckDto(
+                    pendingAction.CustomerId.Value,
+                    pendingAction.Amount.Value,
+                    pendingAction.Date.Value,
+                    pendingAction.CheckNumber),
+                cancellationToken);
+
+            await conversationStateStore.RemoveAsync(
+                state.ConversationId,
+                cancellationToken);
+
+            return new ConversationProcessingResult(
+                ProcessingStatus.Success,
+                ConversationMessages.CheckRegistered(
+                    pendingAction.Amount.Value,
+                    pendingAction.CustomerName ?? string.Empty),
+                null);
+        }
+
+        await conversationStateStore.RemoveAsync(
+            state.ConversationId,
+            cancellationToken);
+
+        return new ConversationProcessingResult(
+            ProcessingStatus.Failed,
+            ConversationMessages.UnsupportedPendingAction,
+            null);
+    }
+
+    private async Task SaveCustomerSelectionStateAsync(
+        string conversationId,
+        PendingAction pendingAction,
+        IReadOnlyCollection<CustomerCandidateDto> candidates,
+        CancellationToken cancellationToken)
+    {
+        await conversationStateStore.SaveAsync(
+            new ConversationState
+            {
+                ConversationId = conversationId,
+                Status =
+                    ConversationStatus.WaitingForCustomerSelection,
+                PendingAction = pendingAction,
+                CustomerCandidates = candidates
+            },
+            cancellationToken);
+    }
+
+    private async Task SaveCustomerCreationConfirmationStateAsync(
+        string conversationId,
+        PendingAction pendingAction,
+        CancellationToken cancellationToken)
+    {
+        await conversationStateStore.SaveAsync(
+            new ConversationState
+            {
+                ConversationId = conversationId,
+                Status =
+                    ConversationStatus.WaitingForCustomerCreationConfirmation,
+                PendingAction = pendingAction,
+                CustomerCandidates = []
+            },
+            cancellationToken);
+    }
+
+    private static string BuildDisplayName(
+        string firstName,
+        string? lastName)
+    {
+        return $"{firstName} {lastName}".Trim();
     }
 
     private static bool IsYes(string message)
@@ -800,140 +820,5 @@ public sealed class ConversationProcessor(
             "بیخیال" or
             "بی‌خیال" or
             "no";
-    }
-
-    private async Task<ConversationProcessingResult>
-        CreateCustomerAndCompleteActionAsync(
-            ConversationState state,
-            CancellationToken cancellationToken)
-    {
-        var pendingAction = state.PendingAction;
-
-        if (pendingAction is null ||
-            string.IsNullOrWhiteSpace(pendingAction.CustomerName))
-        {
-            await conversationStateStore.RemoveAsync(
-                state.ConversationId,
-                cancellationToken);
-
-            return new ConversationProcessingResult(
-                ProcessingStatus.Failed,
-                "اطلاعات مشتری در مکالمه پیدا نشد.",
-                null);
-        }
-
-        var createCustomerDto =
-            BuildCreateCustomerDto(
-                pendingAction.CustomerName);
-
-        var customer =
-            await customerService.CreateAsync(
-                createCustomerDto,
-                cancellationToken);
-
-        if (pendingAction.Intent == IntentType.RegisterPayment)
-        {
-            if (!pendingAction.Amount.HasValue)
-            {
-                await conversationStateStore.RemoveAsync(
-                    state.ConversationId,
-                    cancellationToken);
-
-                return new ConversationProcessingResult(
-                    ProcessingStatus.Failed,
-                    "مبلغ پرداخت در مکالمه پیدا نشد.",
-                    null);
-            }
-
-            await paymentService.RegisterAsync(
-                new RegisterPaymentDto(
-                    customer.CustomerId,
-                    pendingAction.Amount.Value,
-                    pendingAction.Date),
-                cancellationToken);
-        }
-        else if (pendingAction.Intent ==
-         IntentType.RegisterCheck)
-        {
-            if (!pendingAction.Amount.HasValue)
-            {
-                await conversationStateStore.RemoveAsync(
-                    state.ConversationId,
-                    cancellationToken);
-
-                return new ConversationProcessingResult(
-                    ProcessingStatus.Failed,
-                    "مبلغ چک در مکالمه پیدا نشد.",
-                    null);
-            }
-
-            if (!pendingAction.Date.HasValue)
-            {
-                state.PendingAction =
-                    pendingAction with
-                    {
-                        CustomerId = customer.CustomerId
-                    };
-
-                state.Status =
-                    ConversationStatus.WaitingForCheckDate;
-
-                await conversationStateStore.SaveAsync(
-                    state,
-                    cancellationToken);
-
-                return new ConversationProcessingResult(
-                    ProcessingStatus.Failed,
-                    "تاریخ سررسید چک را وارد کنید.",
-                    null);
-            }
-
-            await checkService.RegisterAsync(
-                new RegisterCheckDto(
-                    customer.CustomerId,
-                    pendingAction.Amount.Value,
-                    pendingAction.Date.Value,
-                    null),
-                cancellationToken);
-        }
-
-        await conversationStateStore.RemoveAsync(
-            state.ConversationId,
-            cancellationToken);
-
-        var message =
-     pendingAction.Intent == IntentType.RegisterCheck
-         ? $"مشتری «{pendingAction.CustomerName}» ثبت شد و چک با موفقیت ثبت شد."
-         : $"مشتری «{pendingAction.CustomerName}» ثبت شد و پرداخت با موفقیت ثبت شد.";
-
-        return new ConversationProcessingResult(
-            ProcessingStatus.Success,
-            message,
-            null);
-    }
-
-    private static CreateCustomerDto BuildCreateCustomerDto(
-    string customerName)
-    {
-        var parts = customerName
-            .Trim()
-            .Split(
-                ' ',
-                StringSplitOptions.RemoveEmptyEntries);
-
-        return parts.Length switch
-        {
-            0 => throw new ArgumentException(
-                "نام مشتری نمی‌تواند خالی باشد.",
-                nameof(customerName)),
-
-            1 => new CreateCustomerDto(
-                parts[0],
-                string.Empty),
-
-            _ => new CreateCustomerDto(
-                parts[0],
-                string.Join(' ', parts.Skip(1)))
-        };
     }
 }
