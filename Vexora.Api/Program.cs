@@ -1,4 +1,7 @@
-using Microsoft.Extensions.Caching.Distributed;
+using FluentValidation;
+using Vexora.Api.Commons.Filters;
+using Vexora.Api.Commons.Middelwares;
+using Vexora.Api.Validators.Chats;
 using Vexora.Application.DependencyInjections;
 using Vexora.Infrastracture.Registrations;
 
@@ -11,6 +14,18 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddOpenApi();
 builder.Services.AddInfrastracture(builder.Configuration);
 builder.Services.AddApplication();
+
+builder.Services.AddValidatorsFromAssemblyContaining<
+    ChatRequestValidator>();
+builder.Services
+    .AddControllers(options =>
+    {
+        options.Filters.Add<ValidationFilter>();
+    })
+    .ConfigureApiBehaviorOptions(options =>
+    {
+        options.SuppressModelStateInvalidFilter = true;
+    });
 
 builder.Services.AddCors(options =>
 {
@@ -27,7 +42,8 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
+
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
@@ -37,9 +53,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseAuthorization();
-
 app.UseCors("Frontend");
+
+app.UseAuthorization();
 
 app.MapControllers();
 

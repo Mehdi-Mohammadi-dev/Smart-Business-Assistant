@@ -16,18 +16,23 @@ public sealed partial class MoneyExtractor : IMoneyExtractor
 
     public EntityType EntityType => EntityType.Money;
 
-    public IReadOnlyCollection<EntityResult> Extract(string normalizedText)
+    public IReadOnlyCollection<EntityResult> Extract(
+        string normalizedText)
     {
         if (string.IsNullOrWhiteSpace(normalizedText))
             return [];
 
         var results = new List<EntityResult>();
 
-        ExtractExplicitMoney(normalizedText, results);
+        ExtractExplicitMoney(
+            normalizedText,
+            results);
 
         if (results.Count == 0)
         {
-            ExtractStandaloneNumber(normalizedText, results);
+            ExtractStandaloneNumber(
+                normalizedText,
+                results);
         }
 
         return results;
@@ -49,15 +54,13 @@ public sealed partial class MoneyExtractor : IMoneyExtractor
             }
 
             results.Add(
-                new EntityResult
-                (
-                     EntityType.Money,
-                     rawValue,
-                     money,
-                     match.Index,
-                     match.Length,
-                     0.98
-                ));
+                new EntityResult(
+                    EntityType.Money,
+                    rawValue,
+                    money,
+                    match.Index,
+                    match.Length,
+                    0.98));
         }
     }
 
@@ -77,22 +80,19 @@ public sealed partial class MoneyExtractor : IMoneyExtractor
             }
 
             results.Add(
-                new EntityResult
-                (
+                new EntityResult(
                     EntityType.Money,
                     rawValue,
                     money,
                     match.Index,
                     match.Length,
-                    0.75
-                ));
+                    0.75));
         }
     }
 
-
     [GeneratedRegex(
-     @"(?:(?:[0-9۰-۹][0-9۰-۹,]*)|(?:یک|دو|سه|چهار|پنج|شش|شیش|هفت|هشت|نه|ده|یازده|دوازده|سیزده|چهارده|پانزده|شانزده|هفده|هجده|نوزده|بیست|سی|چهل|پنجاه|شصت|هفتاد|هشتاد|نود|صد|دویست|سیصد|چهارصد|پانصد|ششصد|هفتصد|هشتصد|نهصد)(?:\s+(?:و\s+)?(?:یک|دو|سه|چهار|پنج|شش|شیش|هفت|هشت|نه|ده|بیست|سی|چهل|پنجاه|صد|هزار|میلیون|میلیارد|نیم))*)(?:\s+(?:هزار|میلیون|میلیونی|میلیارد|میلیاردی))?(?:\s+(?:تومان|تومن|ریال))",
-     RegexOptions.Compiled)]
+        @"(?:(?:[0-9۰-۹][0-9۰-۹,]*)|(?:یک|دو|سه|چهار|پنج|شش|شیش|هفت|هشت|نه|ده|یازده|دوازده|سیزده|چهارده|پانزده|شانزده|هفده|هجده|نوزده|بیست|سی|چهل|پنجاه|شصت|هفتاد|هشتاد|نود|صد|دویست|سیصد|چهارصد|پانصد|ششصد|هفتصد|هشتصد|نهصد)(?:\s+(?:و\s+)?(?:یک|دو|سه|چهار|پنج|شش|شیش|هفت|هشت|نه|ده|بیست|سی|چهل|پنجاه|صد|هزار|میلیون|میلیارد|نیم))*)(?:\s+(?:هزار|میلیون|میلیونی|میلیارد|میلیاردی))?(?:\s+(?:تومان|تومن|تومنی|تومانی|ریال|ریالی))",
+        RegexOptions.Compiled)]
     private static partial Regex ExplicitMoneyRegex();
 
     [GeneratedRegex(

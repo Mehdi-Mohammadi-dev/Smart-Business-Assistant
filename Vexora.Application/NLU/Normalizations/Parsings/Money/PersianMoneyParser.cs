@@ -39,10 +39,13 @@ public sealed class MoneyParser : IMoneyParser
             {
                 case "تومان":
                 case "تومن":
+                case "تومنی":
+                case "تومانی":
                     unit = MoneyUnit.Toman;
                     break;
 
                 case "ریال":
+                case "ریالی":
                     unit = MoneyUnit.Rial;
                     break;
 
@@ -67,7 +70,6 @@ public sealed class MoneyParser : IMoneyParser
                     break;
 
                 default:
-
                     if (!_numberParser.TryParse(
                             token,
                             out var parsedNumber))
@@ -97,6 +99,9 @@ public sealed class MoneyParser : IMoneyParser
         return text
             .Trim()
             .Replace("تومن", "تومان")
+            .Replace("تومنی", "تومان")
+            .Replace("تومانی", "تومان")
+            .Replace("ریالی", "ریال")
             .Replace("٬", ",")
             .Replace('۰', '0')
             .Replace('۱', '1')

@@ -1,4 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Vexora.Api.Commons.Results;
+using Vexora.Api.Contracts.Chats;
+using Vexora.Api.Mappers.Chats;
 using Vexora.Application.Dtos.Chats;
 using Vexora.Application.Services.Interfaces.Chats;
 
@@ -11,7 +14,7 @@ public sealed class ChatController(
     : ControllerBase
 {
     [HttpPost]
-    public async Task<ActionResult<ChatResponseDto>> Post(
+    public async Task<ApiResult<ChatResponse>> Post(
         [FromBody] ChatRequestDto request,
         CancellationToken cancellationToken)
     {
@@ -20,6 +23,7 @@ public sealed class ChatController(
                 request,
                 cancellationToken);
 
-        return Ok(response);
+        return ApiResult<ChatResponse>.SuccessResult(
+            response.ChatResponseDtoMapToContract());
     }
 }

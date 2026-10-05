@@ -8,21 +8,22 @@ namespace Vexora.Application.NLU.Extractions.Customers;
 public sealed partial class CustomerExtractor : ICustomerExtractor
 {
     private static readonly HashSet<string> IgnoredNames =
-[
-    "امروز",
-    "دیروز",
-    "فردا",
-    "الان",
-    "صبح",
-    "شب",
-    "امروز صبح",
-    "امشب"
-];
+    [
+        "امروز",
+        "دیروز",
+        "فردا",
+        "پس فردا",
+        "الان",
+        "صبح",
+        "شب",
+        "امروز صبح",
+        "امشب"
+    ];
 
     public EntityType EntityType => EntityType.Customer;
 
     public IReadOnlyCollection<EntityResult> Extract(
-    string normalizedText)
+        string normalizedText)
     {
         if (string.IsNullOrWhiteSpace(normalizedText))
             return [];
@@ -44,8 +45,8 @@ public sealed partial class CustomerExtractor : ICustomerExtractor
     }
 
     private static void ExtractWithPreposition(
-    string text,
-    List<EntityResult> results)
+        string text,
+        List<EntityResult> results)
     {
         foreach (Match match in CustomerRegex().Matches(text))
         {
@@ -54,6 +55,9 @@ public sealed partial class CustomerExtractor : ICustomerExtractor
                 .Trim();
 
             if (string.IsNullOrWhiteSpace(name))
+                continue;
+
+            if (IgnoredNames.Contains(name))
                 continue;
 
             results.Add(
@@ -72,8 +76,8 @@ public sealed partial class CustomerExtractor : ICustomerExtractor
     }
 
     private static void ExtractBeforeMoney(
-    string text,
-    List<EntityResult> results)
+        string text,
+        List<EntityResult> results)
     {
         var match = CustomerBeforeMoneyRegex()
             .Match(text);
@@ -85,10 +89,11 @@ public sealed partial class CustomerExtractor : ICustomerExtractor
             .Value
             .Trim();
 
+        if (string.IsNullOrWhiteSpace(name))
+            return;
 
         if (IgnoredNames.Contains(name))
             return;
-
 
         results.Add(
             new EntityResult(
@@ -105,13 +110,26 @@ public sealed partial class CustomerExtractor : ICustomerExtractor
     }
 
     [GeneratedRegex(
-        @"^(?<name>[\p{L}]{2,}(?:\s+[\p{L}]{2,}){0,2})\s+(?=[0-9۰-۹]+.*?(تومان|تومن|ریال)|(یک|دو|سه|چهار|پنج|شش|هفت|هشت|نه|ده).*?(تومان|تومن|ریال))",
+        @"^(?<name>[\p{L}]{2,}(?:\s+[\p{L}]{2,}){0,2})\s+(?=[0-9۰-۹]+.*?(تومان|تومن|تومنی|تومانی|ریال|ریالی)|(یک|دو|سه|چهار|پنج|شش|هفت|هشت|نه|ده).*?(تومان|تومن|تومنی|تومانی|ریال|ریالی))",
         RegexOptions.Compiled)]
     private static partial Regex CustomerBeforeMoneyRegex();
 
-
     [GeneratedRegex(
-     @"(?:از|به|برای)\s+(?<name>[\p{L}]{2,}(?:\s+(?!یک|دو|سه|چهار|پنج|شش|هفت|هشت|نه|ده|چک|فقره)[\p{L}]{2,}){0,2})",
-     RegexOptions.Compiled)]
+        @"(?:از|به|برای)\s+(?<name>
+            [\p{L}]{2,}
+            (?:
+                \s+
+                (?!یک|دو|سه|چهار|پنج|شش|هفت|هشت|نه|ده|چک|فقره|
+                   گرفتم|گرفت|گرفتی|
+                   دادم|داد|دادی|
+                   پرداخت|پرداختم|
+                   واریز|واریز کردم|
+                   دریافت|دریافت کردم|
+                   فروختم|فروخت|فروش|
+                   کردم|کرد)
+                [\p{L}]{2,}
+            ){0,2}
+        )",
+        RegexOptions.IgnorePatternWhitespace | RegexOptions.Compiled)]
     private static partial Regex CustomerRegex();
 }

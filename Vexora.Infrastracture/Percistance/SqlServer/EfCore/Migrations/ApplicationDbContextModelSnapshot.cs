@@ -33,6 +33,9 @@ namespace Vexora.Infrastracture.Percistance.SqlServer.EfCore.Migrations
                     b.Property<decimal>("Amount")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<byte>("BankRegistrationStatus")
+                        .HasColumnType("tinyint");
+
                     b.Property<string>("CheckNumber")
                         .HasMaxLength(16)
                         .HasColumnType("nvarchar(16)");
@@ -43,11 +46,17 @@ namespace Vexora.Infrastracture.Percistance.SqlServer.EfCore.Migrations
                     b.Property<long>("CustomerId")
                         .HasColumnType("bigint");
 
+                    b.Property<byte>("Direction")
+                        .HasColumnType("tinyint");
+
                     b.Property<DateTime>("DueDate")
                         .HasColumnType("datetime2");
 
                     b.Property<bool>("IsDelete")
                         .HasColumnType("bit");
+
+                    b.Property<byte>("SettlementStatus")
+                        .HasColumnType("tinyint");
 
                     b.Property<DateTimeOffset>("UpdateAt")
                         .HasColumnType("datetimeoffset");
@@ -119,11 +128,14 @@ namespace Vexora.Infrastracture.Percistance.SqlServer.EfCore.Migrations
                     b.Property<long>("CustomerId")
                         .HasColumnType("bigint");
 
+                    b.Property<byte>("Direction")
+                        .HasColumnType("tinyint");
+
                     b.Property<bool>("IsDelete")
                         .HasColumnType("bit");
 
-                    b.Property<DateTime>("PaymentDate")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset>("PaymentDate")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<DateTimeOffset>("UpdateAt")
                         .HasColumnType("datetimeoffset");

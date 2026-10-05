@@ -1,27 +1,18 @@
-﻿using Vexora.Application.NLU.Models.Intents;
-using Vexora.Application.NLU.Abstractions.Intents;
+﻿using Vexora.Application.NLU.Abstractions.Intents;
 using Vexora.Application.NLU.Intents;
+using Vexora.Application.NLU.Models.Intents;
 
 namespace Vexora.Application.NLU.Intent;
 
 public sealed class IntentDetector : IIntentDetector
 {
+    private const double MinimumScore = 1.0;
+    private const double MinimumConfidence = 0.60;
+
     public IntentDetectionResult Detect(string normalizedText)
     {
         if (string.IsNullOrWhiteSpace(normalizedText))
             return Unknown();
-
-        if (normalizedText.Contains("چک"))
-        {
-            return new IntentDetectionResult(
-                IntentType.RegisterCheck,
-                0.95,
-                [
-                    new IntentCandidate(
-                IntentType.RegisterCheck,
-                5)
-                ]);
-        }
 
         var candidates = new List<IntentCandidate>();
 
@@ -59,10 +50,14 @@ public sealed class IntentDetector : IIntentDetector
             best.Score,
             secondScore);
 
-        return new IntentDetectionResult(
-            confidence >= 0.60
+        var detectedIntent =
+            best.Score >= MinimumScore &&
+            confidence >= MinimumConfidence
                 ? best.Intent
-                : IntentType.Unknown,
+                : IntentType.Unknown;
+
+        return new IntentDetectionResult(
+            detectedIntent,
             confidence,
             ordered);
     }
@@ -80,12 +75,13 @@ public sealed class IntentDetector : IIntentDetector
             .OrderByDescending(keyword => keyword.Length)
             .ToList();
 
+        if (matchedKeywords.Count == 0)
+            return 0;
+
         double score = 0;
 
         foreach (var keyword in matchedKeywords)
         {
-            // اگر یک keyword طولانی‌تر همین keyword را
-            // پوشش داده، دوباره امتیاز نده.
             var isCoveredByLongerKeyword =
                 matchedKeywords.Any(longerKeyword =>
                     longerKeyword.Length > keyword.Length &&
@@ -104,48 +100,91 @@ public sealed class IntentDetector : IIntentDetector
         return score;
     }
 
-    private static double GetKeywordWeight(IntentType intent, string keyword)
+    private static double GetKeywordWeight(
+        IntentType intent,
+        string keyword)
     {
-        // 1. اولویت اول: عبارت‌های چندکلمه‌ای
-        if (keyword.Contains(' ')) return 4.0;
+        // عبارت‌های چندکلمه‌ای، شواهد قوی‌تری هستند.
+        var wordCount =
+            keyword.Split(
+                ' ',
+                StringSplitOptions.RemoveEmptyEntries)
+            .Length;
 
-        // 2. اولویت دوم: تطابق Intent
-        double? specificWeight = intent switch
+        if (wordCount >= 2)
         {
-            IntentType.RegisterCheck when keyword == "چک" => 3.5,
-            IntentType.RegisterSale when keyword is "فروش" or "جنس" or "کالا" => 1.5,
-            IntentType.GetTodaySales when keyword == "فروش" => 1.5,
-            IntentType.RegisterPayment when keyword is "پرداخت" or "واریز" => 1.5,
-            _ => null
+            return 3.0 + (wordCount * 0.5);
+        }
+
+        return intent switch
+        {
+            // پرداخت
+            IntentType.RegisterPayment
+                when keyword is "پرداخت" or "واریز"
+                => 2.5,
+
+            IntentType.RegisterPayment
+                when keyword is "گرفتم" or "گرفت" or "دریافت"
+                => 1.5,
+
+            // چک
+            IntentType.RegisterCheck
+                when keyword == "چک"
+                => 3.5,
+
+            // فروش
+            IntentType.RegisterSale
+                when keyword == "فروش"
+                => 2.5,
+
+            IntentType.RegisterSale
+                when keyword is "جنس" or "کالا"
+                => 1.5,
+
+            // گزارش فروش
+            IntentType.GetTodaySales
+                when keyword == "فروش"
+                => 1.5,
+
+            // کلمات عمومی
+            _ => GetGenericKeywordWeight(keyword)
         };
-
-        if (specificWeight.HasValue) return specificWeight.Value;
-
-        // 3. اولویت سوم: استفاده از if-else برای جلوگیری از خطای Unreachable در Switch
-        int len = keyword.Length;
-        if (len <= 3) return 0.9;
-        if (len == 4) return 0.8;
-        if (len >= 5 && len <= 7) return 0.6;
-        return 0.8; // برای len >= 8 و موارد دیگر
     }
 
-
+    private static double GetGenericKeywordWeight(
+        string keyword)
+    {
+        return keyword.Length switch
+        {
+            <= 3 => 0.9,
+            4 => 0.8,
+            5 or 6 or 7 => 0.6,
+            _ => 0.8
+        };
+    }
 
     private static double CalculateConfidence(
-    double bestScore,
-    double secondScore)
+        double bestScore,
+        double secondScore)
     {
         if (bestScore <= 0)
             return 0;
 
+        // فقط یک Intent کاندید وجود دارد.
+        // در این حالت نباید صرفاً به خاطر پایین بودن score
+        // آن را Unknown کنیم.
         if (secondScore <= 0)
-            return Math.Min(bestScore, 1.0);
+        {
+            return Math.Clamp(
+                bestScore / 2.0,
+                0,
+                1);
+        }
 
-        var difference =
-            bestScore - secondScore;
-
+        // وقتی چند Intent رقیب داریم،
+        // نسبت شواهد Intent برتر را محاسبه می‌کنیم.
         return Math.Clamp(
-            difference / bestScore,
+            bestScore / (bestScore + secondScore),
             0,
             1);
     }
