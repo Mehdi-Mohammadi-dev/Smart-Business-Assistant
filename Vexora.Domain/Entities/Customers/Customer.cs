@@ -44,7 +44,7 @@ public sealed class Customer:UserBaseEntity
         CustomerValidations.ValidatName(firstName);
         FirstName = firstName;
         LastName = lastName;
-        Update();
+        
     }
 
     #endregion
