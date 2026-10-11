@@ -27,8 +27,11 @@ public sealed class UserConfiguration : IEntityTypeConfiguration<User>
         builder.HasIndex(x => x.PhoneNumber)
             .IsUnique();
 
-        builder.Property(x => x.Password)
+        builder.Property(x => x.PasswordHasher)
             .IsRequired()
             .HasMaxLength(UserConstants.NameLength);
+
+        builder.Property(x=>x.Role)
+            .IsRequired();
     }
 }
