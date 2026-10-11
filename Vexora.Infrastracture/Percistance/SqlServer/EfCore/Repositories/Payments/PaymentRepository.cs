@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Vexora.Application.Repositories.Payments;
-using Vexora.Domain.Entities.Checks;
 using Vexora.Domain.Entities.Payments;
 using Vexora.Infrastracture.Percistance.SqlServer.EfCore.Context;
 using Vexora.Infrastracture.Percistance.SqlServer.EfCore.Repositories.Generics;
