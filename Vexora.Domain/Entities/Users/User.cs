@@ -1,14 +1,16 @@
-﻿using Vexora.Domain.sharedKernel.BaseEntities;
+﻿using Vexora.Domain.Enums.UserRoles;
+using Vexora.Domain.sharedKernel.BaseEntities;
 using Vexora.Domain.Validators.Users;
 
 namespace Vexora.Domain.Entities.Users;
 
 public class User : BaseEntity
 {
-    public string FirstName { get; set; } = null!;
-    public string LastName { get; set; } = null!;
-    public string PhoneNumber { get; set; } = null!;
-    public string Password { get; set; } = null!;
+    public string FirstName { get; private set; } = null!;
+    public string LastName { get; private set; } = null!;
+    public string PhoneNumber { get; private set; } = null!;
+    public string PasswordHasher { get; private set; } = null!;
+    public UserRole Role { get; private set; } = UserRole.User;
 
     #region Constractor
 
@@ -20,39 +22,39 @@ public class User : BaseEntity
     #endregion
 
     #region Functions
-
-    public static User Register(string firstName, string lastName, string phoneNumber, string password)
+        
+    public static User Register(string firstName, string lastName, string phoneNumber, string passwordHasher)
     {
         UserValidations.ValidatName(firstName, lastName);
 
         UserValidations.PhoneNumberValidation(phoneNumber);
 
-        UserValidations.PasswordValidation(password);
+        UserValidations.PasswordValidation(passwordHasher);
 
         return new User
         {
             FirstName = firstName,
             LastName = lastName,
             PhoneNumber = phoneNumber,
-            Password = password,
+            PasswordHasher = passwordHasher,
             CreateAt = DateTime.UtcNow,
             UpdateAt = DateTime.UtcNow,
         };
     }
 
-    public void Update(string firstName, string lastName, string phoneNumber, string password)
+    public void Update(string firstName, string lastName, string phoneNumber, string passwordHasher)
     {
         UserValidations.ValidatName(firstName, lastName);
 
         UserValidations.PhoneNumberValidation(phoneNumber);
 
-        UserValidations.PasswordValidation(password);
+        UserValidations.PasswordValidation(PasswordHasher);
 
         FirstName = firstName;
         LastName = lastName;
         PhoneNumber = phoneNumber;
-        Password = password;
-        Update();
+        PasswordHasher = passwordHasher;
+        
 
     }
 
