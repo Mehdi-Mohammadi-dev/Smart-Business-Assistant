@@ -1,6 +1,6 @@
 ﻿using Vexora.Application.Dtos.Customers;
 
-namespace Vexora.Application.Conversations.Mappers.CustomerConversations;
+namespace Vexora.Application.Caching.Conversations.Mappers.CustomerConversations;
 
 public static class CustomerConversationMapper
 {

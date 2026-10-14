@@ -1,6 +1,7 @@
-﻿using Vexora.Application.Constants.Messages.Conversations;
-using Vexora.Application.Conversations.Interfaces;
-using Vexora.Application.Conversations.Mappers.CustomerConversations;
+﻿using Vexora.Application.Caching.Conversations;
+using Vexora.Application.Caching.Conversations.Interfaces;
+using Vexora.Application.Caching.Conversations.Mappers.CustomerConversations;
+using Vexora.Application.Constants.Messages.Conversations;
 using Vexora.Application.Dtos.Chats;
 using Vexora.Application.Dtos.Checks;
 using Vexora.Application.Dtos.Customers;
@@ -15,7 +16,7 @@ using Vexora.Application.Services.Interfaces.Checks;
 using Vexora.Application.Services.Interfaces.Customers;
 using Vexora.Application.Services.Interfaces.Payments;
 
-namespace Vexora.Application.Conversations.Implementations;
+namespace Vexora.Application.Caching.Conversations.Implementations;
 
 public sealed class ConversationProcessor(
     INluPipeline nluPipeline,

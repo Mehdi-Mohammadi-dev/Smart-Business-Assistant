@@ -1,6 +1,6 @@
 ﻿using Vexora.Application.Dtos.Authentications;
 
-namespace Vexora.Application.Services.Interfaces.Authentications;
+namespace Vexora.Application.Caching.Authentications;
 
 public interface IPendingRegistrationStore
 {

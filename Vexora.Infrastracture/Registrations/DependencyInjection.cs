@@ -1,7 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Vexora.Application.Conversations.Interfaces;
+using Vexora.Application.Caching.Authentications;
+using Vexora.Application.Caching.Conversations.Interfaces;
 using Vexora.Application.Options;
 using Vexora.Application.Repositories.Authentications;
 using Vexora.Application.Repositories.Checks;
@@ -72,6 +73,8 @@ public static class DependencyInjection
         services.AddScoped<IOtpVerificationRepository, OtpVerificationRepository>();
         services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+
+        services.AddScoped<IAccessTokenRevocationStore, RedisAccessTokenRevocationStore>();
 
     }
 }

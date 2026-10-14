@@ -9,6 +9,7 @@ using Vexora.Api.Commons.Middelwares;
 using Vexora.Api.Commons.Results;
 using Vexora.Api.Services.CurrentUser;
 using Vexora.Api.Validators.Chats;
+using Vexora.Application.Caching.Authentications;
 using Vexora.Application.DependencyInjections;
 using Vexora.Application.Options;
 using Vexora.Application.Services.Interfaces.CurrentUser;
@@ -82,6 +83,41 @@ builder.Services
             ClockSkew = TimeSpan.FromMinutes(1),
             NameClaimType = "sub",
             RoleClaimType = "role"
+        };
+
+        options.Events = new JwtBearerEvents
+        {
+            OnTokenValidated = async context =>
+            {
+                var tokenId = context.Principal?
+                    .FindFirst("jti")?.Value;
+
+                Console.WriteLine(
+                    $"JWT validated. jti: {tokenId ?? "NULL"}");
+
+                try
+                {
+                    var revocationStore = context.HttpContext
+                        .RequestServices
+                        .GetRequiredService<IAccessTokenRevocationStore>();
+
+                    var isRevoked = await revocationStore.IsRevokedAsync(
+                        tokenId!,
+                        context.HttpContext.RequestAborted);
+
+                    Console.WriteLine($"Token revoked: {isRevoked}");
+
+                    if (isRevoked)
+                        context.Fail("Access token has been revoked.");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Token validation error: {ex}");
+
+                    context.Fail(
+                        "Access token validation is temporarily unavailable.");
+                }
+            }
         };
     });
 

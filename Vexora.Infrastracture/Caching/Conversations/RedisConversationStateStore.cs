@@ -1,8 +1,8 @@
 ﻿using System.Text;
 using System.Text.Json;
 using Microsoft.Extensions.Caching.Distributed;
-using Vexora.Application.Conversations;
-using Vexora.Application.Conversations.Interfaces;
+using Vexora.Application.Caching.Conversations;
+using Vexora.Application.Caching.Conversations.Interfaces;
 
 namespace Vexora.Infrastracture.Caching.Conversations;
 

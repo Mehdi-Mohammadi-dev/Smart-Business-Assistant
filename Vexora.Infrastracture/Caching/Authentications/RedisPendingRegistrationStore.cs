@@ -2,8 +2,8 @@
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using Vexora.Application.Caching.Authentications;
 using Vexora.Application.Dtos.Authentications;
-using Vexora.Application.Services.Interfaces.Authentications;
 
 namespace Vexora.Infrastracture.Caching.Authentications;
 

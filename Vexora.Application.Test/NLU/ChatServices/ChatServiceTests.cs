@@ -1,5 +1,5 @@
 ﻿using Moq;
-using Vexora.Application.Conversations.Interfaces;
+using Vexora.Application.Caching.Conversations.Interfaces;
 using Vexora.Application.Dtos.Chats;
 using Vexora.Application.Dtos.Customers;
 using Vexora.Application.NLU.Models.Results;

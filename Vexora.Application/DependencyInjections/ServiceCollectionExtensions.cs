@@ -1,6 +1,4 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Vexora.Application.Conversations.Implementations;
-using Vexora.Application.Conversations.Interfaces;
 using Vexora.Application.NLU.Abstractions.Dates;
 using Vexora.Application.NLU.Abstractions.Extractions;
 using Vexora.Application.NLU.Abstractions.Extractions.Customers;
@@ -30,6 +28,8 @@ using Vexora.Application.NLU.Intent;
 using Vexora.Application.NLU.Normalizations;
 using Vexora.Application.NLU.Parsing.Number;
 using Vexora.Application.NLU.Pipeline;
+using Vexora.Application.Caching.Conversations.Implementations;
+using Vexora.Application.Caching.Conversations.Interfaces;
 
 namespace Vexora.Application.DependencyInjections;
 

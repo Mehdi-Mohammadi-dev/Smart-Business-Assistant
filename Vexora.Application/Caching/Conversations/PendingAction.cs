@@ -1,7 +1,7 @@
 ﻿using Vexora.Application.NLU.Models.Intents;
 using Vexora.Application.NLU.Models.Money;
 
-namespace Vexora.Application.Conversations;
+namespace Vexora.Application.Caching.Conversations;
 
 public sealed record PendingAction
 (

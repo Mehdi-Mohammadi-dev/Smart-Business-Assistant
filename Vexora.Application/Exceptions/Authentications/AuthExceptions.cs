@@ -34,7 +34,7 @@ public static class AuthExceptions
 
     public sealed class InvalidRefreshTokenException() : AppException(
         "INVALID_REFRESH_TOKEN",
-        "نشست شما منقضی شده است. لطفاً دوباره وارد شوید.",
+        "توکن شما منقضی شده است. لطفاً دوباره وارد شوید.",
         AppErrorType.Unauthorized);
 
     public sealed class UnauthorizedException() : AppException(

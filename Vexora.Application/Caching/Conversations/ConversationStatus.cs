@@ -1,4 +1,4 @@
-﻿namespace Vexora.Application.Conversations;
+﻿namespace Vexora.Application.Caching.Conversations;
 
 public enum ConversationStatus
 {

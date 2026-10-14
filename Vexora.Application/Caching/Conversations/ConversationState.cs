@@ -1,6 +1,6 @@
 ﻿using Vexora.Application.Dtos.Customers;
 
-namespace Vexora.Application.Conversations;
+namespace Vexora.Application.Caching.Conversations;
 
 public sealed class ConversationState
 {

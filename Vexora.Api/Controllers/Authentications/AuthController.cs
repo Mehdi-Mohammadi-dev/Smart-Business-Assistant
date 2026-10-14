@@ -5,7 +5,6 @@ using Vexora.Api.Commons.Results;
 using Vexora.Api.Contracts.Authentications;
 using Vexora.Api.Contracts.Authentications.Profiles;
 using Vexora.Api.Mappers.Authentications;
-using Vexora.Application.Dtos.Authentications;
 using Vexora.Application.Services.Interfaces.Authentications;
 
 namespace Vexora.Api.Controllers.Authentications;
@@ -68,4 +67,33 @@ public sealed class AuthController(IAuthService authService) : ControllerBase
 
         return ApiResult<ProfileResponse>.SuccessResult(profile.ProfileContractMapToProfileDto());
     }
+
+    [Authorize]
+    [HttpPost("logout")]
+    public async Task<ApiResult<object?>> Logout(
+    [FromBody] RefreshTokenContract request,
+    CancellationToken cancellationToken)
+    {
+        var tokenId = User.FindFirst("jti")?.Value;
+        var expiresAtClaim = User.FindFirst("exp")?.Value;
+
+        if (string.IsNullOrWhiteSpace(tokenId) ||
+            !long.TryParse(expiresAtClaim, out var expiresAtUnix))
+        {
+            throw new Vexora.Application.Exceptions.Authentications
+                .AuthExceptions.UnauthorizedException();
+        }
+
+        var expiresAt = DateTimeOffset.FromUnixTimeSeconds(expiresAtUnix);
+
+        await authService.LogoutAsync(
+            request.RefreshTokenContractMapToRefreshTokenDto(),
+            tokenId,
+            expiresAt,
+            cancellationToken);
+
+        return ApiResult<object?>.SuccessResult(
+            null,
+            "با موفقیت از حساب کاربری خارج شدید.");
     }
+}

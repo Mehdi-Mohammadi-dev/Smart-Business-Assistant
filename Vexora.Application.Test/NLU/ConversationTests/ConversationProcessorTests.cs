@@ -1,8 +1,8 @@
 ﻿using Moq;
+using Vexora.Application.Caching.Conversations;
+using Vexora.Application.Caching.Conversations.Implementations;
+using Vexora.Application.Caching.Conversations.Interfaces;
 using Vexora.Application.Constants.Messages.Conversations;
-using Vexora.Application.Conversations;
-using Vexora.Application.Conversations.Implementations;
-using Vexora.Application.Conversations.Interfaces;
 using Vexora.Application.Dtos.Chats;
 using Vexora.Application.Dtos.Checks;
 using Vexora.Application.Dtos.Customers;

@@ -1,4 +1,5 @@
 using System.Security.Cryptography;
+using Vexora.Application.Caching.Authentications;
 using Vexora.Application.Dtos.Authentications;
 using Vexora.Application.Exceptions.Authentications;
 using Vexora.Application.Repositories.Authentications;
@@ -26,7 +27,8 @@ public sealed class AuthService(
     IPasswordHasher passwordHasher,
     ITokenService tokenService,
     ICurrentUser currentUser,
-    IPendingRegistrationStore pendingRegistrationStore) : IAuthService
+    IPendingRegistrationStore pendingRegistrationStore,
+    IAccessTokenRevocationStore accessTokenRevocationStore) : IAuthService
 {
     private static readonly TimeSpan OtpLifetime = TimeSpan.FromMinutes(2);
     private static readonly TimeSpan OtpResendCooldown = TimeSpan.FromSeconds(60);
@@ -238,7 +240,6 @@ public sealed class AuthService(
         var refreshHash = tokenService.HashRefreshToken(refresh);
         var refreshExpiresAt = DateTimeOffset.UtcNow.Add(tokenService.RefreshTokenLifetime);
 
-        // When refreshing, the old token is revoked and points to the new one.
         rotateFrom?.Revoke(refreshHash);
 
         await refreshTokenRepository.AddAsync(
@@ -277,5 +278,38 @@ public sealed class AuthService(
         return new ProfileDto(
             new UserDto(user.Id, user.FirstName, user.LastName, user.PhoneNumber),
             subscriptionDto);
+    }
+
+    public async Task LogoutAsync(
+    RefreshTokenDto dto,
+    string accessTokenId,
+    DateTimeOffset accessTokenExpiresAt,
+    CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(accessTokenId))
+            throw new AuthExceptions.UnauthorizedException();
+
+        var hash = tokenService.HashRefreshToken(dto.RefreshToken);
+
+        var stored = await refreshTokenRepository.GetByHashAsync(
+            hash,
+            cancellationToken);
+
+        if (stored is null ||
+            stored.UserId != currentUser.UserId ||
+            stored.RevokedAt.HasValue ||
+            stored.ExpiresAt <= DateTimeOffset.UtcNow)
+        {
+            throw new AuthExceptions.InvalidRefreshTokenException();
+        }
+
+        stored.Revoke();
+
+        await unitOfWork.SaveAsync(cancellationToken);
+
+        await accessTokenRevocationStore.RevokeAsync(
+            accessTokenId,
+            accessTokenExpiresAt,
+            cancellationToken);
     }
 }

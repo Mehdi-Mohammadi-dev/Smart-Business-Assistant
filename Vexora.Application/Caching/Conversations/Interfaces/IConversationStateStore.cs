@@ -1,4 +1,6 @@
-﻿namespace Vexora.Application.Conversations.Interfaces;  
+﻿using Vexora.Application.Caching.Conversations;
+
+namespace Vexora.Application.Caching.Conversations.Interfaces;  
 
 public interface IConversationStateStore
 {
