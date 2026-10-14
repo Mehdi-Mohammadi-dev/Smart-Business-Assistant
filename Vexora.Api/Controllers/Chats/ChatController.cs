@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Vexora.Api.Commons.Results;
 using Vexora.Api.Contracts.Chats;
 using Vexora.Api.Mappers.Chats;
@@ -7,6 +8,7 @@ using Vexora.Application.Services.Interfaces.Chats;
 
 namespace Vexora.Api.Controllers.Chats;
 
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public sealed class ChatController(

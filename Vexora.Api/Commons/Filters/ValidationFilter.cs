@@ -1,5 +1,8 @@
-﻿using FluentValidation;
+using FluentValidation;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Vexora.Api.Commons.Results;
+using Vexora.Api.Constants.Shared;
 
 namespace Vexora.Api.Commons.Filters;
 
@@ -11,6 +14,17 @@ public sealed class ValidationFilter(
         ActionExecutingContext context,
         ActionExecutionDelegate next)
     {
+        // Broken JSON / wrong data types. (The automatic 400 is switched off in Program.cs,
+        // so we must handle this ourselves, otherwise the action receives null.)
+        if (!context.ModelState.IsValid)
+        {
+            context.Result = new BadRequestObjectResult(
+                ApiResult<object>.Failure(
+                    Messages.INvalidInformation,
+                    new ApiError("INVALID_REQUEST", Messages.INvalidInformation)));
+            return;
+        }
+
         foreach (var argument in context.ActionArguments.Values)
         {
             if (argument is null)
