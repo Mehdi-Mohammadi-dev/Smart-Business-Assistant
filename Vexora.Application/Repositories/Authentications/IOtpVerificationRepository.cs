@@ -5,6 +5,10 @@ namespace Vexora.Application.Repositories.Authentications;
 
 public interface IOtpVerificationRepository
 {
+    Task<OtpVerification?> GetByIdAsync(
+    long id,
+    CancellationToken cancellationToken = default);
+
     Task<OtpVerification?> GetLatestUnusedAsync(
     string phoneNumber,
     OtpPurpose purpose,

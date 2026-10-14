@@ -13,10 +13,12 @@ using Vexora.Application.NLU.Extractions;
 using Vexora.Application.NLU.Extractions.Dates;
 using Vexora.Application.NLU.Extractions.Pipelines;
 using Vexora.Application.NLU.Normalizations.Parsing.Money;
+using Vexora.Application.Services.Implementations.Authentications;
 using Vexora.Application.Services.Implementations.Chats;
 using Vexora.Application.Services.Implementations.Checks;
 using Vexora.Application.Services.Implementations.Customers;
 using Vexora.Application.Services.Implementations.Payments;
+using Vexora.Application.Services.Interfaces.Authentications;
 using Vexora.Application.Services.Interfaces.Chats;
 using Vexora.Application.Services.Interfaces.Checks;
 using Vexora.Application.Services.Interfaces.Customers;
@@ -45,6 +47,8 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<ICustomerExtractor, CustomerExtractor>();
 
         services.AddSingleton<IDateExtractor, PersianDateExtractor>();
+
+        services.AddScoped<IAuthService, AuthService>();
 
         services.AddScoped<ICheckService, CheckService>();
 

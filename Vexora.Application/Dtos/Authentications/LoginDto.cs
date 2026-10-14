@@ -3,4 +3,5 @@
 public record LoginDto
 (
     string PhoneNumber,
-    string Password);
+    string Password
+);

@@ -1,0 +1,8 @@
+namespace Vexora.Application.Services.Interfaces.Authentications;
+
+public interface IPasswordHasher
+{
+    string Hash(string value);
+
+    bool Verify(string value, string hash);
+}

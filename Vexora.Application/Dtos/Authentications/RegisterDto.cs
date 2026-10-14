@@ -2,9 +2,6 @@
 
 public record RegisterDto
 (
-    string FirstName,
-    string LastName,
-    string PhoneNumber,
-    string Password,
+    string RegistrationToken,
     string OtpCode
-    );
+);
