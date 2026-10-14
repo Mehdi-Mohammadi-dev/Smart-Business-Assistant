@@ -1,25 +1,19 @@
-name: Voxora CI
+name: Vexora CI
 
 on:
   push:
-    branches:
-      - main
-      - develop
-
+    branches: [ master, main, develop ]
   pull_request:
-    branches:
-      - main
-      - develop
+    branches: [ master, main, develop ]
+  workflow_dispatch:        # lets you run it by hand from the Actions tab
 
 jobs:
   build-and-test:
-
     runs-on: ubuntu-latest
 
     steps:
-
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
@@ -27,10 +21,10 @@ jobs:
           dotnet-version: '10.0.x'
 
       - name: Restore
-        run: dotnet restore
+        run: dotnet restore Vexora.slnx
 
       - name: Build
-        run: dotnet build --configuration Release --no-restore
+        run: dotnet build Vexora.slnx --configuration Release --no-restore
 
       - name: Test
-        run: dotnet test --configuration Release --no-build --verbosity normal
+        run: dotnet test Vexora.slnx --configuration Release --no-build --verbosity normal
