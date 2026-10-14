@@ -127,6 +127,10 @@ public sealed class IntentDetector : IIntentDetector
                 when keyword is "گرفتم" or "گرفت" or "دریافت"
                 => 1.5,
 
+            IntentType.RegisterPayment
+                when keyword is "داد" or "دادم"
+                => 1.5,
+
             // چک
             IntentType.RegisterCheck
                 when keyword == "چک"
