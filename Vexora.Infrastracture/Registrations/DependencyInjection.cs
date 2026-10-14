@@ -2,22 +2,30 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Vexora.Application.Conversations.Interfaces;
+using Vexora.Application.Options;
 using Vexora.Application.Repositories.Authentications;
 using Vexora.Application.Repositories.Checks;
 using Vexora.Application.Repositories.Customers;
 using Vexora.Application.Repositories.Payments;
+using Vexora.Application.Repositories.RefreshTokens;
+using Vexora.Application.Repositories.Subscriptions;
 using Vexora.Application.Repositories.Users;
 using Vexora.Application.Services.Interfaces.Authentications;
 using Vexora.Application.Services.Interfaces.CurrentUser;
 using Vexora.Application.UnitOfWorks;
+using Vexora.Infrastracture.Caching.Authentications;
 using Vexora.Infrastracture.Caching.Conversations;
 using Vexora.Infrastracture.Percistance.SqlServer.EfCore.Context;
 using Vexora.Infrastracture.Percistance.SqlServer.EfCore.Repositories.Authentications;
 using Vexora.Infrastracture.Percistance.SqlServer.EfCore.Repositories.Checks;
 using Vexora.Infrastracture.Percistance.SqlServer.EfCore.Repositories.Customers;
 using Vexora.Infrastracture.Percistance.SqlServer.EfCore.Repositories.Payments;
+using Vexora.Infrastracture.Percistance.SqlServer.EfCore.Repositories.RefreshTokens;
+using Vexora.Infrastracture.Percistance.SqlServer.EfCore.Repositories.Subscriptions;
 using Vexora.Infrastracture.Percistance.SqlServer.EfCore.Repositories.Users;
 using Vexora.Infrastracture.Percistance.SqlServer.EfCore.UnitOfWorks;
+using Vexora.Infrastracture.Security;
+using Vexora.Infrastracture.Sms;
 using Vexora.Infrastracture.Sms.Tsms;
 
 namespace Vexora.Infrastracture.Registrations;
@@ -35,10 +43,21 @@ public static class DependencyInjection
                 configuration.GetConnectionString("Redis");
         });
 
-        services.Configure<TsmsOptions>(configuration.GetSection("Tsms"));
-        services.AddScoped<ISmsSender, TsmsSmsSender>();
+        services.AddScoped<IPendingRegistrationStore,RedisPendingRegistrationStore>();
 
-        services.AddScoped<ICurrentUser, DevelopmentCurrentUser>();
+        services.Configure<TsmsOptions>(configuration.GetSection("Tsms"));
+
+        if (string.Equals(configuration["Sms:Provider"], "Fake", StringComparison.OrdinalIgnoreCase))
+            services.AddScoped<ISmsSender, FakeSmsSender>();
+        else
+            services.AddScoped<ISmsSender, TsmsSmsSender>();
+
+
+        services.Configure<JwtOptions>(configuration.GetSection(JwtOptions.SectionName));
+        services.AddSingleton<IPasswordHasher, BcryptPasswordHasher>();
+        services.AddSingleton<ITokenService, JwtTokenService>();
+
+
 
         services.AddScoped<ICheckRepository, CheckRepository>();
 
@@ -50,7 +69,9 @@ public static class DependencyInjection
         services.AddScoped<IUnitOfWork,UnitOfWork>();
         
         services.AddScoped<IUserRepository,UserRepository>();
-        services.AddScoped<IOtpVerificationRepository, OtpVerificationRepository>();  
+        services.AddScoped<IOtpVerificationRepository, OtpVerificationRepository>();
+        services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
+        services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 
     }
 }

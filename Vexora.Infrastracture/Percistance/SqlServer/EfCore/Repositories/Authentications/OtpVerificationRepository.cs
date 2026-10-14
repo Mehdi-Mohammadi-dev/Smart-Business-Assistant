@@ -9,6 +9,16 @@ namespace Vexora.Infrastracture.Percistance.SqlServer.EfCore.Repositories.Authen
 public sealed class OtpVerificationRepository(
     ApplicationDbContext context) : IOtpVerificationRepository
 {
+    public Task<OtpVerification?> GetByIdAsync(
+    long id,
+    CancellationToken cancellationToken = default)
+    {
+        return context.OtpVerifications
+            .FirstOrDefaultAsync(
+                x => x.Id == id,
+                cancellationToken);
+    }
+
     public async Task<OtpVerification?> GetLatestUnusedAsync(
         string phoneNumber,
         OtpPurpose purpose,

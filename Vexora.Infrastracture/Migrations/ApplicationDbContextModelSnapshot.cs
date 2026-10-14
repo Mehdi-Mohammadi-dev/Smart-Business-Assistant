@@ -3,20 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Vexora.Infrastracture.Percistance.SqlServer.EfCore.Context;
 
 #nullable disable
 
-namespace Vexora.Infrastracture.Percistance.SqlServer.EfCore.Migrations
+namespace Vexora.Infrastracture.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260925211254_Create_Database")]
-    partial class Create_Database
+    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -24,6 +21,59 @@ namespace Vexora.Infrastracture.Percistance.SqlServer.EfCore.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("Vexora.Domain.Entities.Authentications.OtpVerification", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<int>("AttemptCount")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
+
+                    b.Property<string>("CodeHash")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<DateTimeOffset>("CreateAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTimeOffset>("ExpiresAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<bool>("IsDelete")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("PhoneNumber")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<byte>("Purpose")
+                        .HasColumnType("tinyint");
+
+                    b.Property<DateTimeOffset>("UpdateAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTimeOffset?>("UsedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<long?>("UserId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("PhoneNumber", "Purpose", "ExpiresAt");
+
+                    b.ToTable("OtpVerifications");
+                });
 
             modelBuilder.Entity("Vexora.Domain.Entities.Checks.Check", b =>
                 {
@@ -36,6 +86,9 @@ namespace Vexora.Infrastracture.Percistance.SqlServer.EfCore.Migrations
                     b.Property<decimal>("Amount")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<byte>("BankRegistrationStatus")
+                        .HasColumnType("tinyint");
+
                     b.Property<string>("CheckNumber")
                         .HasMaxLength(16)
                         .HasColumnType("nvarchar(16)");
@@ -46,11 +99,17 @@ namespace Vexora.Infrastracture.Percistance.SqlServer.EfCore.Migrations
                     b.Property<long>("CustomerId")
                         .HasColumnType("bigint");
 
+                    b.Property<byte>("Direction")
+                        .HasColumnType("tinyint");
+
                     b.Property<DateTime>("DueDate")
                         .HasColumnType("datetime2");
 
                     b.Property<bool>("IsDelete")
                         .HasColumnType("bit");
+
+                    b.Property<byte>("SettlementStatus")
+                        .HasColumnType("tinyint");
 
                     b.Property<DateTimeOffset>("UpdateAt")
                         .HasColumnType("datetimeoffset");
@@ -62,7 +121,7 @@ namespace Vexora.Infrastracture.Percistance.SqlServer.EfCore.Migrations
 
                     b.HasIndex("CustomerId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserId", "CustomerId");
 
                     b.ToTable("Checks");
                 });
@@ -99,7 +158,8 @@ namespace Vexora.Infrastracture.Percistance.SqlServer.EfCore.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserId", "FirstName", "LastName")
+                        .IsUnique();
 
                     b.ToTable("Customers");
                 });
@@ -121,11 +181,14 @@ namespace Vexora.Infrastracture.Percistance.SqlServer.EfCore.Migrations
                     b.Property<long>("CustomerId")
                         .HasColumnType("bigint");
 
+                    b.Property<byte>("Direction")
+                        .HasColumnType("tinyint");
+
                     b.Property<bool>("IsDelete")
                         .HasColumnType("bit");
 
-                    b.Property<DateTime>("PaymentDate")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset>("PaymentDate")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<DateTimeOffset>("UpdateAt")
                         .HasColumnType("datetimeoffset");
@@ -140,6 +203,56 @@ namespace Vexora.Infrastracture.Percistance.SqlServer.EfCore.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Payments");
+                });
+
+            modelBuilder.Entity("Vexora.Domain.Entities.RefreshTokens.RefreshToken", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTimeOffset>("CreateAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTimeOffset>("ExpiresAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<bool>("IsDelete")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("ReplacedByTokenHash")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<DateTimeOffset?>("RevokedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("TokenHash")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<DateTimeOffset>("UpdateAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("UserId1")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TokenHash")
+                        .IsUnique();
+
+                    b.HasIndex("UserId1");
+
+                    b.HasIndex("UserId", "ExpiresAt");
+
+                    b.ToTable("RefreshTokens");
                 });
 
             modelBuilder.Entity("Vexora.Domain.Entities.Sales.Items.SaleItem", b =>
@@ -214,6 +327,50 @@ namespace Vexora.Infrastracture.Percistance.SqlServer.EfCore.Migrations
                     b.ToTable("Sales");
                 });
 
+            modelBuilder.Entity("Vexora.Domain.Entities.Sunscriptions.Subscription", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTimeOffset>("CreateAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTimeOffset>("EndAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<bool>("IsDelete")
+                        .HasColumnType("bit");
+
+                    b.Property<byte>("PlanType")
+                        .HasColumnType("tinyint");
+
+                    b.Property<DateTimeOffset>("StartAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<byte>("Status")
+                        .HasColumnType("tinyint");
+
+                    b.Property<DateTimeOffset>("UpdateAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("UserId1")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId1");
+
+                    b.HasIndex("UserId", "Status");
+
+                    b.ToTable("Subscriptions");
+                });
+
             modelBuilder.Entity("Vexora.Domain.Entities.Users.User", b =>
                 {
                     b.Property<long>("Id")
@@ -238,7 +395,7 @@ namespace Vexora.Infrastracture.Percistance.SqlServer.EfCore.Migrations
                         .HasMaxLength(80)
                         .HasColumnType("nvarchar(80)");
 
-                    b.Property<string>("Password")
+                    b.Property<string>("PasswordHasher")
                         .IsRequired()
                         .HasMaxLength(80)
                         .HasColumnType("nvarchar(80)");
@@ -247,6 +404,9 @@ namespace Vexora.Infrastracture.Percistance.SqlServer.EfCore.Migrations
                         .IsRequired()
                         .HasMaxLength(11)
                         .HasColumnType("nvarchar(11)");
+
+                    b.Property<byte>("Role")
+                        .HasColumnType("tinyint");
 
                     b.Property<DateTimeOffset>("UpdateAt")
                         .HasColumnType("datetimeoffset");
@@ -257,6 +417,16 @@ namespace Vexora.Infrastracture.Percistance.SqlServer.EfCore.Migrations
                         .IsUnique();
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("Vexora.Domain.Entities.Authentications.OtpVerification", b =>
+                {
+                    b.HasOne("Vexora.Domain.Entities.Users.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Vexora.Domain.Entities.Checks.Check", b =>
@@ -302,6 +472,23 @@ namespace Vexora.Infrastracture.Percistance.SqlServer.EfCore.Migrations
                     b.Navigation("Customer");
                 });
 
+            modelBuilder.Entity("Vexora.Domain.Entities.RefreshTokens.RefreshToken", b =>
+                {
+                    b.HasOne("Vexora.Domain.Entities.Users.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Vexora.Domain.Entities.Users.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId1")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Vexora.Domain.Entities.Sales.Items.SaleItem", b =>
                 {
                     b.HasOne("Vexora.Domain.Entities.Sales.Sale", null)
@@ -326,6 +513,23 @@ namespace Vexora.Infrastracture.Percistance.SqlServer.EfCore.Migrations
                         .IsRequired();
 
                     b.Navigation("Customer");
+                });
+
+            modelBuilder.Entity("Vexora.Domain.Entities.Sunscriptions.Subscription", b =>
+                {
+                    b.HasOne("Vexora.Domain.Entities.Users.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Vexora.Domain.Entities.Users.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId1")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Vexora.Domain.Entities.Sales.Sale", b =>

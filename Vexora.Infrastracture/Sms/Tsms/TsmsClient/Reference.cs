@@ -50,7 +50,7 @@ public interface tsmsService
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(object2))]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(object1))]
     [return: System.ServiceModel.MessageParameterAttribute(Name = "GetDeliverySoundResponse")]
-    System.Threading.Tasks.Task<Tsms.Client.object1[]> GetDeliverySoundAsync(string username, string password, string phones, int idsendsound);
+    System.Threading.Tasks.Task<Tsms.TsmsClient.object1[]> GetDeliverySoundAsync(string username, string password, string phones, int idsendsound);
 
     [System.ServiceModel.OperationContractAttribute(Action = "", ReplyAction = "*")]
     [System.ServiceModel.XmlSerializerFormatAttribute(Style = System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults = true, Use = System.ServiceModel.OperationFormatUse.Encoded)]
@@ -59,7 +59,7 @@ public interface tsmsService
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(object2))]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(object1))]
     [return: System.ServiceModel.MessageParameterAttribute(Name = "GetDeliverySmsGroupResponse")]
-    System.Threading.Tasks.Task<Tsms.Client.object2[]> GetDeliverySmsGroupAsync(string username, string password, string phones, int idsendsms);
+    System.Threading.Tasks.Task<Tsms.TsmsClient.object2[]> GetDeliverySmsGroupAsync(string username, string password, string phones, int idsendsms);
 
     [System.ServiceModel.OperationContractAttribute(Action = "", ReplyAction = "*")]
     [System.ServiceModel.XmlSerializerFormatAttribute(Style = System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults = true, Use = System.ServiceModel.OperationFormatUse.Encoded)]
@@ -68,7 +68,7 @@ public interface tsmsService
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(object2))]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(object1))]
     [return: System.ServiceModel.MessageParameterAttribute(Name = "GetSmsReceivedResponse")]
-    System.Threading.Tasks.Task<Tsms.Client.object3[]> GetSmsReceivedAsync(string username, string password);
+    System.Threading.Tasks.Task<Tsms.TsmsClient.object3[]> GetSmsReceivedAsync(string username, string password);
 
     [System.ServiceModel.OperationContractAttribute(Action = "", ReplyAction = "*")]
     [System.ServiceModel.XmlSerializerFormatAttribute(Style = System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults = true, Use = System.ServiceModel.OperationFormatUse.Encoded)]
@@ -77,7 +77,7 @@ public interface tsmsService
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(object2))]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(object1))]
     [return: System.ServiceModel.MessageParameterAttribute(Name = "GetSmsReceivedIdResponse")]
-    System.Threading.Tasks.Task<Tsms.Client.object3[]> GetSmsReceivedIdAsync(string username, string password, int id);
+    System.Threading.Tasks.Task<Tsms.TsmsClient.object3[]> GetSmsReceivedIdAsync(string username, string password, int id);
 
     [System.ServiceModel.OperationContractAttribute(Action = "", ReplyAction = "*")]
     [System.ServiceModel.XmlSerializerFormatAttribute(Style = System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults = true, Use = System.ServiceModel.OperationFormatUse.Encoded)]
@@ -95,7 +95,7 @@ public interface tsmsService
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(object2))]
     [System.ServiceModel.ServiceKnownTypeAttribute(typeof(object1))]
     [return: System.ServiceModel.MessageParameterAttribute(Name = "UserInfoResponse")]
-    System.Threading.Tasks.Task<Tsms.Client.objectInfo[]> UserInfoAsync(string username, string password);
+    System.Threading.Tasks.Task<Tsms.TsmsClient.objectInfo[]> UserInfoAsync(string username, string password);
 }
 
 /// <remarks/>
@@ -453,13 +453,13 @@ public partial class object2
 }
 
 [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "8.0.0")]
-public interface tsmsServiceChannel : Tsms.Client.tsmsService, System.ServiceModel.IClientChannel
+public interface tsmsServiceChannel : Tsms.TsmsClient.tsmsService, System.ServiceModel.IClientChannel
 {
 }
 
 [System.Diagnostics.DebuggerStepThroughAttribute()]
 [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "8.0.0")]
-public partial class tsmsServiceClient : System.ServiceModel.ClientBase<Tsms.Client.tsmsService>, Tsms.Client.tsmsService
+public partial class tsmsServiceClient : System.ServiceModel.ClientBase<Tsms.TsmsClient.tsmsService>, Tsms.TsmsClient.tsmsService
 {
 
     /// <summary>
@@ -547,22 +547,22 @@ public partial class tsmsServiceClient : System.ServiceModel.ClientBase<Tsms.Cli
         return base.Channel.uploadAsync(username, password, title, binaryfile);
     }
 
-    public System.Threading.Tasks.Task<Tsms.Client.object1[]> GetDeliverySoundAsync(string username, string password, string phones, int idsendsound)
+    public System.Threading.Tasks.Task<Tsms.TsmsClient.object1[]> GetDeliverySoundAsync(string username, string password, string phones, int idsendsound)
     {
         return base.Channel.GetDeliverySoundAsync(username, password, phones, idsendsound);
     }
 
-    public System.Threading.Tasks.Task<Tsms.Client.object2[]> GetDeliverySmsGroupAsync(string username, string password, string phones, int idsendsms)
+    public System.Threading.Tasks.Task<Tsms.TsmsClient.object2[]> GetDeliverySmsGroupAsync(string username, string password, string phones, int idsendsms)
     {
         return base.Channel.GetDeliverySmsGroupAsync(username, password, phones, idsendsms);
     }
 
-    public System.Threading.Tasks.Task<Tsms.Client.object3[]> GetSmsReceivedAsync(string username, string password)
+    public System.Threading.Tasks.Task<Tsms.TsmsClient.object3[]> GetSmsReceivedAsync(string username, string password)
     {
         return base.Channel.GetSmsReceivedAsync(username, password);
     }
 
-    public System.Threading.Tasks.Task<Tsms.Client.object3[]> GetSmsReceivedIdAsync(string username, string password, int id)
+    public System.Threading.Tasks.Task<Tsms.TsmsClient.object3[]> GetSmsReceivedIdAsync(string username, string password, int id)
     {
         return base.Channel.GetSmsReceivedIdAsync(username, password, id);
     }
@@ -572,7 +572,7 @@ public partial class tsmsServiceClient : System.ServiceModel.ClientBase<Tsms.Cli
         return base.Channel.sendSoundOfPatternAsync(username, password, phone, title, patternid, patternVariables, tryCount, MinuteBetweenTry, messageid);
     }
 
-    public System.Threading.Tasks.Task<Tsms.Client.objectInfo[]> UserInfoAsync(string username, string password)
+    public System.Threading.Tasks.Task<Tsms.TsmsClient.objectInfo[]> UserInfoAsync(string username, string password)
     {
         return base.Channel.UserInfoAsync(username, password);
     }
