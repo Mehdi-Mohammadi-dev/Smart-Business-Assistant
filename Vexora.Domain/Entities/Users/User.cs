@@ -48,7 +48,7 @@ public class User : BaseEntity
 
         UserValidations.PhoneNumberValidation(phoneNumber);
 
-        UserValidations.PasswordValidation(PasswordHasher);
+        UserValidations.PasswordValidation(passwordHasher);
 
         FirstName = firstName;
         LastName = lastName;

@@ -19,13 +19,16 @@ public static class UserValidations
 
     public static void PhoneNumberValidation(string phoneNumber)
     {
-        if (string.IsNullOrWhiteSpace(phoneNumber))
+        if (string.IsNullOrWhiteSpace(phoneNumber) ||
+            !System.Text.RegularExpressions.Regex.IsMatch(phoneNumber, @"^09\d{9}$"))
             throw new UserExceptions.PhoneNumberInvalidException();
     }
 
-    public static void PasswordValidation(string password)
+    // This receives the password HASH (not the raw password), so only check it is present.
+    // The strength rules for the raw password are in the Api validators.
+    public static void PasswordValidation(string passwordHash)
     {
-        if (string.IsNullOrWhiteSpace(password)|| password.Length>6)
+        if (string.IsNullOrWhiteSpace(passwordHash))
             throw new UserExceptions.NotStrongPasswordException();
     }
 }

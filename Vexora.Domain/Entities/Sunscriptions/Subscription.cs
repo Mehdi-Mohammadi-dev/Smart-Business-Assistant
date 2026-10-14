@@ -1,4 +1,5 @@
-﻿using Vexora.Domain.Entities.Users;
+﻿using Vexora.Domain.Constants.Subscriptions;
+using Vexora.Domain.Entities.Users;
 using Vexora.Domain.Enums.Subscriptions;
 using Vexora.Domain.sharedKernel.BaseEntities;
 using Vexora.Domain.sharedKernel.Validators;
@@ -49,6 +50,28 @@ public class Subscription : UserBaseEntity
             Status = SubscriptionStatus.Pending
         };
     }
+
+    public static Subscription CreateTrial(
+        long userId,
+        int days = SubscriptionConstants.TrialDays)
+    {
+        var now = DateTimeOffset.UtcNow;
+
+        var subscription = Create(
+            userId,
+            SubscriptionPlanType.Trial,
+            now,
+            now.AddDays(days));
+
+        subscription.Activate();
+
+        return subscription;
+    }
+
+    public bool IsActiveAt(DateTimeOffset at)
+        => Status == SubscriptionStatus.Active
+           && StartAt <= at
+           && EndAt > at;
 
     public void Activate()
     {
