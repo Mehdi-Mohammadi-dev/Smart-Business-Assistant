@@ -14,8 +14,6 @@ public sealed class ValidationFilter(
         ActionExecutingContext context,
         ActionExecutionDelegate next)
     {
-        // Broken JSON / wrong data types. (The automatic 400 is switched off in Program.cs,
-        // so we must handle this ourselves, otherwise the action receives null.)
         if (!context.ModelState.IsValid)
         {
             context.Result = new BadRequestObjectResult(

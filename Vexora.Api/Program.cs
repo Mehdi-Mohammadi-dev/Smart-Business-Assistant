@@ -17,7 +17,6 @@ using Vexora.Infrastracture.Registrations;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ---------- Services ----------
 builder.Services
     .AddControllers(options =>
     {
@@ -30,7 +29,7 @@ builder.Services
 
 builder.Services.AddSwaggerGen(options =>
 {
-    // 1) Tell Swagger that this API uses a JWT "Bearer" token
+
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Type = SecuritySchemeType.Http,
@@ -39,7 +38,6 @@ builder.Services.AddSwaggerGen(options =>
         Description = "فقط accessToken را وارد کنید (کلمه Bearer را ننویسید)."
     });
 
-    // 2) Send that token with the requests
     options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
     {
         [new OpenApiSecuritySchemeReference("Bearer", document)] = []
@@ -52,7 +50,6 @@ builder.Services.AddApplication();
 
 builder.Services.AddValidatorsFromAssemblyContaining<ChatRequestValidator>();
 
-// ---------- Authentication (JWT) ----------
 var jwt = builder.Configuration
               .GetSection(JwtOptions.SectionName)
               .Get<JwtOptions>() ?? new JwtOptions();
@@ -68,7 +65,6 @@ builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
-        // Keep the claim names exactly as we wrote them in the token ("sub", "role", ...)
         options.MapInboundClaims = false;
 
         options.TokenValidationParameters = new TokenValidationParameters
@@ -126,7 +122,6 @@ builder.Services.AddAuthorization();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUser, JwtCurrentUser>();
 
-// ---------- Rate limiting (protects the SMS credit from abuse) ----------
 builder.Services.AddRateLimiter(options =>
 {
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
@@ -166,7 +161,6 @@ builder.Services.AddCors(options =>
         });
 });
 
-// ---------- Pipeline (the ORDER matters) ----------
 var app = builder.Build();
 
 app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
@@ -184,8 +178,8 @@ app.UseCors("Frontend");
 
 app.UseRateLimiter();
 
-app.UseAuthentication();   // who are you?   (reads the JWT)
-app.UseAuthorization();    // are you allowed? ([Authorize])
+app.UseAuthentication();   
+app.UseAuthorization();   
 
 app.MapControllers();
 

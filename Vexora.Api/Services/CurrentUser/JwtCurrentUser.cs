@@ -4,7 +4,6 @@ using Vexora.Application.Services.Interfaces.CurrentUser;
 
 namespace Vexora.Api.Services.CurrentUser;
 
-// Reads the user id from the JWT of the current HTTP request.
 public sealed class JwtCurrentUser(IHttpContextAccessor httpContextAccessor) : ICurrentUser
 {
     public long UserId

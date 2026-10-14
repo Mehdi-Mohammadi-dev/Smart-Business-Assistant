@@ -23,7 +23,6 @@ public sealed class GlobalExceptionHandlingMiddleware(
         }
         catch (OperationCanceledException) when (context.RequestAborted.IsCancellationRequested)
         {
-            // The client closed the connection. This is not an error.
             logger.LogInformation("Request cancelled by the client. Path: {Path}", context.Request.Path);
             context.Response.StatusCode = 499;
         }
@@ -37,7 +36,6 @@ public sealed class GlobalExceptionHandlingMiddleware(
     {
         var (statusCode, result) = Map(exception);
 
-        // Expected errors (400, 401, 409, ...) are only warnings. Only real server errors are "Error".
         if (statusCode >= 500)
         {
             logger.LogError(exception,
@@ -50,7 +48,6 @@ public sealed class GlobalExceptionHandlingMiddleware(
                 exception.GetType().Name, statusCode, context.Request.Path, exception.Message);
         }
 
-        // If the response already started, we can no longer change the status code or body.
         if (context.Response.HasStarted)
             return;
 
@@ -65,11 +62,9 @@ public sealed class GlobalExceptionHandlingMiddleware(
     {
         return exception switch
         {
-            // FluentValidation
             ValidationException validationException
                 => (StatusCodes.Status400BadRequest, CreateValidationResult(validationException)),
 
-            // Business errors from the Application layer (OTP, login, SMS, ...)
             AppException appException
                 => (
                     ToStatusCode(appException.Type),
@@ -78,11 +73,9 @@ public sealed class GlobalExceptionHandlingMiddleware(
                         new ApiError(appException.Code, appException.Message))
                 ),
 
-            // Request validation
             ArgumentNullException or BadHttpRequestException
                 => BadRequest("INVALID_REQUEST", "اطلاعات درخواست نامعتبر است."),
 
-            // Entity not found
             EntityNotFoundException
                 => (
                     StatusCodes.Status404NotFound,
@@ -91,14 +84,12 @@ public sealed class GlobalExceptionHandlingMiddleware(
                         new ApiError("ENTITY_NOT_FOUND", Messages.NotFoundInformation))
                 ),
 
-            // Shared domain exceptions
             SharedExceptions.InvalidIdException
                 => BadRequest("INVALID_ID", exception.Message),
 
             SharedExceptions.AmountInvalidException
                 => BadRequest("INVALID_AMOUNT", exception.Message),
 
-            // User exceptions
             UserExceptions.PhoneNumberInvalidException
                 => BadRequest("INVALID_PHONE_NUMBER", "شماره موبایل معتبر نیست."),
 
@@ -114,25 +105,21 @@ public sealed class GlobalExceptionHandlingMiddleware(
             AuthenticationExceptions.PhoneNumberRequired
                 => BadRequest("PHONE_NUMBER_REQUIRED", "شماره موبایل الزامی است."),
 
-            // Customer exceptions
             CustomerExceptions.FirstNameInvalidException
                 => BadRequest("INVALID_CUSTOMER_FIRST_NAME", exception.Message),
 
             CustomerExceptions.LastNameInvalidException
                 => BadRequest("INVALID_CUSTOMER_LAST_NAME", exception.Message),
 
-            // Sale item exceptions
             SaleItemExceptions.QuantityException
                 => BadRequest("INVALID_QUANTITY", exception.Message),
 
             SaleItemExceptions.UnitPriceException
                 => BadRequest("INVALID_UNIT_PRICE", exception.Message),
 
-            // Subscription exceptions
             SubscriptionExceptions.InvalidStartAndEndDate
                 => BadRequest("INVALID_SUBSCRIPTION_DATES", exception.Message),
 
-            // Unexpected exceptions: never show technical details to the user
             _ => (
                 StatusCodes.Status500InternalServerError,
                 ApiResult<object>.Failure(
