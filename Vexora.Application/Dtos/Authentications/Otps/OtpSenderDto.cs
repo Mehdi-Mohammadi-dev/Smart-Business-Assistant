@@ -1,4 +1,4 @@
-﻿namespace Vexora.Application.Dtos.Authentications;
+﻿namespace Vexora.Application.Dtos.Authentications.Otps;
 
 public record OtpSenderDto
 (   

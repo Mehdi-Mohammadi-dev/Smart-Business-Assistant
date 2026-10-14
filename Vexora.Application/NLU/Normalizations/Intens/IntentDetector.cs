@@ -104,7 +104,7 @@ public sealed class IntentDetector : IIntentDetector
         IntentType intent,
         string keyword)
     {
-        // عبارت‌های چندکلمه‌ای، شواهد قوی‌تری هستند.
+        
         var wordCount =
             keyword.Split(
                 ' ',
@@ -118,7 +118,7 @@ public sealed class IntentDetector : IIntentDetector
 
         return intent switch
         {
-            // پرداخت
+        
             IntentType.RegisterPayment
                 when keyword is "پرداخت" or "واریز"
                 => 2.5,
@@ -131,12 +131,12 @@ public sealed class IntentDetector : IIntentDetector
                 when keyword is "داد" or "دادم"
                 => 1.5,
 
-            // چک
+        
             IntentType.RegisterCheck
                 when keyword == "چک"
                 => 3.5,
 
-            // فروش
+        
             IntentType.RegisterSale
                 when keyword == "فروش"
                 => 2.5,
@@ -145,12 +145,12 @@ public sealed class IntentDetector : IIntentDetector
                 when keyword is "جنس" or "کالا"
                 => 1.5,
 
-            // گزارش فروش
+        
             IntentType.GetTodaySales
                 when keyword == "فروش"
                 => 1.5,
 
-            // کلمات عمومی
+        
             _ => GetGenericKeywordWeight(keyword)
         };
     }
@@ -174,9 +174,7 @@ public sealed class IntentDetector : IIntentDetector
         if (bestScore <= 0)
             return 0;
 
-        // فقط یک Intent کاندید وجود دارد.
-        // در این حالت نباید صرفاً به خاطر پایین بودن score
-        // آن را Unknown کنیم.
+      
         if (secondScore <= 0)
         {
             return Math.Clamp(
@@ -185,8 +183,6 @@ public sealed class IntentDetector : IIntentDetector
                 1);
         }
 
-        // وقتی چند Intent رقیب داریم،
-        // نسبت شواهد Intent برتر را محاسبه می‌کنیم.
         return Math.Clamp(
             bestScore / (bestScore + secondScore),
             0,

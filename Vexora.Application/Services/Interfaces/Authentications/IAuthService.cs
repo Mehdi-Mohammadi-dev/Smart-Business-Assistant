@@ -1,4 +1,5 @@
 using Vexora.Application.Dtos.Authentications;
+using Vexora.Application.Dtos.Authentications.Otps;
 
 namespace Vexora.Application.Services.Interfaces.Authentications;
 

@@ -3,6 +3,7 @@ using Vexora.Api.Contracts.Authentications.Profiles;
 using Vexora.Api.Contracts.Authentications.Subscriptions;
 using Vexora.Api.Contracts.Authentications.Users;
 using Vexora.Application.Dtos.Authentications;
+using Vexora.Application.Dtos.Authentications.Otps;
 
 namespace Vexora.Api.Mappers.Authentications;
 

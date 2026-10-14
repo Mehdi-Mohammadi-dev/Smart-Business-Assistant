@@ -7,7 +7,6 @@ public sealed class JwtOptions
     public string Issuer { get; set; } = "Vexora";
     public string Audience { get; set; } = "VexoraClients";
 
-    // Must be at least 32 characters. Set it with user-secrets / environment variable.
     public string Secret { get; set; } = "";
 
     public int AccessTokenMinutes { get; set; } = 60;

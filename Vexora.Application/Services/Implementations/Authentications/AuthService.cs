@@ -1,6 +1,7 @@
 using System.Security.Cryptography;
 using Vexora.Application.Caching.Authentications;
 using Vexora.Application.Dtos.Authentications;
+using Vexora.Application.Dtos.Authentications.Otps;
 using Vexora.Application.Exceptions.Authentications;
 using Vexora.Application.Repositories.Authentications;
 using Vexora.Application.Repositories.RefreshTokens;
