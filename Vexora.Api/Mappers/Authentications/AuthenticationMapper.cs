@@ -4,6 +4,9 @@ using Vexora.Api.Contracts.Authentications.Subscriptions;
 using Vexora.Api.Contracts.Authentications.Users;
 using Vexora.Application.Dtos.Authentications;
 using Vexora.Application.Dtos.Authentications.Otps;
+using Vexora.Application.Dtos.Authentications.Profiles;
+using Vexora.Application.Dtos.Authentications.Subscriptions;
+using Vexora.Application.Dtos.Authentications.Users;
 
 namespace Vexora.Api.Mappers.Authentications;
 
@@ -104,7 +107,7 @@ public static class AuthenticationMapper
          dto.AccessToken,
          dto.AccessTokenExpiresAt,
          dto.RefreshToken,
-         dto.AccessTokenExpiresAt,
+         dto.RefreshTokenExpiresAt,
          dto.Profile.ProfileContractMapToProfileDto()
             );
 }

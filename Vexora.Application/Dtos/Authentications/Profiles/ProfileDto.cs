@@ -1,4 +1,5 @@
-﻿using Vexora.Application.Dtos.Authentications.Users;
+﻿using Vexora.Application.Dtos.Authentications.Subscriptions;
+using Vexora.Application.Dtos.Authentications.Users;
 
 namespace Vexora.Application.Dtos.Authentications.Profiles;
 

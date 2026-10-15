@@ -9,16 +9,16 @@ public sealed class SendOtpContractValidator : AbstractValidator<SendOtpContract
     {
         RuleFor(x => x.FirstName)
             .NotEmpty().WithMessage("نام الزامی است")
-            .MaximumLength(100).WithMessage("نام نباید بیشتر از ۱۰۰ کاراکتر باشد");
+            .MaximumLength(80).WithMessage("نام نباید بیشتر از ۱۰۰ کاراکتر باشد");
 
-        RuleFor(x => x.FirstName)
+        RuleFor(x => x.LastName)
             .NotEmpty().WithMessage("نام خانوادگی الزامی است")
-            .MaximumLength(100).WithMessage("نام خانوادگی نباید بیشتر از ۱۰۰ کاراکتر باشد");
+            .MaximumLength(80).WithMessage("نام خانوادگی نباید بیشتر از ۱۰۰ کاراکتر باشد");
 
         RuleFor(x => x.PhoneNumber).Phone();
 
         RuleFor(x => x.Password)
-            .NotEmpty().WithMessage("نام الزامی است")
+            .NotEmpty().WithMessage("رمز عبور الزامی است")
             .MinimumLength(8).WithMessage("رمز عبور نباید کمتر از 8 کاراکتر باشد");
     }
 }

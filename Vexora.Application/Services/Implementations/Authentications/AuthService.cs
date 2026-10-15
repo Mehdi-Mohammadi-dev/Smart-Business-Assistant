@@ -2,6 +2,9 @@ using System.Security.Cryptography;
 using Vexora.Application.Caching.Authentications;
 using Vexora.Application.Dtos.Authentications;
 using Vexora.Application.Dtos.Authentications.Otps;
+using Vexora.Application.Dtos.Authentications.Profiles;
+using Vexora.Application.Dtos.Authentications.Subscriptions;
+using Vexora.Application.Dtos.Authentications.Users;
 using Vexora.Application.Exceptions.Authentications;
 using Vexora.Application.Repositories.Authentications;
 using Vexora.Application.Repositories.RefreshTokens;
@@ -99,13 +102,7 @@ public sealed class AuthService(
             phone,
             $"کد تأیید وکسورا: {code}");
 
-        otp.MarkAsUsed();
 
-        await unitOfWork.SaveAsync(CancellationToken.None);
-
-        //await pendingRegistrationStore.RemoveAsync(
-        //    registrationToken,
-        //    CancellationToken.None);
 
 
         return new SendOtpResultDto
@@ -132,7 +129,7 @@ public sealed class AuthService(
 
         if (otp.PhoneNumber != pending.PhoneNumber ||
             otp.Purpose != OtpPurpose.PhoneVerification ||
-            !otp.UsedAt.HasValue)
+            otp.UsedAt.HasValue)
         {
             throw new AuthExceptions.OtpInvalidException();
         }
@@ -156,6 +153,8 @@ public sealed class AuthService(
         {
             throw new AuthExceptions.PhoneNumberAlreadyExistsException();
         }
+
+        otp.MarkAsUsed();
 
         var user = User.Register(
             pending.FirstName,
