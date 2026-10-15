@@ -88,9 +88,6 @@ builder.Services
                 var tokenId = context.Principal?
                     .FindFirst("jti")?.Value;
 
-                Console.WriteLine(
-                    $"JWT validated. jti: {tokenId ?? "NULL"}");
-
                 try
                 {
                     var revocationStore = context.HttpContext
@@ -101,14 +98,11 @@ builder.Services
                         tokenId!,
                         context.HttpContext.RequestAborted);
 
-                    Console.WriteLine($"Token revoked: {isRevoked}");
-
                     if (isRevoked)
                         context.Fail("Access token has been revoked.");
                 }
-                catch (Exception ex)
+                catch
                 {
-                    Console.WriteLine($"Token validation error: {ex}");
 
                     context.Fail(
                         "Access token validation is temporarily unavailable.");
