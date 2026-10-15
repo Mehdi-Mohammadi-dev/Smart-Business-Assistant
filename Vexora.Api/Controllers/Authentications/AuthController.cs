@@ -17,13 +17,16 @@ public sealed class AuthController(IAuthService authService) : ControllerBase
     [AllowAnonymous]
     [EnableRateLimiting("otp")]
     [HttpPost("send-otp")]
-    public async Task<ApiResult<object?>> SendOtp(
-        [FromBody] SendOtpContract request,
-        CancellationToken cancellationToken)
+    public async Task<ApiResult<SendOtpResponse>> SendOtp(
+    [FromBody] SendOtpContract request,
+    CancellationToken cancellationToken)
     {
-        await authService.SendOtpAsync(request.SendOtpContractMapToSendOtpDto(), cancellationToken);
+        var result = await authService.SendOtpAsync(
+            request.SendOtpContractMapToSendOtpDto(), cancellationToken);
 
-        return ApiResult<object?>.SuccessResult(null, "کد تایید ارسال شد.");
+        return ApiResult<SendOtpResponse>.SuccessResult(
+            new SendOtpResponse(result.RegistrationToken, result.ExpiresAt),
+            "کد تایید ارسال شد.");
     }
 
     [AllowAnonymous]

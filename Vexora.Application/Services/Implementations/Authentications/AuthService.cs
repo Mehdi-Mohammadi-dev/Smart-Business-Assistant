@@ -100,7 +100,7 @@ public sealed class AuthService(
 
         await smsSender.SendAsync(
             phone,
-            $"کد تأیید وکسورا: {code}");
+            $"کد تأیید نوتا: {code}");
 
 
 
