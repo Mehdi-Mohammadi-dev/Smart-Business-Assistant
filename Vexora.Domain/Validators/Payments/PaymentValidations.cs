@@ -7,5 +7,4 @@ namespace Vexora.Domain.Validators.Payments;
 
 public static class PaymentValidations
 {
-    
 }

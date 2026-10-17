@@ -13,7 +13,6 @@ public sealed class Customer:UserBaseEntity
 
     private Customer()
     {
-        
     }
 
     #endregion
@@ -26,7 +25,7 @@ public sealed class Customer:UserBaseEntity
         firstName = firstName.Trim();
         lastName = lastName?.Trim() ?? string.Empty;
         CustomerValidations.ValidatName(firstName);
-        
+
         return new Customer
         {
             UserId=userId,
@@ -44,7 +43,6 @@ public sealed class Customer:UserBaseEntity
         CustomerValidations.ValidatName(firstName);
         FirstName = firstName;
         LastName = lastName;
-        
     }
 
     #endregion

@@ -42,7 +42,6 @@ public sealed class Sale : UserBaseEntity
             CustomerId = customerId,
             SaleDate = saleDate
         };
-
     }
     public void AddItem(long saleId,string description, decimal quantity, decimal unitPrice)
     {
@@ -50,5 +49,4 @@ public sealed class Sale : UserBaseEntity
     }
 
     #endregion
-
 }

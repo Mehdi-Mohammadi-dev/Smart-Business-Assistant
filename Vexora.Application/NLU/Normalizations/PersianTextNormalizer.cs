@@ -3,7 +3,7 @@ using System.Text.RegularExpressions;
 using Vexora.Application.NLU.Abstractions;
 using Vexora.Application.NLU.Models;
 
-namespace Vexora.Application.NLU.Normalizations;    
+namespace Vexora.Application.NLU.Normalizations;
 
 public sealed partial class PersianTextNormalizer : ITextNormalizer
 {

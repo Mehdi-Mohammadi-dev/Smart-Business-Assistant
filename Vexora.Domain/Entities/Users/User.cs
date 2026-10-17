@@ -16,13 +16,12 @@ public class User : BaseEntity
 
     private User()
     {
-
     }
 
     #endregion
 
     #region Functions
-        
+
     public static User Register(string firstName, string lastName, string phoneNumber, string passwordHasher)
     {
         UserValidations.ValidatName(firstName, lastName);
@@ -54,8 +53,6 @@ public class User : BaseEntity
         LastName = lastName;
         PhoneNumber = phoneNumber;
         PasswordHasher = passwordHasher;
-        
-
     }
 
     #endregion

@@ -10,9 +10,7 @@ public interface ITokenService
 
     AccessTokenResult CreateAccessToken(User user);
 
-    // A random value that is given to the client.
     string GenerateRefreshToken();
 
-    // Only the hash is stored in the database.
     string HashRefreshToken(string refreshToken);
 }

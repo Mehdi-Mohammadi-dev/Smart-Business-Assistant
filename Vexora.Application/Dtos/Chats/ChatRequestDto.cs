@@ -3,6 +3,6 @@
 public sealed record ChatRequestDto
 (
     string ConversationId,
-    
+
     string Message
 );

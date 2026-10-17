@@ -29,7 +29,6 @@ builder.Services
 
 builder.Services.AddSwaggerGen(options =>
 {
-
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Type = SecuritySchemeType.Http,
@@ -103,7 +102,6 @@ builder.Services
                 }
                 catch
                 {
-
                     context.Fail(
                         "Access token validation is temporarily unavailable.");
                 }
@@ -172,8 +170,8 @@ app.UseCors("Frontend");
 
 app.UseRateLimiter();
 
-app.UseAuthentication();   
-app.UseAuthorization();   
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapControllers();
 

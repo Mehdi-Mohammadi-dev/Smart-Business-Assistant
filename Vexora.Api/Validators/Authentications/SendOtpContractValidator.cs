@@ -22,4 +22,3 @@ public sealed class SendOtpContractValidator : AbstractValidator<SendOtpContract
             .MinimumLength(8).WithMessage("رمز عبور نباید کمتر از 8 کاراکتر باشد");
     }
 }
-

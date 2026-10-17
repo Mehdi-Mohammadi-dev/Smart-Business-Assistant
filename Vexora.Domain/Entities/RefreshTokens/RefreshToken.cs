@@ -54,8 +54,6 @@ public class RefreshToken : UserBaseEntity
 
         RevokedAt = DateTimeOffset.UtcNow;
         ReplacedByTokenHash = replacedByTokenHash;
-
-        
     }
 
     #endregion

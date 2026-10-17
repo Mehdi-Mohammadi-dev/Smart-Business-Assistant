@@ -37,7 +37,6 @@ public class Subscription : UserBaseEntity
         DateTimeOffset startAt,
         DateTimeOffset endAt)
     {
-
         Guard.AgainstInvalidId(userId);
 
         SubscriptionValidation.CheckStartAndEndDate(startAt, endAt);
@@ -79,7 +78,6 @@ public class Subscription : UserBaseEntity
             throw new InvalidOperationException(
                 "A cancelled subscription cannot be activated.");
         Status = SubscriptionStatus.Active;
-        
     }
 
     public void Cancel()
@@ -88,13 +86,11 @@ public class Subscription : UserBaseEntity
             return;
 
         Status = SubscriptionStatus.Cancelled;
-        
     }
 
     public void Expire()
     {
         Status = SubscriptionStatus.Expired;
-        
     }
 
     #endregion

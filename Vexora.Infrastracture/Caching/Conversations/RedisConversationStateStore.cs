@@ -28,7 +28,7 @@ public sealed class RedisConversationStateStore(
         var json = Encoding.UTF8.GetString(value);
 
         return JsonSerializer.Deserialize<ConversationState>(json);
-    }   
+    }
 
     public async Task SaveAsync(
         ConversationState state,

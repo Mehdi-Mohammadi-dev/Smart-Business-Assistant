@@ -12,7 +12,6 @@ public sealed class PersianWordFilter : IWordFilter
         "شب"
     ];
 
-
     public bool IsIgnored(string word)
     {
         return IgnoredWords.Contains(word);

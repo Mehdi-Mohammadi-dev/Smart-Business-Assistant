@@ -6,4 +6,3 @@ public record ChatResponse
     bool RequiresUserInput,
     IReadOnlyCollection<ChatResponseOption> Options
 );
-

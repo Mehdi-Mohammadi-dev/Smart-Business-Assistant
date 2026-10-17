@@ -3,7 +3,6 @@ using Vexora.Application.Services.Interfaces.Authentications;
 
 namespace Vexora.Infrastracture.Sms;
 
-
 public sealed class FakeSmsSender(ILogger<FakeSmsSender> logger) : ISmsSender
 {
     public Task<long> SendAsync(string mobile, string text)

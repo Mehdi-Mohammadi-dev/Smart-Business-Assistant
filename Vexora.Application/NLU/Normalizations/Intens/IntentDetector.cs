@@ -104,7 +104,6 @@ public sealed class IntentDetector : IIntentDetector
         IntentType intent,
         string keyword)
     {
-        
         var wordCount =
             keyword.Split(
                 ' ',
@@ -118,7 +117,6 @@ public sealed class IntentDetector : IIntentDetector
 
         return intent switch
         {
-        
             IntentType.RegisterPayment
                 when keyword is "پرداخت" or "واریز"
                 => 2.5,
@@ -131,12 +129,10 @@ public sealed class IntentDetector : IIntentDetector
                 when keyword is "داد" or "دادم"
                 => 1.5,
 
-        
             IntentType.RegisterCheck
                 when keyword == "چک"
                 => 3.5,
 
-        
             IntentType.RegisterSale
                 when keyword == "فروش"
                 => 2.5,
@@ -145,12 +141,10 @@ public sealed class IntentDetector : IIntentDetector
                 when keyword is "جنس" or "کالا"
                 => 1.5,
 
-        
             IntentType.GetTodaySales
                 when keyword == "فروش"
                 => 1.5,
 
-        
             _ => GetGenericKeywordWeight(keyword)
         };
     }
@@ -174,7 +168,6 @@ public sealed class IntentDetector : IIntentDetector
         if (bestScore <= 0)
             return 0;
 
-      
         if (secondScore <= 0)
         {
             return Math.Clamp(

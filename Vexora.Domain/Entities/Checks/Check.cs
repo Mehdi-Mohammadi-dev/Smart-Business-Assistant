@@ -66,7 +66,6 @@ public sealed class Check : UserBaseEntity
     public void MarkAsRegistered()
     {
         BankRegistrationStatus = BankRegistrationStatus.Registered;
-        
     }
 
     public void MarkAsPaid()
@@ -75,7 +74,6 @@ public sealed class Check : UserBaseEntity
             throw new InvalidOperationException();
 
         SettlementStatus = CheckSettlementStatus.Paid;
-        
     }
 
     public void MarkAsBounced()
@@ -84,7 +82,6 @@ public sealed class Check : UserBaseEntity
             throw new InvalidOperationException();
 
         SettlementStatus = CheckSettlementStatus.Bounced;
-        
     }
 
     #endregion

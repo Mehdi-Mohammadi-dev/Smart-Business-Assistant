@@ -10,4 +10,3 @@ public static class CustomerExceptions
     public sealed class LastNameInvalidException() : Exception
     (CustomerConstants.LastNameInvalid);
 }
-    

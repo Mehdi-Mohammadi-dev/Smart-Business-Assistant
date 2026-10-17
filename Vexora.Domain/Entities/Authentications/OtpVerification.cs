@@ -75,8 +75,6 @@ public class OtpVerification : BaseEntity
                 "OTP is no longer valid.");
 
         AttemptCount++;
-
-        
     }
 
     public void MarkAsUsed()
@@ -86,8 +84,6 @@ public class OtpVerification : BaseEntity
                 "OTP is no longer valid.");
 
         UsedAt = DateTimeOffset.UtcNow;
-
-        
     }
 
     #endregion

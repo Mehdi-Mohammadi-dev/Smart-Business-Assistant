@@ -53,12 +53,9 @@ public static class DependencyInjection
         else
             services.AddScoped<ISmsSender, TsmsSmsSender>();
 
-
         services.Configure<JwtOptions>(configuration.GetSection(JwtOptions.SectionName));
         services.AddSingleton<IPasswordHasher, BcryptPasswordHasher>();
         services.AddSingleton<ITokenService, JwtTokenService>();
-
-
 
         services.AddScoped<ICheckRepository, CheckRepository>();
 
@@ -68,13 +65,12 @@ public static class DependencyInjection
 
         services.AddScoped<IPaymentRepository,PaymentRepository>();
         services.AddScoped<IUnitOfWork,UnitOfWork>();
-        
+
         services.AddScoped<IUserRepository,UserRepository>();
         services.AddScoped<IOtpVerificationRepository, OtpVerificationRepository>();
         services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 
         services.AddScoped<IAccessTokenRevocationStore, RedisAccessTokenRevocationStore>();
-
     }
 }

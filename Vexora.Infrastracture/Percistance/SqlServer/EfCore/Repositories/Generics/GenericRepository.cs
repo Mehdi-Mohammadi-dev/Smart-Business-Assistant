@@ -26,7 +26,6 @@ public class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEnt
 
     public async Task InsertAsync(TEntity entity, CancellationToken cancellationToken = default)
     {
-            await _dbset.AddAsync(entity, cancellationToken);      
+            await _dbset.AddAsync(entity, cancellationToken);
     }
-
 }

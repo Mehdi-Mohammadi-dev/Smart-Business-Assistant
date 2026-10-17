@@ -30,6 +30,5 @@ public sealed class SaleConfiguration : IEntityTypeConfiguration<Sale>
             .OnDelete(DeleteBehavior.Restrict);
 
         #endregion
-
     }
 }

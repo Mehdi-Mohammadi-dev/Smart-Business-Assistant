@@ -24,8 +24,6 @@ public static class UserValidations
             throw new UserExceptions.PhoneNumberInvalidException();
     }
 
-    // This receives the password HASH (not the raw password), so only check it is present.
-    // The strength rules for the raw password are in the Api validators.
     public static void PasswordValidation(string passwordHash)
     {
         if (string.IsNullOrWhiteSpace(passwordHash))

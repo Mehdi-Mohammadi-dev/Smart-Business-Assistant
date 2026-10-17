@@ -6,4 +6,3 @@ namespace Vexora.Application.Dtos.Authentications.Profiles;
 public record ProfileDto(
     UserDto User,
     SubscriptionDto? Subscription);
-

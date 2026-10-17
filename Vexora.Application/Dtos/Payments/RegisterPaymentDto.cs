@@ -3,8 +3,8 @@
 public sealed record RegisterPaymentDto
 (
     long CustomerId ,
-   
-    decimal Amount , 
+
+    decimal Amount ,
 
     DateTime? PaymentDate
 );

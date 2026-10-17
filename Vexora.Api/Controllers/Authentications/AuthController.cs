@@ -13,7 +13,6 @@ namespace Vexora.Api.Controllers.Authentications;
 [Route("api/auth")]
 public sealed class AuthController(IAuthService authService) : ControllerBase
 {
-
     [AllowAnonymous]
     [EnableRateLimiting("otp")]
     [HttpPost("send-otp")]

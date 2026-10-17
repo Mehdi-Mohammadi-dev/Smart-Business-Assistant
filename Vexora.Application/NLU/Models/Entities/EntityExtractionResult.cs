@@ -2,5 +2,5 @@
 
 public sealed record EntityExtractionResult
 (
-    IReadOnlyCollection<EntityResult> Entities 
+    IReadOnlyCollection<EntityResult> Entities
 );

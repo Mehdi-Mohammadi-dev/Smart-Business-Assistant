@@ -8,5 +8,5 @@ public static class SubscriptionValidation
     {
         if (endAt <= startAt)
             throw new InvalidStartAndEndDate();
-    } 
+    }
 }

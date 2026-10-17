@@ -12,7 +12,7 @@ public static class UserBaseConfiguration
     {
         builder.BaseConfigurationProperties();
 
-        builder.Property(x => x.UserId) 
+        builder.Property(x => x.UserId)
             .IsRequired();
 
         #region Relations

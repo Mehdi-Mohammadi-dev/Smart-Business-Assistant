@@ -6,5 +6,4 @@ public abstract class BaseEntity
     public DateTimeOffset CreateAt { get; internal set; }
     public DateTimeOffset UpdateAt { get; internal set; }
     public bool IsDelete { get; private set; }
-
 }

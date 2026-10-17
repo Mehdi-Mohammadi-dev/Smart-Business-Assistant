@@ -26,6 +26,5 @@ public sealed class CustomerConfiguration : IEntityTypeConfiguration<Customer>
             x.FirstName,
             x.LastName
         }).IsUnique();
-
     }
 }

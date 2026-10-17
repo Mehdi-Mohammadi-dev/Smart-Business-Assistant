@@ -7,4 +7,4 @@ public static class ChatsConstants
     public const string NoImplimentationMvpMessage = "این عملیات هنوز در نسخه MVP پیاده‌سازی نشده است.";
 
     public const string RegisterPaymentProcessingMessage = "در حال پردازش ثبت پرداخت...";
-}   
+}

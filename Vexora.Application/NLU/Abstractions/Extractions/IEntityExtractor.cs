@@ -8,5 +8,3 @@ public interface IEntityExtractor
 
     IReadOnlyCollection<EntityResult> Extract(string normalizedText);
 }
-
-

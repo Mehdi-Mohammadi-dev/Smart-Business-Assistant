@@ -102,16 +102,12 @@ public sealed class AuthService(
             phone,
             $"کد تأیید نوتا: {code}");
 
-
-
-
         return new SendOtpResultDto
         (
             registrationToken,
             now.Add(registrationLifetime)
         );
     }
-
 
     public async Task<AuthResultDto> RegisterAsync(
      RegisterDto dto,
@@ -226,7 +222,6 @@ public sealed class AuthService(
 
         return ToProfile(user, subscription);
     }
-
 
     private async Task<AuthResultDto> IssueTokensAsync(
         User user,

@@ -25,7 +25,6 @@ public sealed class ConversationProcessorTests
     [Fact]
     public async Task ProcessAsync_WhenCustomerIsAmbiguous_ShouldSaveConversationState()
     {
-        // Arrange
         var nluPipeline =
             new Mock<INluPipeline>();
 
@@ -83,11 +82,9 @@ public sealed class ConversationProcessorTests
             "conversation-1",
             "از مهدی 150 تومن گرفتم");
 
-        // Act
         var result =
             await service.ProcessAsync(request);
 
-        // Assert
         Assert.True(
             result.Status == ProcessingStatus.Failed);
 
@@ -131,7 +128,6 @@ public sealed class ConversationProcessorTests
     [Fact]
     public async Task ProcessAsync_WhenCustomerSelectionIsValid_ShouldRegisterPayment()
     {
-        // Arrange
         var conversationStore =
             new Mock<IConversationStateStore>();
 
@@ -197,11 +193,9 @@ public sealed class ConversationProcessorTests
             "conversation-1",
             "2");
 
-        // Act
         var result =
             await service.ProcessAsync(request);
 
-        // Assert
         Assert.Equal(
             ProcessingStatus.Success,
             result.Status);
@@ -228,7 +222,6 @@ public sealed class ConversationProcessorTests
     [Fact]
     public async Task ProcessAsync_WhenCustomerSelectionIsInvalid_ShouldAskAgain()
     {
-        // Arrange
         var conversationStore =
             new Mock<IConversationStateStore>();
 
@@ -290,14 +283,12 @@ public sealed class ConversationProcessorTests
                 checkService.Object,
                 dateExtractor.Object);
 
-        // Act
         var result =
             await service.ProcessAsync(
                 new ChatRequestDto(
                     "conversation-1",
                     "5"));
 
-        // Assert
         Assert.Equal(
             ProcessingStatus.Failed,
             result.Status);
@@ -322,7 +313,6 @@ public sealed class ConversationProcessorTests
     [Fact]
     public async Task ProcessAsync_WhenCustomerNotFound_ShouldWaitForCreationConfirmation()
     {
-        // Arrange
         var nluPipeline =
             new Mock<INluPipeline>();
 
@@ -374,14 +364,12 @@ public sealed class ConversationProcessorTests
                 checkService.Object,
                 dateExtractor.Object);
 
-        // Act
         var result =
             await service.ProcessAsync(
                 new ChatRequestDto(
                     "conversation-1",
                     "از مهدی 150 تومن گرفتم"));
 
-        // Assert
         Assert.Equal(
             ProcessingStatus.Failed,
             result.Status);
@@ -458,7 +446,6 @@ public sealed class ConversationProcessorTests
     [Fact]
     public async Task ProcessAsync_WhenCustomerIsFound_ShouldRegisterPayment()
     {
-        // Arrange
         var nluPipeline = new Mock<INluPipeline>();
         var customerService = new Mock<ICustomerService>();
         var conversationStore = new Mock<IConversationStateStore>();
@@ -490,13 +477,11 @@ public sealed class ConversationProcessorTests
             checkService.Object,
             dateExtractor.Object);
 
-        // Act
         var result = await service.ProcessAsync(
             new ChatRequestDto(
                 "conversation-1",
                 "از مهدی 150 تومن گرفتم"));
 
-        // Assert
         Assert.Equal(
             ProcessingStatus.Success,
             result.Status);
@@ -519,7 +504,6 @@ public sealed class ConversationProcessorTests
     [Fact]
     public async Task ProcessAsync_WhenCustomerNotFoundAndUserConfirms_ShouldCreateCustomerAndRegisterPayment()
     {
-        // Arrange
         var nluPipeline = new Mock<INluPipeline>();
         var customerService = new Mock<ICustomerService>();
         var conversationStore = new Mock<IConversationStateStore>();
@@ -568,13 +552,11 @@ public sealed class ConversationProcessorTests
             checkService.Object,
             dateExtractor.Object);
 
-        // Act
         var result = await service.ProcessAsync(
             new ChatRequestDto(
                 "conversation-1",
                 "بله"));
 
-        // Assert
         Assert.Equal(
             ProcessingStatus.Success,
             result.Status);
@@ -604,7 +586,6 @@ public sealed class ConversationProcessorTests
     [Fact]
     public async Task ProcessAsync_WhenCustomerIsFoundAndCheckHasDate_ShouldRegisterCheck()
     {
-        // Arrange
         var nluPipeline = new Mock<INluPipeline>();
         var customerService = new Mock<ICustomerService>();
         var conversationStore = new Mock<IConversationStateStore>();
@@ -638,13 +619,11 @@ public sealed class ConversationProcessorTests
             checkService.Object,
             dateExtractor.Object);
 
-        // Act
         var result = await service.ProcessAsync(
             new ChatRequestDto(
                 "conversation-check-1",
                 "از علی یک چک 50 میلیون تومنی برای 10 مهر گرفتم"));
 
-        // Assert
         Assert.Equal(
             ProcessingStatus.Success,
             result.Status);
@@ -704,7 +683,6 @@ public sealed class ConversationProcessorTests
     [Fact]
     public async Task ProcessAsync_WhenCheckDateIsMissing_ShouldWaitForCheckDate()
     {
-        // Arrange
         var nluPipeline = new Mock<INluPipeline>();
         var customerService = new Mock<ICustomerService>();
         var conversationStore = new Mock<IConversationStateStore>();
@@ -745,13 +723,11 @@ public sealed class ConversationProcessorTests
             checkService.Object,
             dateExtractor.Object);
 
-        // Act
         var result = await service.ProcessAsync(
             new ChatRequestDto(
                 "conversation-check-1",
                 "از علی یک چک 50 میلیون تومنی گرفتم"));
 
-        // Assert
         Assert.Equal(
             ProcessingStatus.Failed,
             result.Status);
@@ -821,7 +797,6 @@ public sealed class ConversationProcessorTests
     [Fact]
     public async Task ProcessAsync_WhenWaitingForCheckDateAndDateIsProvided_ShouldRegisterCheck()
     {
-        // Arrange
         var conversationStore =
             new Mock<IConversationStateStore>();
 
@@ -877,13 +852,11 @@ public sealed class ConversationProcessorTests
             checkService.Object,
             dateExtractor.Object);
 
-        // Act
         var result = await service.ProcessAsync(
             new ChatRequestDto(
                 "conversation-check-1",
                 "10 مهر"));
 
-        // Assert
         Assert.Equal(
             ProcessingStatus.Success,
             result.Status);
@@ -907,5 +880,4 @@ public sealed class ConversationProcessorTests
             "علی کریمی",
             result.Message);
     }
-
 }

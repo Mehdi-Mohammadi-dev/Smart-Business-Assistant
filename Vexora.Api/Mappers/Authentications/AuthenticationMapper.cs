@@ -79,7 +79,7 @@ public static class AuthenticationMapper
             contract.LastName,
             contract.PhoneNumber
         );
-        
+
     public static UserContract UserDtoMapToUserContract(this UserDto dto) =>
     new UserContract
     (

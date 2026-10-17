@@ -12,4 +12,3 @@ public static class AuthRules
             .NotEmpty().WithMessage("شماره موبایل الزامی است.")
             .Matches(PhonePattern).WithMessage(PhoneMessage);
 }
-

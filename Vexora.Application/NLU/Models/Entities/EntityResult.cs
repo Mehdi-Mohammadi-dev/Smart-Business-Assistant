@@ -4,7 +4,7 @@ public sealed record EntityResult
 (
     EntityType Type,
 
-    string RawValue, 
+    string RawValue,
 
     object? Value ,
 

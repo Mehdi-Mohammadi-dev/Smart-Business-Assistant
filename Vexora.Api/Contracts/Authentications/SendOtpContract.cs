@@ -7,4 +7,3 @@ public record SendOtpContract
     string PhoneNumber,
     string Password
 );
-

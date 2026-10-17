@@ -19,9 +19,6 @@ public sealed partial class PersianNumberParser : IPersianNumberParser
 
         text = Normalize(text);
 
-        // 150
-        // 1.5
-        // 1,500
         if (TryParseNumeric(text, out var numericValue))
         {
             result = new ParsedNumber
@@ -32,7 +29,6 @@ public sealed partial class PersianNumberParser : IPersianNumberParser
             return true;
         }
 
-        // "دو و نیم"
         if (TryParseFractional(text, out var fractionalValue))
         {
             result = new ParsedNumber
@@ -43,7 +39,6 @@ public sealed partial class PersianNumberParser : IPersianNumberParser
             return true;
         }
 
-        // "دو میلیون و پانصد هزار"
         if (TryParseWords(text, out var wordValue))
         {
             result = new ParsedNumber

@@ -13,7 +13,6 @@ public sealed class ChatServiceTests
     [Fact]
     public async Task ProcessAsync_WhenProcessorSucceeds_ShouldReturnSuccessfulResponse()
     {
-        // Arrange
         var conversationProcessor =
             new Mock<IConversationProcessor>();
 
@@ -34,10 +33,8 @@ public sealed class ChatServiceTests
             "conversation-1",
             "از مهدی 150 تومن گرفتم");
 
-        // Act
         var result = await service.ProcessAsync(request);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(
             "درخواست شناسایی شد.",
@@ -55,7 +52,6 @@ public sealed class ChatServiceTests
     [Fact]
     public async Task ProcessAsync_WhenProcessorFails_ShouldRequireUserInput()
     {
-        // Arrange
         var conversationProcessor =
             new Mock<IConversationProcessor>();
 
@@ -76,10 +72,8 @@ public sealed class ChatServiceTests
             "conversation-1",
             "asdfgh");
 
-        // Act
         var result = await service.ProcessAsync(request);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(
             "متوجه درخواست شما نشدم.",
@@ -97,7 +91,6 @@ public sealed class ChatServiceTests
     [Fact]
     public async Task ProcessAsync_ShouldPassCancellationTokenToProcessor()
     {
-        // Arrange
         var conversationProcessor =
             new Mock<IConversationProcessor>();
 
@@ -121,12 +114,10 @@ public sealed class ChatServiceTests
         using var cts =
             new CancellationTokenSource();
 
-        // Act
         await service.ProcessAsync(
             request,
             cts.Token);
 
-        // Assert
         conversationProcessor.Verify(
             x => x.ProcessAsync(
                 request,
@@ -137,7 +128,6 @@ public sealed class ChatServiceTests
     [Fact]
     public async Task ProcessAsync_WhenProcessorReturnsUnknownIntentFailure_ShouldReturnRequiresUserInput()
     {
-        // Arrange
         var conversationProcessor =
             new Mock<IConversationProcessor>();
 
@@ -158,10 +148,8 @@ public sealed class ChatServiceTests
             "conversation-1",
             "یک متن نامفهوم");
 
-        // Act
         var result = await service.ProcessAsync(request);
 
-        // Assert
         Assert.Equal(
             "متوجه درخواست شما نشدم.",
             result.Message);
@@ -172,7 +160,6 @@ public sealed class ChatServiceTests
     [Fact]
     public async Task ProcessAsync_WhenCandidatesExist_ShouldMapCandidateNamesToOptions()
     {
-        // Arrange
         var candidates = new[]
         {
         new CustomerCandidateDto(1, "مهدی محمدی"),
@@ -197,10 +184,8 @@ public sealed class ChatServiceTests
             "conversation-1",
             "از مهدی 150 تومن گرفتم");
 
-        // Act
         var result = await service.ProcessAsync(request);
 
-        // Assert
         Assert.Equal(
             "لطفاً مشتری موردنظر را انتخاب کنید.",
             result.Message);
@@ -228,7 +213,6 @@ public sealed class ChatServiceTests
     [Fact]
     public async Task ProcessAsync_WhenNoOptionsExist_ShouldReturnEmptyOptions()
     {
-        // Arrange
         var processor = new Mock<IConversationProcessor>();
 
         processor
@@ -247,10 +231,8 @@ public sealed class ChatServiceTests
             "conversation-1",
             "از مهدی 150 تومن گرفتم");
 
-        // Act
         var result = await service.ProcessAsync(request);
 
-        // Assert
         Assert.Equal(
             "پرداخت با موفقیت ثبت شد.",
             result.Message);

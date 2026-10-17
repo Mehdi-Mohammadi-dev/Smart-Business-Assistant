@@ -4,5 +4,5 @@ public record CustomerDto
 (
     long CustomerId,
     string FirstName,
-    string LastName 
+    string LastName
     );

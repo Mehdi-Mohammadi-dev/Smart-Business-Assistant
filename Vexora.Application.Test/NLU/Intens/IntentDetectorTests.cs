@@ -17,7 +17,7 @@ public sealed class IntentDetectorTests
     [InlineData(
         "علی 150 تومن پرداخت کرد",
         IntentType.RegisterPayment)]
-    
+
     [InlineData(
         "به علی 10 میلیون جنس دادم",
         IntentType.RegisterSale)]

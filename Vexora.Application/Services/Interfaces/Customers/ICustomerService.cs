@@ -10,4 +10,3 @@ public interface ICustomerService
     CreateCustomerDto dto,
     CancellationToken cancellationToken = default);
 }
-
