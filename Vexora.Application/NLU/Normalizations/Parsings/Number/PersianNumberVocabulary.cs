@@ -15,6 +15,8 @@ internal static class PersianNumberVocabulary
             ["هفت"] = 7,
             ["هشت"] = 8,
             ["نه"] = 9,
+            ["یه"] = 1,
+            ["شیش"] = 6,
 
             ["ده"] = 10,
             ["یازده"] = 11,
@@ -25,6 +27,7 @@ internal static class PersianNumberVocabulary
             ["شانزده"] = 16,
             ["هفده"] = 17,
             ["هجده"] = 18,
+            ["هیجده"] = 18,
             ["نوزده"] = 19,
 
             ["بیست"] = 20,

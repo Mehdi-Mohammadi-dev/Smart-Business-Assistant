@@ -131,8 +131,8 @@ public sealed class ConversationProcessor(
                 IntentType.RegisterPayment,
                 customer.RawValue,
                 null,
-                money.Amount,
-                money.Unit,
+                money.AmountInToman,
+                MoneyUnit.Toman,
                 DateTime.Now);
 
             await SaveCustomerSelectionStateAsync(
@@ -154,8 +154,8 @@ public sealed class ConversationProcessor(
                 IntentType.RegisterPayment,
                 customer.RawValue,
                 null,
-                money.Amount,
-                money.Unit,
+                money.AmountInToman,
+                MoneyUnit.Toman,
                 DateTime.Now);
 
             await SaveCustomerCreationConfirmationStateAsync(
@@ -181,14 +181,14 @@ public sealed class ConversationProcessor(
         await paymentService.RegisterAsync(
             new RegisterPaymentDto(
                 resolution.Customer.CustomerId,
-                money.Amount,
+                money.AmountInToman,
                 DateTime.Now),
             cancellationToken);
 
         return new ConversationProcessingResult(
             ProcessingStatus.Success,
             ConversationMessages.PaymentRegistered(
-                money.Amount,
+                money.AmountInToman,
                 resolution.Customer.DisplayName),
             null);
     }
@@ -239,8 +239,8 @@ public sealed class ConversationProcessor(
                 IntentType.RegisterCheck,
                 customer.RawValue,
                 null,
-                money.Amount,
-                money.Unit,
+                money.AmountInToman,
+                MoneyUnit.Toman,
                 dateEntity?.Value as DateTime?);
 
             await SaveCustomerSelectionStateAsync(
@@ -262,8 +262,8 @@ public sealed class ConversationProcessor(
                 IntentType.RegisterCheck,
                 customer.RawValue,
                 null,
-                money.Amount,
-                money.Unit,
+                money.AmountInToman,
+                MoneyUnit.Toman,
                 dateEntity?.Value as DateTime?);
 
             await SaveCustomerCreationConfirmationStateAsync(
@@ -292,8 +292,8 @@ public sealed class ConversationProcessor(
                 IntentType.RegisterCheck,
                 resolution.Customer.DisplayName,
                 resolution.Customer.CustomerId,
-                money.Amount,
-                money.Unit,
+                money.AmountInToman,
+                MoneyUnit.Toman,
                 null);
 
             await conversationStateStore.SaveAsync(
@@ -314,7 +314,7 @@ public sealed class ConversationProcessor(
         await checkService.RegisterAsync(
             new RegisterCheckDto(
                 resolution.Customer.CustomerId,
-                money.Amount,
+                money.AmountInToman,
                 date,
                 null),
             cancellationToken);
@@ -322,7 +322,7 @@ public sealed class ConversationProcessor(
         return new ConversationProcessingResult(
             ProcessingStatus.Success,
             ConversationMessages.CheckRegistered(
-                money.Amount,
+                money.AmountInToman,
                 resolution.Customer.DisplayName),
             null);
     }

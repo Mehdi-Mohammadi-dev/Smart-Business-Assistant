@@ -96,6 +96,8 @@ public sealed partial class PersianTextNormalizer : ITextNormalizer
     private static string NormalizePunctuation(string text)
     {
         return text
+            .Replace('٬', ',')
+            .Replace('٫', '.')
             .Replace('،', ',')
             .Replace('؛', ';')
             .Replace('؟', '?');

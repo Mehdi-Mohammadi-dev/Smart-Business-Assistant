@@ -1,4 +1,4 @@
-﻿using Vexora.Application.NLU.Abstractions.Money;
+using Vexora.Application.NLU.Abstractions.Money;
 using Vexora.Application.NLU.Abstractions.Number;
 using Vexora.Application.NLU.Models.Money;
 
@@ -22,106 +22,95 @@ public sealed class MoneyParser : IMoneyParser
         if (string.IsNullOrWhiteSpace(text))
             return false;
 
-        var normalized = Normalize(text);
+        var tokens = MoneyTokens.Tokenize(
+            MoneyTokens.Prepare(text));
 
-        var tokens = normalized.Split(
-            ' ',
-            StringSplitOptions.RemoveEmptyEntries);
+        if (tokens.Count == 0)
+            return false;
 
         var unit = MoneyUnit.Toman;
 
         decimal total = 0;
-        decimal currentNumber = 0;
+        decimal current = 0;
+        decimal lastMultiplier = 0;
+        var hasWholePart = false;
 
         foreach (var token in tokens)
         {
-            switch (token)
+            switch (token.Kind)
             {
-                case "تومان":
-                case "تومن":
-                case "تومنی":
-                case "تومانی":
-                    unit = MoneyUnit.Toman;
+                case MoneyTokenKind.Currency:
+                    unit = MoneyTokens.UnitOf(token.Text);
                     break;
 
-                case "ریال":
-                case "ریالی":
-                    unit = MoneyUnit.Rial;
+                case MoneyTokenKind.And:
                     break;
 
-                case "و":
+                case MoneyTokenKind.Number:
+                    if (!MoneyTokens.TryParseNumber(token.Text, out var number))
+                        return false;
+
+                    current += number;
+                    hasWholePart = true;
                     break;
 
-                case "هزار":
-                    total += currentNumber * 1_000;
-                    currentNumber = 0;
+                case MoneyTokenKind.Word:
+                    if (!_numberParser.TryParse(token.Text, out var word))
+                        return false;
+
+                    current += word!.Value;
+                    hasWholePart = true;
                     break;
 
-                case "میلیون":
-                case "میلیونی":
-                    total += currentNumber * 1_000_000;
-                    currentNumber = 0;
+                case MoneyTokenKind.Multiplier:
+                    var multiplier = MoneyTokens.Multipliers[token.Text];
+
+                    if (current == 0)
+                        current = 1;
+
+                    total += current * multiplier;
+                    current = 0;
+                    lastMultiplier = multiplier;
+                    hasWholePart = true;
                     break;
 
-                case "میلیارد":
-                case "میلیاردی":
-                    total += currentNumber * 1_000_000_000;
-                    currentNumber = 0;
+                case MoneyTokenKind.Half:
+                    var fraction = token.Text == "نیم" ? 0.5m : 0.25m;
+
+                    if (current > 0)
+                    {
+                        current += fraction;
+                    }
+                    else if (lastMultiplier > 0)
+                    {
+                        total += lastMultiplier * fraction;
+                        lastMultiplier = 0;
+                    }
+                    else
+                    {
+                        current = fraction;
+                    }
+
                     break;
 
                 default:
-                    if (!_numberParser.TryParse(
-                            token,
-                            out var parsedNumber))
-                    {
-                        return false;
-                    }
-
-                    currentNumber += parsedNumber!.Value;
-                    break;
+                    return false;
             }
         }
 
-        total += currentNumber;
+        if (!hasWholePart)
+            return false;
+
+        if (lastMultiplier >= 1_000_000 && current > 0 && current < 1_000)
+            current *= lastMultiplier / 1_000;
+
+        total += current;
 
         if (total <= 0)
             return false;
 
-        result = new MoneyAmount(
-            total,
-            unit);
+        result = new MoneyAmount(total, unit);
 
         return true;
-    }
-
-    private static string Normalize(string text)
-    {
-        return text
-            .Trim()
-            .Replace("تومن", "تومان")
-            .Replace("تومنی", "تومان")
-            .Replace("تومانی", "تومان")
-            .Replace("ریالی", "ریال")
-            .Replace("٬", ",")
-            .Replace('۰', '0')
-            .Replace('۱', '1')
-            .Replace('۲', '2')
-            .Replace('۳', '3')
-            .Replace('۴', '4')
-            .Replace('۵', '5')
-            .Replace('۶', '6')
-            .Replace('۷', '7')
-            .Replace('۸', '8')
-            .Replace('۹', '9')
-            .Replace('٠', '0')
-            .Replace('١', '1')
-            .Replace('٢', '2')
-            .Replace('٣', '3')
-            .Replace('٤', '4')
-            .Replace('٥', '5')
-            .Replace('٦', '6')
-            .Replace('٧', '7')
-            .Replace('٨', '8')
-            .Replace('٩', '9');
     }
 }
