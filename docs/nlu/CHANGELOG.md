@@ -11,11 +11,71 @@
 
 | مرحله | موضوع | وضعیت |
 |---|---|---|
+| ۰ | شناسه گفتگو سمت سرور (پیش‌نیاز) | انجام شد (۲۷ مهر ۱۴۰۵) |
 | ۱ | استخراج مبلغ | انجام شد (۲۶ مهر ۱۴۰۵) |
 | ۲ | تشخیص نوع پیام (پرداخت / چک) | بعدی |
 | ۳ | نام مشتری | منتظر |
 | ۴ | تاریخ (سررسید چک) | منتظر |
 | ۵ | جریان گفتگو (لغو، تأیید قبل از ثبت، جهت تراکنش) و ریفکتور `ConversationProcessor` | منتظر |
+
+---
+
+## مرحله ۰: شناسه گفتگو سمت سرور (۲۷ مهر ۱۴۰۵)
+
+### مشکل
+
+1. شناسه گفتگو (`conversationId`) را **کلاینت** می‌ساخت و می‌فرستاد. با رفرش صفحه یا عوض شدن مرورگر، شناسه گم می‌شد و گفتگوی نیمه‌کاره در Redis بی‌صاحب می‌ماند.
+2. **حفره امنیتی:** کلید Redis فقط `vexora:conversation:{conversationId}` بود. هر کاربر لاگین‌شده با فرستادن شناسه کاربر دیگر می‌توانست گفتگوی او را ادامه بدهد و لیست مشتری‌های او (کاندیداها) را ببیند.
+3. `ChatRequestValidator` برای `ChatRequest` نوشته شده بود ولی کنترلر `ChatRequestDto` می‌گرفت، پس اعتبارسنجی پیام هرگز اجرا نمی‌شد.
+
+### راه‌حل
+
+- شناسه گفتگو را **سرور** از کاربر لاگین‌شده می‌سازد: `ConversationIds.ForUser(userId)` ← `user-{userId}`. کلاینت دیگر هیچ شناسه‌ای نمی‌فرستد (و نمی‌تواند عوضش کند).
+- بدنه `POST /api/chat` فقط `{ "message": "..." }` است. حالا اعتبارسنجی هم واقعاً اجرا می‌شود.
+- دو endpoint جدید:
+
+| Endpoint | کار |
+|---|---|
+| `GET /api/chat/pending` | اگر گفتگوی نیمه‌کاره‌ای در Redis هست، همان سؤال (و گزینه‌ها) را برمی‌گرداند؛ وگرنه `data: null`. فرانت بعد از رفرش با این، صفحه را بازیابی می‌کند |
+| `POST /api/chat/reset` | گفتگوی نیمه‌کاره را پاک می‌کند (دکمه «گفتگوی جدید») |
+
+### تصمیم
+
+هر کاربر **یک** گفتگوی فعال دارد (نه چند گفتگوی همزمان). برای MVP کافی است. اگر بعداً چند گفتگو لازم شد، شناسه را سرور بسازد و در لیست کاربر نگه دارد، نه اینکه کلاینت بفرستد.
+
+### فایل‌ها
+
+| فایل | تغییر |
+|---|---|
+| `Caching/Conversations/ConversationIds.cs` | **جدید** |
+| `Caching/Conversations/Interfaces/IConversationProcessor.cs` + `Implementations/ConversationProcessor.cs` | `GetPendingAsync` و `ResetAsync` |
+| `Services/Interfaces/Chats/IChatService.cs` + `Implementations/Chats/ChatService.cs` | `GetPendingAsync` و `ResetAsync` |
+| `Api/Contracts/Chats/ChatRequest.cs` | حذف `ConversationId` |
+| `Api/Validators/Chats/ChatRequestValidator.cs` | حذف قانون `ConversationId` |
+| `Api/Mappers/Chats/ChatMappers.cs` | شناسه را از بیرون می‌گیرد |
+| `Api/Controllers/Chats/ChatController.cs` | بازنویسی: `ICurrentUser`، `ChatRequest`، دو endpoint جدید |
+
+### تست‌ها
+
+`NLU/ConversationTests/ConversationPendingTests.cs` (۱۰ تست، بدون Moq): ساخت شناسه، بازیابی هر چهار حالت انتظار، جدا بودن کاربران از هم، و پاک کردن.
+
+### آزمایش دستی
+
+1. با کاربر A بنویس «یک چک ۵۰ میلیونی از رضا گرفتم»، تا سؤال تاریخ بیاید.
+2. صفحه را رفرش کن (یا `GET /api/chat/pending` را بزن): باید همان سؤال تاریخ برگردد.
+3. با کاربر B لاگین کن و `pending` بزن: باید `data: null` باشد (چیزی از A دیده نشود).
+4. `POST /api/chat/reset` بزن و دوباره `pending`: باید `null` شود.
+
+### محدودیت‌ها
+
+- دو پیام همزمان از یک کاربر (دابل‌کلیک) هنوز قفل ندارند (در `ROADMAP.md`).
+- `Messages.ConversationIdRequired` دیگر استفاده نمی‌شود (در تمیزکاری حذف می‌شود).
+
+### پیشنهاد کامیت
+
+```
+fix(chat): derive conversation id from the authenticated user, add pending restore and reset
+```
 
 ---
 

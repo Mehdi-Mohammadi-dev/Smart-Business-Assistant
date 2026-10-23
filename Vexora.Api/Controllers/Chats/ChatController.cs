@@ -3,8 +3,9 @@ using Microsoft.AspNetCore.Mvc;
 using Vexora.Api.Commons.Results;
 using Vexora.Api.Contracts.Chats;
 using Vexora.Api.Mappers.Chats;
-using Vexora.Application.Dtos.Chats;
+using Vexora.Application.Caching.Conversations;
 using Vexora.Application.Services.Interfaces.Chats;
+using Vexora.Application.Services.Interfaces.CurrentUser;
 
 namespace Vexora.Api.Controllers.Chats;
 
@@ -12,20 +13,48 @@ namespace Vexora.Api.Controllers.Chats;
 [ApiController]
 [Route("api/[controller]")]
 public sealed class ChatController(
-    IChatService chatService)
+    IChatService chatService,
+    ICurrentUser currentUser)
     : ControllerBase
 {
     [HttpPost]
     public async Task<ApiResult<ChatResponse>> Post(
-        [FromBody] ChatRequestDto request,
+        [FromBody] ChatRequest request,
         CancellationToken cancellationToken)
     {
         var response =
             await chatService.ProcessAsync(
-                request,
+                request.ChatRequestMapToDto(CurrentConversationId()),
                 cancellationToken);
 
         return ApiResult<ChatResponse>.SuccessResult(
             response.ChatResponseDtoMapToContract());
     }
+
+    [HttpGet("pending")]
+    public async Task<ApiResult<ChatResponse?>> GetPending(
+        CancellationToken cancellationToken)
+    {
+        var response =
+            await chatService.GetPendingAsync(
+                CurrentConversationId(),
+                cancellationToken);
+
+        return ApiResult<ChatResponse?>.SuccessResult(
+            response?.ChatResponseDtoMapToContract());
+    }
+
+    [HttpPost("reset")]
+    public async Task<ApiResult<object?>> Reset(
+        CancellationToken cancellationToken)
+    {
+        await chatService.ResetAsync(
+            CurrentConversationId(),
+            cancellationToken);
+
+        return ApiResult<object?>.SuccessResult(null, "گفتگوی جاری پاک شد.");
+    }
+
+    private string CurrentConversationId()
+        => ConversationIds.ForUser(currentUser.UserId);
 }

@@ -55,6 +55,58 @@ public sealed class ConversationProcessor(
             cancellationToken);
     }
 
+    public async Task<ConversationProcessingResult?> GetPendingAsync(
+        string conversationId,
+        CancellationToken cancellationToken = default)
+    {
+        var state =
+            await conversationStateStore.GetAsync(
+                conversationId,
+                cancellationToken);
+
+        if (state is null)
+            return null;
+
+        return state.Status switch
+        {
+            ConversationStatus.WaitingForCheckDate =>
+                new ConversationProcessingResult(
+                    ProcessingStatus.Failed,
+                    ConversationMessages.CheckDueDateRequired,
+                    null),
+
+            ConversationStatus.WaitingForCustomerSelection =>
+                new ConversationProcessingResult(
+                    ProcessingStatus.Failed,
+                    ConversationMessages.CustomerSelectionRequired,
+                    state.CustomerCandidates),
+
+            ConversationStatus.WaitingForCustomerCreationConfirmation =>
+                new ConversationProcessingResult(
+                    ProcessingStatus.Failed,
+                    ConversationMessages.CustomerNotFound(
+                        state.PendingAction?.CustomerName ?? string.Empty),
+                    null),
+
+            ConversationStatus.WaitingForCustomerName =>
+                new ConversationProcessingResult(
+                    ProcessingStatus.Failed,
+                    ConversationMessages.CustomerNameEnter,
+                    null),
+
+            _ => null
+        };
+    }
+
+    public Task ResetAsync(
+        string conversationId,
+        CancellationToken cancellationToken = default)
+    {
+        return conversationStateStore.RemoveAsync(
+            conversationId,
+            cancellationToken);
+    }
+
     private async Task<ConversationProcessingResult>
         ProcessNewMessageAsync(
             string conversationId,

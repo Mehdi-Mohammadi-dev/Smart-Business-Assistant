@@ -9,10 +9,6 @@ public sealed class ChatRequestValidator
 {
     public ChatRequestValidator()
     {
-        RuleFor(x => x.ConversationId)
-            .NotEmpty()
-            .WithMessage(Messages.ConversationIdRequired);
-
         RuleFor(x => x.Message)
             .NotEmpty()
             .WithMessage(Messages.MessageRequired)

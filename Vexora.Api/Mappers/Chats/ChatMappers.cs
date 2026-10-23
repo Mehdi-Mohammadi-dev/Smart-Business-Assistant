@@ -5,11 +5,13 @@ namespace Vexora.Api.Mappers.Chats;
 
 public static class ChatMappers
 {
-    public static ChatRequestDto ChatRequestMapToDto(this ChatRequest request)
+    public static ChatRequestDto ChatRequestMapToDto(
+        this ChatRequest request,
+        string conversationId)
     =>
         new ChatRequestDto
         (
-            request.ConversationId,
+            conversationId,
             request.Message
         );
 

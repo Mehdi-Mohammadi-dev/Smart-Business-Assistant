@@ -29,6 +29,37 @@ public sealed class ChatService(
             options);
     }
 
+    public async Task<ChatResponseDto?> GetPendingAsync(
+        string conversationId,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(conversationId);
+
+        var result =
+            await conversationProcessor.GetPendingAsync(
+                conversationId,
+                cancellationToken);
+
+        if (result is null)
+            return null;
+
+        return new ChatResponseDto(
+            result.Message ?? string.Empty,
+            result.Status != ProcessingStatus.Success,
+            ExtractOptions(result.Data));
+    }
+
+    public Task ResetAsync(
+        string conversationId,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(conversationId);
+
+        return conversationProcessor.ResetAsync(
+            conversationId,
+            cancellationToken);
+    }
+
     private static IReadOnlyCollection<ChatOptionDto> ExtractOptions(
     object? data)
     {
