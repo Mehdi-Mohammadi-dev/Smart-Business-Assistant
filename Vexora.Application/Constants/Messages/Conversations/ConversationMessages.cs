@@ -5,6 +5,9 @@ public static class ConversationMessages
     public const string UnknownRequest =
         "متوجه درخواست شما نشدم.";
 
+    public const string ConversationCancelled =
+        "ثبت قبلی لغو شد. هر وقت خواستید دوباره تایپ کنید.";
+
     public const string OnlyReceivedSupported =
         "در این نسخه فقط «دریافتی» ثبت می‌شود (مثلاً: علی رضایی ۵۰۰ هزار تومان داد). ثبت پرداخت به مشتری هنوز پشتیبانی نمی‌شود.";
 

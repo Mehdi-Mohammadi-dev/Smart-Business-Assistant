@@ -1,4 +1,5 @@
-﻿using Vexora.Application.Caching.Conversations;
+﻿using Vexora.Application.NLU.Intent;
+using Vexora.Application.Caching.Conversations;
 using Vexora.Application.Caching.Conversations.Interfaces;
 using Vexora.Application.Caching.Conversations.Mappers.CustomerConversations;
 using Vexora.Application.Constants.Messages.Conversations;
@@ -40,6 +41,33 @@ public sealed class ConversationProcessor(
 
         if (state is not null)
         {
+            if (IsCancelMessage(request.Message))
+            {
+                await conversationStateStore.RemoveAsync(
+                    request.ConversationId,
+                    cancellationToken);
+
+                return new ConversationProcessingResult(
+                    ProcessingStatus.Success,
+                    ConversationMessages.ConversationCancelled,
+                    null);
+            }
+
+            var newCommand =
+                nluPipeline.Analyze(request.Message);
+
+            if (IsNewCommand(newCommand))
+            {
+                await conversationStateStore.RemoveAsync(
+                    request.ConversationId,
+                    cancellationToken);
+
+                return await ProcessNewMessageAsync(
+                    request.ConversationId,
+                    newCommand,
+                    cancellationToken);
+            }
+
             return await ContinueConversationAsync(
                 state,
                 request.Message,
@@ -160,6 +188,29 @@ public sealed class ConversationProcessor(
                     ConversationMessages.UnsupportedRequest,
                     null)
         };
+    }
+
+    private static bool IsCancelMessage(
+        string message)
+    {
+        var tokens = PhraseMatcher.Tokenize(message);
+
+        if (tokens.Count == 0 || tokens.Count > 3)
+            return false;
+
+        return tokens.Any(token =>
+                   token is "لغو" or "انصراف" or "بیخیال" or "کنسل") ||
+               PhraseMatcher.ContainsPhrase(tokens, "بی خیال");
+    }
+
+    private static bool IsNewCommand(
+        NluResult? nluResult)
+    {
+        return nluResult is not null &&
+               nluResult.Intent is
+                   IntentType.RegisterPayment or
+                   IntentType.RegisterCheck &&
+               nluResult.Entities.Any(x => x.Type == EntityType.Money);
     }
 
     private static bool HasMoreThanOneAmount(
