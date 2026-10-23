@@ -8,6 +8,7 @@ public sealed class IntentDetector : IIntentDetector
 {
     private const double MinimumScore = 1.0;
     private const double MinimumConfidence = 0.60;
+    private const double CheckWordScore = 3.5;
 
     public IntentDetectionResult Detect(string normalizedText)
     {
@@ -16,10 +17,12 @@ public sealed class IntentDetector : IIntentDetector
 
         var candidates = new List<IntentCandidate>();
 
+        var tokens = PhraseMatcher.Tokenize(normalizedText);
+
         foreach (var (intent, keywords) in IntentKeywords.Keywords)
         {
             var score = CalculateScore(
-                normalizedText,
+                tokens,
                 intent,
                 keywords);
 
@@ -30,6 +33,14 @@ public sealed class IntentDetector : IIntentDetector
                         intent,
                         score));
             }
+        }
+
+        if (candidates.Any(x =>
+                x.Intent == IntentType.RegisterCheck &&
+                x.Score >= CheckWordScore))
+        {
+            candidates.RemoveAll(x =>
+                x.Intent == IntentType.RegisterPayment);
         }
 
         if (candidates.Count == 0)
@@ -63,15 +74,15 @@ public sealed class IntentDetector : IIntentDetector
     }
 
     private static double CalculateScore(
-        string text,
+        IReadOnlyList<string> tokens,
         IntentType intent,
         IEnumerable<string> keywords)
     {
         var matchedKeywords = keywords
             .Where(keyword =>
-                text.Contains(
-                    keyword,
-                    StringComparison.Ordinal))
+                PhraseMatcher.ContainsPhrase(
+                    tokens,
+                    keyword))
             .OrderByDescending(keyword => keyword.Length)
             .ToList();
 
@@ -130,7 +141,7 @@ public sealed class IntentDetector : IIntentDetector
                 => 1.5,
 
             IntentType.RegisterCheck
-                when keyword == "چک"
+                when keyword is "چک" or "چکی" or "چکها"
                 => 3.5,
 
             IntentType.RegisterSale

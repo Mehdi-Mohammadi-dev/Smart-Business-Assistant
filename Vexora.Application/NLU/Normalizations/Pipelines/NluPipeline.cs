@@ -4,6 +4,7 @@ using Vexora.Application.NLU.Models.Intents;
 using Vexora.Application.NLU.Models.Results;
 using Vexora.Application.NLU.Abstractions;
 using Vexora.Application.NLU.Abstractions.Intents;
+using Vexora.Application.NLU.Intent;
 
 namespace Vexora.Application.NLU.Pipeline;
 
@@ -53,7 +54,8 @@ public sealed class NluPipeline : INluPipeline
             intent.Intent,
             intent.Confidence,
             intent.Candidates,
-            extraction.Entities
+            extraction.Entities,
+            DirectionDetector.Detect(normalized.Value)
         );
     }
 }

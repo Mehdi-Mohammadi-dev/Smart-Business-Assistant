@@ -5,8 +5,14 @@ public static class ConversationMessages
     public const string UnknownRequest =
         "متوجه درخواست شما نشدم.";
 
-    public const string RequestRecognized =
-        "درخواست شناسایی شد.";
+    public const string OnlyReceivedSupported =
+        "در این نسخه فقط «دریافتی» ثبت می‌شود (مثلاً: علی رضایی ۵۰۰ هزار تومان داد). ثبت پرداخت به مشتری هنوز پشتیبانی نمی‌شود.";
+
+    public const string MultipleAmounts =
+        "پیام شما بیش از یک مبلغ دارد. برای جلوگیری از اشتباه، لطفاً هر ثبت را جداگانه بفرستید.";
+
+    public const string UnsupportedRequest =
+        "این درخواست در نسخه فعلی پشتیبانی نمی‌شود. فعلاً می‌توانید دریافتی و چک ثبت کنید.";
 
     public const string ConversationContinuationUnknown =
         "ادامه مکالمه مشخص نیست.";

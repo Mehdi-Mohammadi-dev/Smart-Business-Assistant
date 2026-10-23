@@ -113,6 +113,27 @@ public sealed class ConversationProcessor(
             NluResult nluResult,
             CancellationToken cancellationToken)
     {
+        if (nluResult.Intent is
+            IntentType.RegisterPayment or
+            IntentType.RegisterCheck)
+        {
+            if (nluResult.Direction == DirectionHint.Given)
+            {
+                return new ConversationProcessingResult(
+                    ProcessingStatus.Failed,
+                    ConversationMessages.OnlyReceivedSupported,
+                    null);
+            }
+
+            if (HasMoreThanOneAmount(nluResult))
+            {
+                return new ConversationProcessingResult(
+                    ProcessingStatus.Failed,
+                    ConversationMessages.MultipleAmounts,
+                    null);
+            }
+        }
+
         return nluResult.Intent switch
         {
             IntentType.Unknown =>
@@ -135,10 +156,20 @@ public sealed class ConversationProcessor(
 
             _ =>
                 new ConversationProcessingResult(
-                    ProcessingStatus.Success,
-                    ConversationMessages.RequestRecognized,
-                    nluResult)
+                    ProcessingStatus.Failed,
+                    ConversationMessages.UnsupportedRequest,
+                    null)
         };
+    }
+
+    private static bool HasMoreThanOneAmount(
+        NluResult nluResult)
+    {
+        return nluResult.Entities
+            .Where(x => x.Type == EntityType.Money)
+            .Select(x => ((MoneyAmount)x.Value!).AmountInToman)
+            .Distinct()
+            .Count() > 1;
     }
 
     private async Task<ConversationProcessingResult>

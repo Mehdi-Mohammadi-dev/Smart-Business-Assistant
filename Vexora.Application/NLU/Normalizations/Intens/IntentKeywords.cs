@@ -21,7 +21,9 @@ internal static class IntentKeywords
                 "گرفتم",
                 "دریافت",
                 "دریافت کرد",
-                "دریافت کردم"
+                "دریافت کردم",
+                "کارت به کارت کرد",
+                "کارت به کارت کردم"
             ],
 
             [IntentType.RegisterSale] =
@@ -49,6 +51,8 @@ internal static class IntentKeywords
             [IntentType.RegisterCheck] =
             [
                 "چک",
+                "چکی",
+                "چکها",
                 "فقره چک",
                 "چک گرفتم",
                 "چک دریافت کردم",

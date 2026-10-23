@@ -15,5 +15,7 @@ public sealed record NluResult
 
     IReadOnlyCollection<IntentCandidate> Candidates,
 
-    IReadOnlyCollection<EntityResult> Entities
+    IReadOnlyCollection<EntityResult> Entities,
+
+    DirectionHint Direction = DirectionHint.Unspecified
 );
