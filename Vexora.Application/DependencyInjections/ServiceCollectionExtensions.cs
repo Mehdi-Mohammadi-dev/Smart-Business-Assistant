@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.DependencyInjection;
 using Vexora.Application.NLU.Abstractions.Dates;
 using Vexora.Application.NLU.Abstractions.Extractions;
 using Vexora.Application.NLU.Abstractions.Extractions.Customers;
@@ -46,6 +47,7 @@ public static class ServiceCollectionExtensions
 
         services.AddSingleton<ICustomerExtractor, CustomerExtractor>();
 
+        services.TryAddSingleton(TimeProvider.System);
         services.AddSingleton<IDateExtractor, PersianDateExtractor>();
 
         services.AddScoped<IAuthService, AuthService>();

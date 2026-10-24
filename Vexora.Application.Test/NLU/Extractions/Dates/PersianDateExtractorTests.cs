@@ -6,7 +6,8 @@ namespace Vexora.Application.Test.NLU.Extractions.Dates;
 
 public sealed class PersianDateExtractorTests
 {
-    private readonly PersianDateExtractor _extractor = new();
+    private readonly PersianDateExtractor _extractor =
+        new(new FixedTimeProvider(new DateTimeOffset(2026, 10, 24, 9, 0, 0, TimeSpan.Zero)));
 
     [Fact]
     public void Extract_WhenPersianMonthWithoutYear_ShouldReturnDate()
@@ -99,7 +100,7 @@ public sealed class PersianDateExtractorTests
             "برای فردا");
 
         Assert.Equal(
-            DateTime.Today.AddDays(1),
+            new DateTime(2026, 10, 25),
             result);
     }
 
