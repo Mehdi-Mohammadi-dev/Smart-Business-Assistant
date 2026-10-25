@@ -21,5 +21,8 @@ public static class BaseEntityConfiguration
 
         builder.Property(x => x.IsDelete)
             .IsRequired();
+
+        builder.Property(x => x.DeletedAt)
+            .IsRequired(false);
     }
 }

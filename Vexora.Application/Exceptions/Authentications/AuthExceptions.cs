@@ -1,3 +1,5 @@
+using Vexora.Domain.sharedKernel.Exceptions;
+
 namespace Vexora.Application.Exceptions.Authentications;
 
 public static class AuthExceptions

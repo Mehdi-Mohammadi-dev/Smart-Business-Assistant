@@ -20,6 +20,14 @@ public sealed class PaymentConfiguration : IEntityTypeConfiguration<Payment>
         builder.Property(x => x.PaymentDate)
            .IsRequired();
 
+        #region Indexes
+        builder.HasIndex(x => new
+        {
+            x.UserId,
+            x.PaymentDate
+        });
+        #endregion
+
         #region Relations
 
         builder.HasOne(x=>x.Customer)

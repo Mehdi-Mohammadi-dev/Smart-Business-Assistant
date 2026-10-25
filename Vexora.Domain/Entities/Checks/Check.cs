@@ -2,6 +2,7 @@
 using Vexora.Domain.Enums.BankRegistrationStatuses;
 using Vexora.Domain.Enums.CheckSettlementStatuses;
 using Vexora.Domain.Enums.TransactionDirections;
+using Vexora.Domain.Exceptions.Checks;
 using Vexora.Domain.sharedKernel.BaseEntities;
 using Vexora.Domain.sharedKernel.Validators;
 
@@ -22,6 +23,10 @@ public sealed class Check : UserBaseEntity
     public BankRegistrationStatus BankRegistrationStatus { get; private set; }
 
     public CheckSettlementStatus SettlementStatus { get; private set; }
+
+    public DateTimeOffset? PaidAt { get; private set; }
+
+    public DateTimeOffset? BouncedAt { get; private set; }
 
     #region Constractor
 
@@ -63,25 +68,41 @@ public sealed class Check : UserBaseEntity
         };
     }
 
-    public void MarkAsRegistered()
+    public void SetBankRegistration(BankRegistrationStatus status)
     {
-        BankRegistrationStatus = BankRegistrationStatus.Registered;
+        BankRegistrationStatus = status;
+        UpdateAt = DateTimeOffset.UtcNow;
     }
 
-    public void MarkAsPaid()
+    public void MarkAsPaid(DateTimeOffset paidAt)
     {
         if (SettlementStatus != CheckSettlementStatus.Pending)
-            throw new InvalidOperationException();
+            throw new CheckExceptions.CheckNotPendingException();
 
         SettlementStatus = CheckSettlementStatus.Paid;
+        PaidAt = paidAt;
+        UpdateAt = DateTimeOffset.UtcNow;
     }
 
-    public void MarkAsBounced()
+    public void MarkAsBounced(DateTimeOffset bouncedAt)
     {
         if (SettlementStatus != CheckSettlementStatus.Pending)
-            throw new InvalidOperationException();
+            throw new CheckExceptions.CheckNotPendingException();
 
         SettlementStatus = CheckSettlementStatus.Bounced;
+        BouncedAt = bouncedAt;
+        UpdateAt = DateTimeOffset.UtcNow;
+    }
+
+    public void RevertToPending()
+    {
+        if (SettlementStatus == CheckSettlementStatus.Pending)
+            throw new CheckExceptions.CheckAlreadyPendingException();
+
+        SettlementStatus = CheckSettlementStatus.Pending;
+        PaidAt = null;
+        BouncedAt = null;
+        UpdateAt = DateTimeOffset.UtcNow;
     }
 
     #endregion

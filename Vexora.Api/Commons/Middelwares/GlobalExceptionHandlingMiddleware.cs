@@ -8,6 +8,7 @@ using Vexora.Domain.Exceptions.Sales.Items;
 using Vexora.Domain.Exceptions.Subscriptions;
 using Vexora.Domain.Exceptions.Users;
 using Vexora.Domain.sharedKernel.Exceptions;
+using AppErrorType = Vexora.Domain.sharedKernel.Exceptions.AppErrorType;
 
 namespace Vexora.Api.Commons.Middelwares;
 
@@ -65,7 +66,7 @@ public sealed class GlobalExceptionHandlingMiddleware(
             ValidationException validationException
                 => (StatusCodes.Status400BadRequest, CreateValidationResult(validationException)),
 
-            AppException appException
+            Domain.sharedKernel.Exceptions.AppException appException
                 => (
                     ToStatusCode(appException.Type),
                     ApiResult<object>.Failure(
@@ -133,6 +134,8 @@ public sealed class GlobalExceptionHandlingMiddleware(
     {
         AppErrorType.Validation => StatusCodes.Status400BadRequest,
         AppErrorType.Unauthorized => StatusCodes.Status401Unauthorized,
+        AppErrorType.PaymentRequired => StatusCodes.Status402PaymentRequired,
+        AppErrorType.Forbidden => StatusCodes.Status403Forbidden,
         AppErrorType.NotFound => StatusCodes.Status404NotFound,
         AppErrorType.Conflict => StatusCodes.Status409Conflict,
         AppErrorType.TooManyRequests => StatusCodes.Status429TooManyRequests,

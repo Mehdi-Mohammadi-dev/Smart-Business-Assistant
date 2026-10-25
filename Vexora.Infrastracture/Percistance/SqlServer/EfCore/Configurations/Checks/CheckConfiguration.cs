@@ -30,6 +30,12 @@ public sealed class CheckConfiguration : IEntityTypeConfiguration<Check>
         builder.Property(x => x.SettlementStatus)
             .IsRequired();
 
+        builder.Property(x => x.PaidAt)
+            .IsRequired(false);
+
+        builder.Property(x => x.BouncedAt)
+            .IsRequired(false);
+
         builder.Property(x => x.CheckNumber)
             .IsRequired(false)
             .HasMaxLength(CheckConstants.CheckNumberLength);
@@ -40,6 +46,13 @@ public sealed class CheckConfiguration : IEntityTypeConfiguration<Check>
         {
             x.UserId,
             x.CustomerId
+        });
+
+        builder.HasIndex(x => new
+        {
+            x.UserId,
+            x.SettlementStatus,
+            x.DueDate
         });
 
         #endregion

@@ -1,4 +1,4 @@
-﻿using Vexora.Application.Dtos.Customers;
+using Vexora.Application.Dtos.Customers;
 using Vexora.Application.Repositories.Customers;
 using Vexora.Application.Services.Interfaces.CurrentUser;
 using Vexora.Application.Services.Interfaces.Customers;
@@ -9,18 +9,20 @@ namespace Vexora.Application.Services.Implementations.Customers;
 
 public sealed class CustomerService(
     ICustomerRepository customerRepository,
-    ICurrentUser currentUser,IUnitOfWork unitOfWork)
+    ICurrentUser currentUser,
+    IUnitOfWork unitOfWork)
     : ICustomerService
 {
     public async Task<CustomerDto> CreateAsync(
-    CreateCustomerDto dto,
-    CancellationToken cancellationToken = default)
+        CreateCustomerDto dto,
+        CancellationToken cancellationToken = default)
     {
+        var normalizedName = CustomerNameNormalizer.Normalize(dto.Name, dto.Family);
+
         var existingCustomer =
-            await customerRepository.GetByExactNameAsync(
+            await customerRepository.GetByNormalizedNameAsync(
                 currentUser.UserId,
-                dto.Name,
-                dto.Family,
+                normalizedName,
                 cancellationToken);
 
         if (existingCustomer is not null)
@@ -50,15 +52,23 @@ public sealed class CustomerService(
     }
 
     public async Task<CustomerResolutionResultDto> ResolveByNameAsync(
-    string name,
-    CancellationToken cancellationToken = default)
+        string name,
+        CancellationToken cancellationToken = default)
     {
-        name = name.Trim();
+        var normalizedName = CustomerNameNormalizer.Normalize(name);
+
+        if (normalizedName.Length == 0)
+        {
+            return new CustomerResolutionResultDto(
+                CustomerResolutionStatus.NotFound,
+                null,
+                []);
+        }
 
         var customers = await customerRepository
             .SearchByNameAsync(
                 currentUser.UserId,
-                name,
+                normalizedName,
                 cancellationToken);
 
         if (customers.Count == 0)
@@ -69,25 +79,20 @@ public sealed class CustomerService(
                 []);
         }
 
-        var candidates = customers
-            .Select(x => new CustomerCandidateDto(
-                x.Id,
-                $"{x.FirstName} {x.LastName}".Trim()))
-            .ToArray();
-
-        var exactMatch = candidates.FirstOrDefault(x =>
-            string.Equals(
-                x.DisplayName,
-                name,
-                StringComparison.OrdinalIgnoreCase));
+        var exactMatch = customers.FirstOrDefault(x =>
+            x.NormalizedName == normalizedName);
 
         if (exactMatch is not null)
         {
             return new CustomerResolutionResultDto(
                 CustomerResolutionStatus.Resolved,
-                exactMatch,
+                ToCandidate(exactMatch),
                 []);
         }
+
+        var candidates = customers
+            .Select(ToCandidate)
+            .ToArray();
 
         if (candidates.Length == 1)
         {
@@ -102,4 +107,7 @@ public sealed class CustomerService(
             null,
             candidates);
     }
+
+    private static CustomerCandidateDto ToCandidate(Customer customer)
+        => new(customer.Id, customer.FullName);
 }
