@@ -6,6 +6,9 @@ public static class PersianDateFormatter
 
     private const int AnchorYear = 1400;
 
+    public static string ToPersian(DateTimeOffset instant)
+        => ToPersian(IranTime.ToIranDateTime(instant));
+
     public static string ToPersian(DateTime date)
     {
         var (year, month, day) = GetParts(date);

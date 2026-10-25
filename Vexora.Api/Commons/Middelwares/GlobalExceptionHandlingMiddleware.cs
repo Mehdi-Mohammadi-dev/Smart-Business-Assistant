@@ -9,6 +9,7 @@ using Vexora.Domain.Exceptions.Sales.Items;
 using Vexora.Domain.Exceptions.Subscriptions;
 using Vexora.Domain.Exceptions.Users;
 using Vexora.Domain.sharedKernel.Exceptions;
+using AppErrorType = Vexora.Domain.sharedKernel.Exceptions.AppErrorType;
 
 namespace Vexora.Api.Commons.Middelwares;
 
@@ -61,12 +62,24 @@ public sealed class GlobalExceptionHandlingMiddleware(
 
     private static (int StatusCode, ApiResult<object> Result) Map(Exception exception)
     {
+
         return exception switch
         {
             ValidationException validationException
                 => (StatusCodes.Status400BadRequest, CreateValidationResult(validationException)),
 
-            Domain.sharedKernel.Exceptions.AppException appException
+            // Specific exceptions must be checked before the base AppException.
+            CheckExceptions.CheckNotPendingException
+                => Conflict("CHECK_NOT_PENDING", exception.Message),
+
+            CheckExceptions.CheckAlreadyPendingException
+                => Conflict("CHECK_ALREADY_PENDING", exception.Message),
+
+            SubscriptionExceptions.InvalidStartAndEndDate
+                => BadRequest("INVALID_SUBSCRIPTION_DATES", exception.Message),
+
+            // General application/domain exception must come after specific exceptions.
+            Vexora.Domain.sharedKernel.Exceptions.AppException appException
                 => (
                     ToStatusCode(appException.Type),
                     ApiResult<object>.Failure(
@@ -112,20 +125,11 @@ public sealed class GlobalExceptionHandlingMiddleware(
             CustomerExceptions.LastNameInvalidException
                 => BadRequest("INVALID_CUSTOMER_LAST_NAME", exception.Message),
 
-            CheckExceptions.CheckNotPendingException
-                => Conflict("CHECK_NOT_PENDING", exception.Message),
-
-            CheckExceptions.CheckAlreadyPendingException
-                => Conflict("CHECK_ALREADY_PENDING", exception.Message),
-
             SaleItemExceptions.QuantityException
                 => BadRequest("INVALID_QUANTITY", exception.Message),
 
             SaleItemExceptions.UnitPriceException
                 => BadRequest("INVALID_UNIT_PRICE", exception.Message),
-
-            SubscriptionExceptions.InvalidStartAndEndDate
-                => BadRequest("INVALID_SUBSCRIPTION_DATES", exception.Message),
 
             _ => (
                 StatusCodes.Status500InternalServerError,
