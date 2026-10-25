@@ -108,7 +108,7 @@ public sealed class AuthController(IAuthService authService) : ControllerBase
             !long.TryParse(expiresAtClaim, out var expiresAtUnix))
         {
             throw new Vexora.Application.Exceptions.Authentications
-                .AuthExceptions.UnauthorizedException();
+                .UnauthorizedException();
         }
 
         var expiresAt = DateTimeOffset.FromUnixTimeSeconds(expiresAtUnix);

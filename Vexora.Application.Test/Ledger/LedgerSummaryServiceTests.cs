@@ -6,50 +6,14 @@ using Vexora.Application.Ledger.Summary;
 using Vexora.Application.Services.Interfaces.CurrentUser;
 using Xunit;
 
+using Vexora.Application.Test.Ledger.LedgerSummaryServiceTestsHelpers;
+
 namespace Vexora.Application.Test.Ledger;
 
 public sealed class LedgerSummaryServiceTests
 {
-    private sealed class FakeSummaryReader(CheckPendingAggregate? checks, PaymentPeriodAggregate? payments)
-        : ILedgerSummaryReader
-    {
-        public DateTime SeenToday;
-        public int SeenDueSoonDays;
-        public (DateTimeOffset Month, DateTimeOffset Today, DateTimeOffset Tomorrow) SeenBounds;
 
-        public Task<CheckPendingAggregate?> GetPendingChecksAsync(long userId, DateTime today, int dueSoonDays,
-            CancellationToken cancellationToken = default)
-        {
-            SeenToday = today;
-            SeenDueSoonDays = dueSoonDays;
-            return Task.FromResult(checks);
-        }
 
-        public Task<PaymentPeriodAggregate?> GetPaymentPeriodAsync(long userId, DateTimeOffset monthStartUtc,
-            DateTimeOffset todayStartUtc, DateTimeOffset tomorrowStartUtc, CancellationToken cancellationToken = default)
-        {
-            SeenBounds = (monthStartUtc, todayStartUtc, tomorrowStartUtc);
-            return Task.FromResult(payments);
-        }
-    }
-
-    private sealed class FakeCustomerReader(int count) : ILedgerCustomerReader
-    {
-        public Task<IReadOnlyList<CustomerRef>> FindCustomersAsync(long userId, string? normalizedSearch,
-            long? customerId, CancellationToken cancellationToken = default)
-            => Task.FromResult<IReadOnlyList<CustomerRef>>([]);
-
-        public Task<IReadOnlyList<PaymentAggregate>> GetPaymentAggregatesAsync(long userId, long? customerId,
-            CancellationToken cancellationToken = default)
-            => Task.FromResult<IReadOnlyList<PaymentAggregate>>([]);
-
-        public Task<IReadOnlyList<CheckAggregate>> GetCheckAggregatesAsync(long userId, long? customerId,
-            DateTime today, CancellationToken cancellationToken = default)
-            => Task.FromResult<IReadOnlyList<CheckAggregate>>([]);
-
-        public Task<int> CountCustomersAsync(long userId, CancellationToken cancellationToken = default)
-            => Task.FromResult(count);
-    }
 
     private static LedgerSummaryService Create(FakeSummaryReader summaryReader, int customers = 18)
     {

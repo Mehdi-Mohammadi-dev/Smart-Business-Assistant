@@ -7,6 +7,8 @@ using Vexora.Application.UnitOfWorks;
 using Vexora.Domain.Entities.Customers;
 using Xunit;
 
+using Vexora.Application.Test.Zero.CustomerServiceTestsHelpers;
+
 namespace Vexora.Application.Test.Zero;
 
 public sealed class CustomerServiceTests
@@ -136,69 +138,6 @@ public sealed class CustomerServiceTests
         _unitOfWork.SaveCount.Should().Be(0);
     }
 
-    private sealed class FakeCurrentUser(long userId) : ICurrentUser
-    {
-        public long UserId { get; } = userId;
-    }
 
-    private sealed class FakeUnitOfWork : IUnitOfWork
-    {
-        public int SaveCount { get; private set; }
 
-        public Task<int> SaveAsync(CancellationToken cancellationToken = default)
-        {
-            SaveCount++;
-            return Task.FromResult(1);
-        }
-
-        public Task ExecuteInTransactionAsync(
-            Func<CancellationToken, Task> action,
-            CancellationToken cancellationToken = default)
-            => action(cancellationToken);
-    }
-
-    private sealed class FakeCustomerRepository : ICustomerRepository
-    {
-        public List<Customer> Items { get; } = [];
-
-        public Task<Customer?> GetByIdAsync(long userId, long id, CancellationToken cancellationToken = default)
-            => Task.FromResult(Items.FirstOrDefault(x => x.UserId == userId && x.Id == id));
-
-        public Task InsertAsync(Customer entity, CancellationToken cancellationToken = default)
-        {
-            Items.Add(entity);
-            return Task.CompletedTask;
-        }
-
-        public Task<IReadOnlyList<Customer>> SearchByNameAsync(
-            long userId,
-            string normalizedName,
-            CancellationToken cancellationToken = default)
-            => Task.FromResult<IReadOnlyList<Customer>>(
-                Items.Where(x => x.UserId == userId && x.NormalizedName.Contains(normalizedName)).ToList());
-
-        public Task<Customer?> GetByNormalizedNameAsync(
-            long userId,
-            string normalizedName,
-            CancellationToken cancellationToken = default)
-            => Task.FromResult(
-                Items.FirstOrDefault(x => x.UserId == userId && x.NormalizedName == normalizedName));
-
-        public Task<Customer?> GetByExactNameAsync(
-     long userId,
-     string firstName,
-     string lastName,
-     CancellationToken cancellationToken = default)
-        {
-            var normalizedName =
-                CustomerNameNormalizer.Normalize(firstName, lastName);
-
-            var customer = Items.FirstOrDefault(x =>
-                x.UserId == userId &&
-                CustomerNameNormalizer.Normalize(x.FirstName, x.LastName)
-                    == normalizedName);
-
-            return Task.FromResult(customer);
-        }
-    }
 }

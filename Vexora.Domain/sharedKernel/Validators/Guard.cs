@@ -1,4 +1,4 @@
-﻿using static Vexora.Domain.sharedKernel.Exceptions.SharedExceptions;
+using Vexora.Domain.sharedKernel.Exceptions;
 
 namespace Vexora.Domain.sharedKernel.Validators;
 

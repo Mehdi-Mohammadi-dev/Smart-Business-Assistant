@@ -9,6 +9,8 @@ using Vexora.Domain.Enums.BankRegistrationStatuses;
 using Vexora.Domain.Enums.CheckSettlementStatuses;
 using Xunit;
 
+using Vexora.Application.Test.Ledger.StatementTestsHelpers;
+
 namespace Vexora.Application.Test.Ledger;
 
 public sealed class StatementTests
@@ -80,28 +82,6 @@ public sealed class StatementTests
         payment.DatePersian.Should().Be("1405/08/01");
     }
 
-    private sealed class FakeStatementReader(int count, string? name = "علی رضایی") : IStatementReader
-    {
-        public long? SeenUserId;
-
-        public Task<string?> GetCustomerNameAsync(long userId, long customerId, CancellationToken cancellationToken = default)
-        {
-            SeenUserId = userId;
-            return Task.FromResult(name);
-        }
-
-        public Task<int> CountRowsAsync(long userId, long customerId, DateTime? from, DateTime? to,
-            CancellationToken cancellationToken = default)
-            => Task.FromResult(count);
-
-        public Task<IReadOnlyList<StatementPaymentRow>> GetPaymentsAsync(long userId, long customerId,
-            DateTime? from, DateTime? to, CancellationToken cancellationToken = default)
-            => Task.FromResult<IReadOnlyList<StatementPaymentRow>>([]);
-
-        public Task<IReadOnlyList<StatementCheckRow>> GetChecksAsync(long userId, long customerId,
-            DateTime? from, DateTime? to, CancellationToken cancellationToken = default)
-            => Task.FromResult<IReadOnlyList<StatementCheckRow>>([]);
-    }
 
     private static StatementService Create(FakeStatementReader reader, long userId = 1)
     {
@@ -116,7 +96,7 @@ public sealed class StatementTests
     {
         var act = () => Create(new FakeStatementReader(StatementService.MaxRows + 1)).GetAsync(5, null, null);
 
-        await act.Should().ThrowAsync<LedgerExceptions.StatementTooLargeException>();
+        await act.Should().ThrowAsync<StatementTooLargeException>();
     }
 
     [Fact]
@@ -134,7 +114,7 @@ public sealed class StatementTests
         var act = () => Create(new FakeStatementReader(0))
             .GetAsync(5, new DateTime(2026, 10, 25), new DateTime(2026, 10, 24));
 
-        await act.Should().ThrowAsync<LedgerExceptions.InvalidDateRangeException>();
+        await act.Should().ThrowAsync<InvalidDateRangeException>();
     }
 
     [Fact]
@@ -142,7 +122,7 @@ public sealed class StatementTests
     {
         var act = () => Create(new FakeStatementReader(0, name: null)).GetAsync(5, null, null);
 
-        await act.Should().ThrowAsync<LedgerExceptions.CustomerNotFoundException>();
+        await act.Should().ThrowAsync<CustomerNotFoundException>();
     }
 
     [Fact]

@@ -26,7 +26,7 @@ public sealed class RequireActiveSubscriptionAttribute : Attribute, IAsyncAction
 
         var userIdClaim = context.HttpContext.User.FindFirst("sub")?.Value;
         if (!long.TryParse(userIdClaim, out var userId) || userId <= 0)
-            throw new Vexora.Application.Exceptions.Authentications.AuthExceptions.UnauthorizedException();
+            throw new Vexora.Application.Exceptions.Authentications.UnauthorizedException();
 
         var repository = context.HttpContext.RequestServices.GetRequiredService<ISubscriptionRepository>();
         var timeProvider = context.HttpContext.RequestServices.GetRequiredService<TimeProvider>();

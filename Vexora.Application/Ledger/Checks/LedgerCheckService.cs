@@ -23,7 +23,7 @@ public sealed class LedgerCheckService(
         CancellationToken cancellationToken = default)
     {
         if (query.DueFrom is { } fromDate && query.DueTo is { } toDate && fromDate.Date > toDate.Date)
-            throw new LedgerExceptions.InvalidDateRangeException();
+            throw new InvalidDateRangeException();
 
         var today = IranTime.Today(timeProvider);
         var normalized = query with { Search = SearchText.Normalize(query.Search) };
@@ -49,7 +49,7 @@ public sealed class LedgerCheckService(
             currentUser.UserId,
             checkId,
             cancellationToken)
-            ?? throw new LedgerExceptions.CheckNotFoundException();
+            ?? throw new CheckNotFoundException();
 
         return CheckRules.ToDto(row, IranTime.Today(timeProvider));
     }
@@ -123,5 +123,5 @@ public sealed class LedgerCheckService(
                currentUser.UserId,
                checkId,
                cancellationToken)
-           ?? throw new LedgerExceptions.CheckNotFoundException();
+           ?? throw new CheckNotFoundException();
 }

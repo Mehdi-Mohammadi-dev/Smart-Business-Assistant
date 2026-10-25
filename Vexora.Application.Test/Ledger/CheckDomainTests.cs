@@ -36,10 +36,10 @@ public sealed class CheckDomainTests
         bounced.MarkAsBounced(At);
 
         paid.Invoking(x => x.MarkAsPaid(At))
-            .Should().Throw<CheckExceptions.CheckNotPendingException>();
+            .Should().Throw<CheckNotPendingException>();
 
         bounced.Invoking(x => x.MarkAsPaid(At))
-            .Should().Throw<CheckExceptions.CheckNotPendingException>();
+            .Should().Throw<CheckNotPendingException>();
     }
 
     [Fact]
@@ -64,10 +64,10 @@ public sealed class CheckDomainTests
         bounced.MarkAsBounced(At);
 
         paid.Invoking(x => x.MarkAsBounced(At))
-            .Should().Throw<CheckExceptions.CheckNotPendingException>();
+            .Should().Throw<CheckNotPendingException>();
 
         bounced.Invoking(x => x.MarkAsBounced(At))
-            .Should().Throw<CheckExceptions.CheckNotPendingException>();
+            .Should().Throw<CheckNotPendingException>();
     }
 
     [Fact]
@@ -100,7 +100,7 @@ public sealed class CheckDomainTests
     public void RevertToPending_WhenAlreadyPending_Throws()
     {
         NewCheck().Invoking(x => x.RevertToPending())
-            .Should().Throw<CheckExceptions.CheckAlreadyPendingException>();
+            .Should().Throw<CheckAlreadyPendingException>();
     }
 
     [Fact]

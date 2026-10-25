@@ -66,7 +66,7 @@ public sealed class LedgerCustomerService(
             cancellationToken);
 
         if (customers.Count == 0)
-            throw new LedgerExceptions.CustomerNotFoundException();
+            throw new CustomerNotFoundException();
 
         var payments = await reader.GetPaymentAggregatesAsync(
             userId,

@@ -1,4 +1,4 @@
-﻿using static Vexora.Domain.Exceptions.Subscriptions.SubscriptionExceptions;
+using Vexora.Domain.Exceptions.Subscriptions;
 
 namespace Vexora.Domain.Validators.Subscriptions;
 

@@ -1,4 +1,4 @@
-﻿using static Vexora.Domain.Exceptions.RefreshTokens.RefreshTokenExceptions;
+using Vexora.Domain.Exceptions.RefreshTokens;
 
 namespace Vexora.Domain.Validators.RefreshTokens;
 

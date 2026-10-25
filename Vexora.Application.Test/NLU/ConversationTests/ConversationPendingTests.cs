@@ -15,6 +15,8 @@ using Vexora.Application.Services.Interfaces.Customers;
 using Vexora.Application.Services.Interfaces.Payments;
 using Xunit;
 
+using Vexora.Application.Test.NLU.ConversationTests.ConversationPendingTestsHelpers;
+
 namespace Vexora.Application.Test.NLU.ConversationTests;
 
 public sealed class ConversationPendingTests
@@ -143,54 +145,9 @@ public sealed class ConversationPendingTests
         });
     }
 
-    private sealed class InMemoryStateStore : IConversationStateStore
-    {
-        private readonly Dictionary<string, ConversationState> _states = new();
 
-        public Task<ConversationState?> GetAsync(string conversationId, CancellationToken cancellationToken = default)
-            => Task.FromResult(_states.GetValueOrDefault(conversationId));
 
-        public Task SaveAsync(ConversationState state, CancellationToken cancellationToken = default)
-        {
-            _states[state.ConversationId] = state;
-            return Task.CompletedTask;
-        }
 
-        public Task RemoveAsync(string conversationId, CancellationToken cancellationToken = default)
-        {
-            _states.Remove(conversationId);
-            return Task.CompletedTask;
-        }
-    }
 
-    private sealed class ThrowingNluPipeline : INluPipeline
-    {
-        public NluResult Analyze(string text) => throw new NotSupportedException();
-    }
 
-    private sealed class ThrowingCustomerService : ICustomerService
-    {
-        public Task<CustomerResolutionResultDto> ResolveByNameAsync(string name, CancellationToken cancellationToken = default)
-            => throw new NotSupportedException();
-
-        public Task<CustomerDto> CreateAsync(CreateCustomerDto dto, CancellationToken cancellationToken = default)
-            => throw new NotSupportedException();
-    }
-
-    private sealed class ThrowingPaymentService : IPaymentService
-    {
-        public Task RegisterAsync(RegisterPaymentDto dto, CancellationToken cancellationToken = default)
-            => throw new NotSupportedException();
-    }
-
-    private sealed class ThrowingCheckService : ICheckService
-    {
-        public Task RegisterAsync(RegisterCheckDto dto, CancellationToken cancellationToken = default)
-            => throw new NotSupportedException();
-    }
-
-    private sealed class ThrowingDateExtractor : IDateExtractor
-    {
-        public DateTime? Extract(string text) => throw new NotSupportedException();
-    }
 }

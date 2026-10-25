@@ -50,7 +50,7 @@ public sealed class AuthService(
         if (await userRepository.ExistsByPhoneNumberAsync(
                 phone, cancellationToken))
         {
-            throw new AuthExceptions.PhoneNumberAlreadyExistsException();
+            throw new PhoneNumberAlreadyExistsException();
         }
 
         var now = DateTimeOffset.UtcNow;
@@ -62,7 +62,7 @@ public sealed class AuthService(
 
         if (latest is not null && latest.CreateAt > now - OtpResendCooldown)
         {
-            throw new AuthExceptions.OtpRequestedTooSoonException();
+            throw new OtpRequestedTooSoonException();
         }
 
         var code = RandomNumberGenerator
@@ -119,38 +119,38 @@ public sealed class AuthService(
         var pending = await pendingRegistrationStore.GetAsync(
             dto.RegistrationToken,
             cancellationToken)
-            ?? throw new AuthExceptions.OtpInvalidException();
+            ?? throw new OtpInvalidException();
 
         var otp = await otpRepository.GetByIdAsync(
             pending.OtpId,
             cancellationToken)
-            ?? throw new AuthExceptions.OtpInvalidException();
+            ?? throw new OtpInvalidException();
 
         if (otp.PhoneNumber != pending.PhoneNumber ||
             otp.Purpose != OtpPurpose.PhoneVerification ||
             otp.UsedAt.HasValue)
         {
-            throw new AuthExceptions.OtpInvalidException();
+            throw new OtpInvalidException();
         }
 
         if (otp.ExpiresAt <= DateTimeOffset.UtcNow)
-            throw new AuthExceptions.OtpExpiredException();
+            throw new OtpExpiredException();
 
         if (otp.AttemptCount >= MaxOtpAttempts)
-            throw new AuthExceptions.OtpTooManyAttemptsException();
+            throw new OtpTooManyAttemptsException();
 
         if (!passwordHasher.Verify(dto.OtpCode.Trim(), otp.CodeHash))
         {
             otp.RegisterFailedAttempt();
             await unitOfWork.SaveAsync(cancellationToken);
 
-            throw new AuthExceptions.OtpInvalidException();
+            throw new OtpInvalidException();
         }
 
         if (await userRepository.ExistsByPhoneNumberAsync(
                 pending.PhoneNumber, cancellationToken))
         {
-            throw new AuthExceptions.PhoneNumberAlreadyExistsException();
+            throw new PhoneNumberAlreadyExistsException();
         }
 
         otp.MarkAsUsed();
@@ -191,15 +191,15 @@ public sealed class AuthService(
     {
         var phone = Vexora.Application.Common.PhoneNumberNormalizer.Normalize(dto.PhoneNumber);
         if (await loginAttemptStore.IsLockedAsync(phone, cancellationToken))
-            throw new AuthExceptions.LoginTemporarilyLockedException();
+            throw new LoginTemporarilyLockedException();
 
         var user = await userRepository.FindByPhoneNumberAsync(phone, cancellationToken);
         if (user is null || !passwordHasher.Verify(dto.Password, user.PasswordHasher))
         {
             await loginAttemptStore.RegisterFailureAsync(phone, cancellationToken);
             if (await loginAttemptStore.IsLockedAsync(phone, cancellationToken))
-                throw new AuthExceptions.LoginTemporarilyLockedException();
-            throw new AuthExceptions.InvalidCredentialsException();
+                throw new LoginTemporarilyLockedException();
+            throw new InvalidCredentialsException();
         }
         await loginAttemptStore.ClearAsync(phone, cancellationToken);
 
@@ -233,21 +233,21 @@ public sealed class AuthService(
     {
         var phone = Vexora.Application.Common.PhoneNumberNormalizer.Normalize(phoneNumber);
         var user = await userRepository.FindByPhoneNumberAsync(phone, cancellationToken)
-            ?? throw new AuthExceptions.OtpInvalidException();
+            ?? throw new OtpInvalidException();
         if (string.IsNullOrWhiteSpace(newPassword) || newPassword.Length < 8)
-            throw new AuthExceptions.WeakPasswordException();
+            throw new WeakPasswordException();
 
         var otp = await otpRepository.GetLatestUnusedAsync(phone, OtpPurpose.PasswordReset, cancellationToken)
-            ?? throw new AuthExceptions.OtpInvalidException();
+            ?? throw new OtpInvalidException();
         if (otp.Purpose != OtpPurpose.PasswordReset || otp.UsedAt.HasValue || otp.ExpiresAt <= DateTimeOffset.UtcNow)
-            throw new AuthExceptions.OtpInvalidException();
+            throw new OtpInvalidException();
         if (otp.AttemptCount >= MaxOtpAttempts)
-            throw new AuthExceptions.OtpTooManyAttemptsException();
+            throw new OtpTooManyAttemptsException();
         if (!passwordHasher.Verify(Vexora.Application.Common.DigitNormalizer.Normalize(otpCode), otp.CodeHash))
         {
             otp.RegisterFailedAttempt();
             await unitOfWork.SaveAsync(cancellationToken);
-            throw new AuthExceptions.OtpInvalidException();
+            throw new OtpInvalidException();
         }
         otp.MarkAsUsed();
         user.UpdatePassword(passwordHasher.Hash(newPassword));
@@ -262,19 +262,19 @@ public sealed class AuthService(
         var stored = await refreshTokenRepository.GetByHashAsync(hash, cancellationToken);
 
         if (stored is null)
-            throw new AuthExceptions.InvalidRefreshTokenException();
+            throw new InvalidRefreshTokenException();
         if (stored.RevokedAt.HasValue)
         {
             await refreshTokenRepository.RevokeAllForUserAsync(stored.UserId, cancellationToken);
             await unitOfWork.SaveAsync(cancellationToken);
             logger.LogWarning("Refresh token reuse detected for user {UserId}", stored.UserId);
-            throw new AuthExceptions.InvalidRefreshTokenException();
+            throw new InvalidRefreshTokenException();
         }
         if (stored.ExpiresAt <= DateTimeOffset.UtcNow)
-            throw new AuthExceptions.InvalidRefreshTokenException();
+            throw new InvalidRefreshTokenException();
 
         var user = await userRepository.FindByIdAsync(stored.UserId, cancellationToken)
-                   ?? throw new AuthExceptions.InvalidRefreshTokenException();
+                   ?? throw new InvalidRefreshTokenException();
 
         var subscription = await subscriptionRepository.GetLatestByUserIdAsync(user.Id, cancellationToken);
 
@@ -284,7 +284,7 @@ public sealed class AuthService(
     public async Task<ProfileDto> GetProfileAsync(CancellationToken cancellationToken = default)
     {
         var user = await userRepository.FindByIdAsync(currentUser.UserId, cancellationToken)
-                   ?? throw new AuthExceptions.UnauthorizedException();
+                   ?? throw new UnauthorizedException();
 
         var subscription = await subscriptionRepository.GetLatestByUserIdAsync(user.Id, cancellationToken);
 
@@ -350,7 +350,7 @@ public sealed class AuthService(
     CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(accessTokenId))
-            throw new AuthExceptions.UnauthorizedException();
+            throw new UnauthorizedException();
 
         var hash = tokenService.HashRefreshToken(dto.RefreshToken);
 
@@ -363,7 +363,7 @@ public sealed class AuthService(
             stored.RevokedAt.HasValue ||
             stored.ExpiresAt <= DateTimeOffset.UtcNow)
         {
-            throw new AuthExceptions.InvalidRefreshTokenException();
+            throw new InvalidRefreshTokenException();
         }
 
         stored.Revoke();

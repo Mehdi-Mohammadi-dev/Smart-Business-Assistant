@@ -1,13 +1,7 @@
 using FluentAssertions;
-using Vexora.Application.Caching.Conversations;
 using Vexora.Application.Caching.Conversations.Implementations;
-using Vexora.Application.Caching.Conversations.Interfaces;
 using Vexora.Application.Constants.Messages.Conversations;
 using Vexora.Application.Dtos.Chats;
-using Vexora.Application.Dtos.Checks;
-using Vexora.Application.Dtos.Customers;
-using Vexora.Application.Dtos.Payments;
-using Vexora.Application.NLU.Abstractions.Dates;
 using Vexora.Application.NLU.Extractions;
 using Vexora.Application.NLU.Extractions.Customers;
 using Vexora.Application.NLU.Extractions.Dates;
@@ -18,9 +12,7 @@ using Vexora.Application.NLU.Normalizations;
 using Vexora.Application.NLU.Normalizations.Parsing.Money;
 using Vexora.Application.NLU.Parsing.Number;
 using Vexora.Application.NLU.Pipeline;
-using Vexora.Application.Services.Interfaces.Checks;
-using Vexora.Application.Services.Interfaces.Customers;
-using Vexora.Application.Services.Interfaces.Payments;
+using Vexora.Application.Test.NLU.ConversationTests.ConversationGuardTestsHelpers;
 using Xunit;
 
 namespace Vexora.Application.Test.NLU.ConversationTests;
@@ -88,36 +80,7 @@ public sealed class ConversationGuardTests
     private Task<ConversationProcessingResult> ProcessAsync(string message)
         => _processor.ProcessAsync(new ChatRequestDto("user-1", message));
 
-    private sealed class EmptyStateStore : IConversationStateStore
-    {
-        public Task<ConversationState?> GetAsync(string conversationId, CancellationToken cancellationToken = default)
-            => Task.FromResult<ConversationState?>(null);
 
-        public Task SaveAsync(ConversationState state, CancellationToken cancellationToken = default)
-            => throw new NotSupportedException();
 
-        public Task RemoveAsync(string conversationId, CancellationToken cancellationToken = default)
-            => throw new NotSupportedException();
-    }
 
-    private sealed class ThrowingCustomerService : ICustomerService
-    {
-        public Task<CustomerResolutionResultDto> ResolveByNameAsync(string name, CancellationToken cancellationToken = default)
-            => throw new NotSupportedException();
-
-        public Task<CustomerDto> CreateAsync(CreateCustomerDto dto, CancellationToken cancellationToken = default)
-            => throw new NotSupportedException();
-    }
-
-    private sealed class ThrowingPaymentService : IPaymentService
-    {
-        public Task RegisterAsync(RegisterPaymentDto dto, CancellationToken cancellationToken = default)
-            => throw new NotSupportedException();
-    }
-
-    private sealed class ThrowingCheckService : ICheckService
-    {
-        public Task RegisterAsync(RegisterCheckDto dto, CancellationToken cancellationToken = default)
-            => throw new NotSupportedException();
-    }
 }

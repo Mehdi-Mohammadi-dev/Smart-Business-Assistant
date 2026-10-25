@@ -61,7 +61,7 @@ public sealed class Customer : UserBaseEntity
         if (firstName.Length > CustomerConstants.NameLength ||
             lastName.Length > CustomerConstants.NameLength)
         {
-            throw new CustomerExceptions.NameTooLongException();
+            throw new NameTooLongException();
         }
     }
 }

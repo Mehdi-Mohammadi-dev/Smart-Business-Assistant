@@ -16,7 +16,7 @@ public sealed class JwtCurrentUser(IHttpContextAccessor httpContextAccessor) : I
                         ?? user?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             if (!long.TryParse(value, out var id) || id <= 0)
-                throw new AuthExceptions.UnauthorizedException();
+                throw new UnauthorizedException();
 
             return id;
         }

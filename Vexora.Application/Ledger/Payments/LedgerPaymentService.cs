@@ -20,7 +20,7 @@ public sealed class LedgerPaymentService(
         CancellationToken cancellationToken = default)
     {
         if (query.From is { } fromDate && query.To is { } toDate && fromDate.Date > toDate.Date)
-            throw new LedgerExceptions.InvalidDateRangeException();
+            throw new InvalidDateRangeException();
 
         var page = await reader.ListAsync(
             currentUser.UserId,
@@ -42,7 +42,7 @@ public sealed class LedgerPaymentService(
             currentUser.UserId,
             paymentId,
             cancellationToken)
-            ?? throw new LedgerExceptions.PaymentNotFoundException();
+            ?? throw new PaymentNotFoundException();
 
         payment.SoftDelete();
 

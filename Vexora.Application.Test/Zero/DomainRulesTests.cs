@@ -54,7 +54,7 @@ public sealed class DomainRulesTests
     [Fact]
     public void Customer_Should_Reject_Names_Longer_Than_The_Column()
     {
-        var error = Capture<CustomerExceptions.NameTooLongException>(
+        var error = Capture<NameTooLongException>(
             () => Customer.Create(new string('ا', 81), "رضایی", 1));
 
         error.Code.Should().Be("CUSTOMER_NAME_TOO_LONG");
@@ -66,7 +66,7 @@ public sealed class DomainRulesTests
     {
         var action = () => Customer.Create("  ", "رضایی", 1);
 
-        action.Should().Throw<CustomerExceptions.FirstNameInvalidException>();
+        action.Should().Throw<FirstNameInvalidException>();
     }
 
     [Fact]
@@ -109,8 +109,8 @@ public sealed class DomainRulesTests
         var check = NewCheck();
         check.MarkAsPaid(Now);
 
-        var paidAgain = Capture<CheckExceptions.CheckNotPendingException>(() => check.MarkAsPaid(Now));
-        var bounceAfterPaid = Capture<CheckExceptions.CheckNotPendingException>(() => check.MarkAsBounced(Now));
+        var paidAgain = Capture<CheckNotPendingException>(() => check.MarkAsPaid(Now));
+        var bounceAfterPaid = Capture<CheckNotPendingException>(() => check.MarkAsBounced(Now));
 
         paidAgain.Code.Should().Be("CHECK_NOT_PENDING");
         paidAgain.Type.Should().Be(AppErrorType.Conflict);
@@ -149,7 +149,7 @@ public sealed class DomainRulesTests
     [Fact]
     public void Check_Should_Not_Revert_When_Already_Pending()
     {
-        var error = Capture<CheckExceptions.CheckAlreadyPendingException>(() => NewCheck().RevertToPending());
+        var error = Capture<CheckAlreadyPendingException>(() => NewCheck().RevertToPending());
 
         error.Code.Should().Be("CHECK_ALREADY_PENDING");
     }
@@ -192,7 +192,7 @@ public sealed class DomainRulesTests
     [Fact]
     public void Expired_Subscription_Error_Should_Be_Payment_Required()
     {
-        var error = new SubscriptionExceptions.SubscriptionExpiredException();
+        var error = new SubscriptionExpiredException();
 
         error.Code.Should().Be("SUBSCRIPTION_EXPIRED");
         error.Type.Should().Be(AppErrorType.PaymentRequired);
@@ -201,7 +201,7 @@ public sealed class DomainRulesTests
     [Fact]
     public void Duplicate_Customer_Error_Should_Be_A_Conflict()
     {
-        var error = new CustomerExceptions.CustomerAlreadyExistsException();
+        var error = new CustomerAlreadyExistsException();
 
         error.Code.Should().Be("CUSTOMER_ALREADY_EXISTS");
         error.Type.Should().Be(AppErrorType.Conflict);

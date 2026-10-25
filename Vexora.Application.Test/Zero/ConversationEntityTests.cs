@@ -99,7 +99,7 @@ public sealed class ConversationEntityTests
 
         var action = () => message.Confirm();
 
-        action.Should().Throw<ConversationExceptions.CardNotPendingException>();
+        action.Should().Throw<CardNotPendingException>();
     }
 
     [Fact]
@@ -111,7 +111,7 @@ public sealed class ConversationEntityTests
 
         var action = () => message.Confirm();
 
-        action.Should().Throw<ConversationExceptions.CardNotPendingException>();
+        action.Should().Throw<CardNotPendingException>();
     }
 
     [Fact]
@@ -123,7 +123,7 @@ public sealed class ConversationEntityTests
 
         var action = () => message.Confirm();
 
-        action.Should().Throw<ConversationExceptions.CardNotPendingException>();
+        action.Should().Throw<CardNotPendingException>();
     }
 
     [Fact]

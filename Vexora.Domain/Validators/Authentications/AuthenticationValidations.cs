@@ -1,4 +1,4 @@
-﻿using static Vexora.Domain.Exceptions.Authentications.AuthenticationExceptions;
+using Vexora.Domain.Exceptions.Authentications;
 
 namespace Vexora.Domain.Validators.Authentications;
 

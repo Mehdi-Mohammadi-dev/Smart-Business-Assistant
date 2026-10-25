@@ -1,4 +1,4 @@
-﻿using System.Text.RegularExpressions;
+using System.Text.RegularExpressions;
 using Vexora.Application.Dtos.Customers;
 using Vexora.Application.NLU.Abstractions.Extractions.Customers;
 using Vexora.Application.NLU.Models.Entities;
@@ -287,14 +287,4 @@ public sealed partial class CustomerExtractor : ICustomerExtractor
     [GeneratedRegex(@"[\p{L}]+|[\p{N}][\p{N},.\/\-]*")]
     private static partial Regex TokenRegex();
 
-    private sealed record Token(
-        string Text,
-        int Start,
-        int End,
-        bool IsNumber);
-
-    private sealed record NameRun(
-        int Start,
-        int End,
-        double Score);
 }

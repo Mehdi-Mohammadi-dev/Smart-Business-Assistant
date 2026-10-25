@@ -59,7 +59,7 @@ public sealed class ConversationMessage
     private void Move(CardState next)
     {
         if (CardState != CardState.Pending)
-            throw new ConversationExceptions.CardNotPendingException();
+            throw new CardNotPendingException();
 
         CardState = next;
     }

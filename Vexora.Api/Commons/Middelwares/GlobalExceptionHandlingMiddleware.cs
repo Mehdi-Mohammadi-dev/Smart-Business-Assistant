@@ -69,13 +69,13 @@ public sealed class GlobalExceptionHandlingMiddleware(
                 => (StatusCodes.Status400BadRequest, CreateValidationResult(validationException)),
 
             // Specific exceptions must be checked before the base AppException.
-            CheckExceptions.CheckNotPendingException
+            CheckNotPendingException
                 => Conflict("CHECK_NOT_PENDING", exception.Message),
 
-            CheckExceptions.CheckAlreadyPendingException
+            CheckAlreadyPendingException
                 => Conflict("CHECK_ALREADY_PENDING", exception.Message),
 
-            SubscriptionExceptions.InvalidStartAndEndDate
+            InvalidStartAndEndDate
                 => BadRequest("INVALID_SUBSCRIPTION_DATES", exception.Message),
 
             // General application/domain exception must come after specific exceptions.
@@ -98,37 +98,37 @@ public sealed class GlobalExceptionHandlingMiddleware(
                         new ApiError("ENTITY_NOT_FOUND", Messages.NotFoundInformation))
                 ),
 
-            SharedExceptions.InvalidIdException
+            InvalidIdException
                 => BadRequest("INVALID_ID", exception.Message),
 
-            SharedExceptions.AmountInvalidException
+            AmountInvalidException
                 => BadRequest("INVALID_AMOUNT", exception.Message),
 
-            UserExceptions.PhoneNumberInvalidException
+            PhoneNumberInvalidException
                 => BadRequest("INVALID_PHONE_NUMBER", "شماره موبایل معتبر نیست."),
 
-            UserExceptions.FirstNameInvalidException
+            Vexora.Domain.Exceptions.Users.FirstNameInvalidException
                 => BadRequest("INVALID_FIRST_NAME", exception.Message),
 
-            UserExceptions.LastNameInvalidException
+            Vexora.Domain.Exceptions.Users.LastNameInvalidException
                 => BadRequest("INVALID_LAST_NAME", exception.Message),
 
-            UserExceptions.NotStrongPasswordException
+            NotStrongPasswordException
                 => BadRequest("WEAK_PASSWORD", exception.Message),
 
-            AuthenticationExceptions.PhoneNumberRequired
+            PhoneNumberRequired
                 => BadRequest("PHONE_NUMBER_REQUIRED", "شماره موبایل الزامی است."),
 
-            CustomerExceptions.FirstNameInvalidException
+            Vexora.Domain.Exceptions.Customers.FirstNameInvalidException
                 => BadRequest("INVALID_CUSTOMER_FIRST_NAME", exception.Message),
 
-            CustomerExceptions.LastNameInvalidException
+            Vexora.Domain.Exceptions.Customers.LastNameInvalidException
                 => BadRequest("INVALID_CUSTOMER_LAST_NAME", exception.Message),
 
-            SaleItemExceptions.QuantityException
+            QuantityException
                 => BadRequest("INVALID_QUANTITY", exception.Message),
 
-            SaleItemExceptions.UnitPriceException
+            UnitPriceException
                 => BadRequest("INVALID_UNIT_PRICE", exception.Message),
 
             _ => (

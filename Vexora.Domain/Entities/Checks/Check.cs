@@ -1,4 +1,4 @@
-﻿using Vexora.Domain.Entities.Customers;
+using Vexora.Domain.Entities.Customers;
 using Vexora.Domain.Enums.BankRegistrationStatuses;
 using Vexora.Domain.Enums.CheckSettlementStatuses;
 using Vexora.Domain.Enums.TransactionDirections;
@@ -77,7 +77,7 @@ public sealed class Check : UserBaseEntity
     public void MarkAsPaid(DateTimeOffset paidAt)
     {
         if (SettlementStatus != CheckSettlementStatus.Pending)
-            throw new CheckExceptions.CheckNotPendingException();
+            throw new CheckNotPendingException();
 
         SettlementStatus = CheckSettlementStatus.Paid;
         PaidAt = paidAt;
@@ -87,7 +87,7 @@ public sealed class Check : UserBaseEntity
     public void MarkAsBounced(DateTimeOffset at)
     {
         if (SettlementStatus != CheckSettlementStatus.Pending)
-            throw new CheckExceptions.CheckNotPendingException();
+            throw new CheckNotPendingException();
 
         SettlementStatus = CheckSettlementStatus.Bounced;
         BouncedAt = at;
@@ -97,7 +97,7 @@ public sealed class Check : UserBaseEntity
     public void RevertToPending()
     {
         if (SettlementStatus == CheckSettlementStatus.Pending)
-            throw new CheckExceptions.CheckAlreadyPendingException();
+            throw new CheckAlreadyPendingException();
 
         SettlementStatus = CheckSettlementStatus.Pending;
         PaidAt = null;

@@ -19,7 +19,7 @@ public sealed class StatementService(
         CancellationToken cancellationToken = default)
     {
         if (from is { } fromDate && to is { } toDate && fromDate.Date > toDate.Date)
-            throw new LedgerExceptions.InvalidDateRangeException();
+            throw new InvalidDateRangeException();
 
         var userId = currentUser.UserId;
 
@@ -27,7 +27,7 @@ public sealed class StatementService(
             userId,
             customerId,
             cancellationToken)
-            ?? throw new LedgerExceptions.CustomerNotFoundException();
+            ?? throw new CustomerNotFoundException();
 
         var rowsCount = await reader.CountRowsAsync(
             userId,
@@ -37,7 +37,7 @@ public sealed class StatementService(
             cancellationToken);
 
         if (rowsCount > MaxRows)
-            throw new LedgerExceptions.StatementTooLargeException();
+            throw new StatementTooLargeException();
 
         var payments = await reader.GetPaymentsAsync(
             userId,

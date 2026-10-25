@@ -214,20 +214,6 @@ public sealed partial class MoneyExtractor : IMoneyExtractor
         return text;
     }
 
-    private sealed record MoneySpan(
-        int Start,
-        int End,
-        IReadOnlyList<MoneyToken> Tokens,
-        bool HasCurrency)
-    {
-        public bool HasMultiplier =>
-            Tokens.Any(x => x.Kind == MoneyTokenKind.Multiplier);
-
-        public bool IsBareNumber =>
-            !HasCurrency &&
-            Tokens.Count == 1 &&
-            Tokens[0].Kind == MoneyTokenKind.Number;
-    }
 
     [GeneratedRegex(@"\d{4}[/\-]\d{1,2}[/\-]\d{1,2}")]
     private static partial Regex FullDateRegex();
