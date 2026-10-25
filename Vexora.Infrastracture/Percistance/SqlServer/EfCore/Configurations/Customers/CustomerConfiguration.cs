@@ -8,8 +8,6 @@ namespace Vexora.Infrastracture.Percistance.SqlServer.EfCore.Configurations.Cust
 
 public sealed class CustomerConfiguration : IEntityTypeConfiguration<Customer>
 {
-    public const string NormalizedNameIndexName = "IX_Customers_UserId_NormalizedName";
-
     public void Configure(EntityTypeBuilder<Customer> builder)
     {
         builder.UserBaseConfigurationProperties();
@@ -22,17 +20,11 @@ public sealed class CustomerConfiguration : IEntityTypeConfiguration<Customer>
             .HasMaxLength(CustomerConstants.NameLength)
             .IsRequired();
 
-        builder.Property(x => x.NormalizedName)
-            .HasMaxLength(CustomerConstants.NormalizedNameLength)
-            .IsRequired();
-
         builder.HasIndex(x => new
         {
             x.UserId,
-            x.NormalizedName
-        })
-        .IsUnique()
-        .HasFilter("[IsDelete] = 0")
-        .HasDatabaseName(NormalizedNameIndexName);
+            x.FirstName,
+            x.LastName
+        }).IsUnique();
     }
 }

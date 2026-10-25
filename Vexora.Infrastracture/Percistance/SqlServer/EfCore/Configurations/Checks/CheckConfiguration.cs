@@ -48,13 +48,6 @@ public sealed class CheckConfiguration : IEntityTypeConfiguration<Check>
             x.CustomerId
         });
 
-        builder.HasIndex(x => new
-        {
-            x.UserId,
-            x.SettlementStatus,
-            x.DueDate
-        });
-
         #endregion
 
         #region Relations

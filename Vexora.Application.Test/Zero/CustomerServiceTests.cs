@@ -183,5 +183,10 @@ public sealed class CustomerServiceTests
             CancellationToken cancellationToken = default)
             => Task.FromResult(
                 Items.FirstOrDefault(x => x.UserId == userId && x.NormalizedName == normalizedName));
+
+        public Task<Customer?> GetByExactNameAsync(long userId, string firstName, string lastName, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

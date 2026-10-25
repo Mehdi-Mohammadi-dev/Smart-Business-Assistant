@@ -84,13 +84,13 @@ public sealed class Check : UserBaseEntity
         UpdateAt = DateTimeOffset.UtcNow;
     }
 
-    public void MarkAsBounced(DateTimeOffset bouncedAt)
+    public void MarkAsBounced(DateTimeOffset at)
     {
         if (SettlementStatus != CheckSettlementStatus.Pending)
             throw new CheckExceptions.CheckNotPendingException();
 
         SettlementStatus = CheckSettlementStatus.Bounced;
-        BouncedAt = bouncedAt;
+        BouncedAt = at;
         UpdateAt = DateTimeOffset.UtcNow;
     }
 

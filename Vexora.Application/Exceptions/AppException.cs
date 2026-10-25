@@ -4,6 +4,8 @@ public enum AppErrorType
 {
     Validation,
     Unauthorized,
+    PaymentRequired,
+    Forbidden,
     NotFound,
     Conflict,
     TooManyRequests,

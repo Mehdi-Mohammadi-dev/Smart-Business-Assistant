@@ -8,27 +8,30 @@ namespace Vexora.Infrastracture.Percistance.SqlServer.EfCore.Repositories.Custom
 
 public class CustomerRepository(ApplicationDbContext context) : GenericRepository<Customer>(context), ICustomerRepository
 {
-    public async Task<IReadOnlyList<Customer>> SearchByNameAsync(
-        long userId,
-        string normalizedName,
-        CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<Customer>> SearchByNameAsync(long userId, string name, CancellationToken cancellationToken = default)
     {
-        return await context.Customers
-            .Where(x => x.UserId == userId &&
-                        x.NormalizedName.Contains(normalizedName))
-            .OrderBy(x => x.NormalizedName)
+        name = name.Trim();
+        return await context.Customers.Where(x => x.UserId == userId &&
+                (
+                    x.FirstName.Contains(name) ||
+                    x.LastName.Contains(name) ||
+                    (x.FirstName + " " + x.LastName).Contains(name)
+                ))
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<Customer?> GetByNormalizedNameAsync(
-        long userId,
-        string normalizedName,
-        CancellationToken cancellationToken = default)
+    public async Task<Customer?> GetByExactNameAsync(long userId,string firstName,string lastName,
+    CancellationToken cancellationToken = default)
     {
+        firstName = firstName.Trim();
+        lastName = lastName.Trim();
+
         return await context.Customers
             .FirstOrDefaultAsync(
-                x => x.UserId == userId &&
-                     x.NormalizedName == normalizedName,
+                x =>
+                    x.UserId == userId &&
+                    x.FirstName == firstName &&
+                    x.LastName == lastName,
                 cancellationToken);
     }
 }

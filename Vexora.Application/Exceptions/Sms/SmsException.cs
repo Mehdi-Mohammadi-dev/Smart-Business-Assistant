@@ -1,5 +1,3 @@
-using Vexora.Domain.sharedKernel.Exceptions;
-
 namespace Vexora.Application.Exceptions.Sms;
 
 public sealed class SmsException(long providerCode, string providerMessage)
