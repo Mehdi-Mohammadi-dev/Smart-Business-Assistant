@@ -21,6 +21,7 @@ using Vexora.Infrastracture.Percistance.SqlServer.EfCore.Context;
 using Vexora.Infrastracture.Percistance.SqlServer.EfCore.Repositories.Authentications;
 using Vexora.Infrastracture.Percistance.SqlServer.EfCore.Repositories.Checks;
 using Vexora.Infrastracture.Percistance.SqlServer.EfCore.Repositories.Customers;
+using Vexora.Infrastracture.Percistance.SqlServer.EfCore.Repositories.Ledger;
 using Vexora.Infrastracture.Percistance.SqlServer.EfCore.Repositories.Payments;
 using Vexora.Infrastracture.Percistance.SqlServer.EfCore.Repositories.RefreshTokens;
 using Vexora.Infrastracture.Percistance.SqlServer.EfCore.Repositories.Subscriptions;
@@ -76,5 +77,7 @@ public static class DependencyInjection
         services.AddScoped<IAccessTokenRevocationStore, RedisAccessTokenRevocationStore>();
 
         services.AddScoped<IStatementPdfGenerator, QuestPdfStatementGenerator>();
+
+        services.AddLedgerRepositories();
     }
 }

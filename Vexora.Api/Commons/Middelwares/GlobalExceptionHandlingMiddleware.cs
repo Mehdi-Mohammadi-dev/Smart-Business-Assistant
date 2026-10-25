@@ -3,12 +3,12 @@ using Vexora.Api.Commons.Results;
 using Vexora.Api.Constants.Shared;
 using Vexora.Application.Exceptions;
 using Vexora.Domain.Exceptions.Authentications;
+using Vexora.Domain.Exceptions.Checks;
 using Vexora.Domain.Exceptions.Customers;
 using Vexora.Domain.Exceptions.Sales.Items;
 using Vexora.Domain.Exceptions.Subscriptions;
 using Vexora.Domain.Exceptions.Users;
 using Vexora.Domain.sharedKernel.Exceptions;
-using AppErrorType = Vexora.Domain.sharedKernel.Exceptions.AppErrorType;
 
 namespace Vexora.Api.Commons.Middelwares;
 
@@ -112,6 +112,12 @@ public sealed class GlobalExceptionHandlingMiddleware(
             CustomerExceptions.LastNameInvalidException
                 => BadRequest("INVALID_CUSTOMER_LAST_NAME", exception.Message),
 
+            CheckExceptions.CheckNotPendingException
+                => Conflict("CHECK_NOT_PENDING", exception.Message),
+
+            CheckExceptions.CheckAlreadyPendingException
+                => Conflict("CHECK_ALREADY_PENDING", exception.Message),
+
             SaleItemExceptions.QuantityException
                 => BadRequest("INVALID_QUANTITY", exception.Message),
 
@@ -142,6 +148,14 @@ public sealed class GlobalExceptionHandlingMiddleware(
         AppErrorType.ExternalService => StatusCodes.Status502BadGateway,
         _ => StatusCodes.Status500InternalServerError
     };
+
+    private static (int StatusCode, ApiResult<object> Result) Conflict(string code, string message)
+    {
+        return (
+            StatusCodes.Status409Conflict,
+            ApiResult<object>.Failure(message, new ApiError(code, message))
+        );
+    }
 
     private static (int StatusCode, ApiResult<object> Result) BadRequest(string code, string message)
     {

@@ -8,11 +8,12 @@ public interface ICustomerRepository
 {
     Task<IReadOnlyList<Customer>> SearchByNameAsync(
         long userId,
-        string normalizedName,
+        string name,
         CancellationToken cancellationToken = default);
 
-    Task<Customer?> GetByNormalizedNameAsync(
+    Task<Customer?> GetByExactNameAsync(
         long userId,
-        string normalizedName,
+        string firstName,
+        string lastName,
         CancellationToken cancellationToken = default);
 }

@@ -2,7 +2,6 @@
 using System.Reflection;
 using Vexora.Domain.Entities.Authentications;
 using Vexora.Domain.Entities.Checks;
-using Vexora.Domain.Entities.Conversations;
 using Vexora.Domain.Entities.Customers;
 using Vexora.Domain.Entities.Payments;
 using Vexora.Domain.Entities.RefreshTokens;
@@ -25,8 +24,6 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<OtpVerification> OtpVerifications { get; set; }
     public DbSet<RefreshToken> RefreshTokens { get; set; }
     public DbSet<Subscription> Subscriptions { get; set; }
-    public DbSet<Conversation> Conversations { get; set; }
-    public DbSet<ConversationMessage> ConversationMessages { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -107,9 +104,6 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
                 entry.Property(nameof(BaseEntity.IsDelete)).CurrentValue = true;
                 entry.Property(nameof(BaseEntity.IsDelete)).IsModified = true;
-
-                entry.Property(nameof(BaseEntity.DeletedAt)).CurrentValue = now;
-                entry.Property(nameof(BaseEntity.DeletedAt)).IsModified = true;
             }
 
             if (entry.State == EntityState.Modified)
