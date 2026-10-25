@@ -20,18 +20,20 @@ public class CustomerRepository(ApplicationDbContext context) : GenericRepositor
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<Customer?> GetByExactNameAsync(long userId,string firstName,string lastName,
-    CancellationToken cancellationToken = default)
+    public async Task<Customer?> GetByExactNameAsync(
+        long userId,
+        string firstName,
+        string lastName,
+        CancellationToken cancellationToken = default)
     {
-        firstName = firstName.Trim();
-        lastName = lastName.Trim();
+        var normalizedName = CustomerNameNormalizer.Normalize(firstName, lastName);
 
-        return await context.Customers
-            .FirstOrDefaultAsync(
-                x =>
-                    x.UserId == userId &&
-                    x.FirstName == firstName &&
-                    x.LastName == lastName,
-                cancellationToken);
+        var customers = await context.Customers
+            .Where(x => x.UserId == userId)
+            .ToListAsync(cancellationToken);
+
+        return customers.FirstOrDefault(x =>
+            CustomerNameNormalizer.Normalize(x.FirstName, x.LastName) == normalizedName);
+
     }
 }

@@ -184,9 +184,21 @@ public sealed class CustomerServiceTests
             => Task.FromResult(
                 Items.FirstOrDefault(x => x.UserId == userId && x.NormalizedName == normalizedName));
 
-        public Task<Customer?> GetByExactNameAsync(long userId, string firstName, string lastName, CancellationToken cancellationToken = default)
+        public Task<Customer?> GetByExactNameAsync(
+     long userId,
+     string firstName,
+     string lastName,
+     CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var normalizedName =
+                CustomerNameNormalizer.Normalize(firstName, lastName);
+
+            var customer = Items.FirstOrDefault(x =>
+                x.UserId == userId &&
+                CustomerNameNormalizer.Normalize(x.FirstName, x.LastName)
+                    == normalizedName);
+
+            return Task.FromResult(customer);
         }
     }
 }

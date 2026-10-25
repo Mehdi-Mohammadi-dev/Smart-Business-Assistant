@@ -4,24 +4,26 @@ using Vexora.Application.Services.Interfaces.CurrentUser;
 using Vexora.Application.Services.Interfaces.Customers;
 using Vexora.Application.UnitOfWorks;
 using Vexora.Domain.Entities.Customers;
+using Vexora.Domain.Validators.Customers;
+using CustomerNameNormalizer = Vexora.Domain.Entities.Customers.CustomerNameNormalizer;
 
 namespace Vexora.Application.Services.Implementations.Customers;
 
 public sealed class CustomerService(
     ICustomerRepository customerRepository,
-    ICurrentUser currentUser,IUnitOfWork unitOfWork)
+    ICurrentUser currentUser,
+    IUnitOfWork unitOfWork)
     : ICustomerService
 {
     public async Task<CustomerDto> CreateAsync(
-    CreateCustomerDto dto,
-    CancellationToken cancellationToken = default)
+      CreateCustomerDto dto,
+      CancellationToken cancellationToken = default)
     {
-        var existingCustomer =
-            await customerRepository.GetByExactNameAsync(
-                currentUser.UserId,
-                dto.Name,
-                dto.Family,
-                cancellationToken);
+        var existingCustomer = await customerRepository.GetByExactNameAsync(
+        currentUser.UserId,
+        dto.Name,
+        dto.Family,
+        cancellationToken);
 
         if (existingCustomer is not null)
         {
@@ -36,30 +38,35 @@ public sealed class CustomerService(
             dto.Family,
             currentUser.UserId);
 
-        await customerRepository.InsertAsync(
-            customer,
-            cancellationToken);
-
-        await unitOfWork.SaveAsync(
-            cancellationToken);
+        await customerRepository.InsertAsync(customer, cancellationToken);
+        await unitOfWork.SaveAsync(cancellationToken);
 
         return new CustomerDto(
             customer.Id,
             customer.FirstName,
             customer.LastName);
+
     }
 
     public async Task<CustomerResolutionResultDto> ResolveByNameAsync(
-    string name,
-    CancellationToken cancellationToken = default)
+        string name,
+        CancellationToken cancellationToken = default)
     {
-        name = name.Trim();
+        var normalizedName = CustomerNameNormalizer.Normalize(name);
 
-        var customers = await customerRepository
-            .SearchByNameAsync(
-                currentUser.UserId,
-                name,
-                cancellationToken);
+        // Do not search for an empty string: every string contains "".
+        if (string.IsNullOrWhiteSpace(normalizedName))
+        {
+            return new CustomerResolutionResultDto(
+                CustomerResolutionStatus.NotFound,
+                null,
+                []);
+        }
+
+        var customers = await customerRepository.SearchByNameAsync(
+            currentUser.UserId,
+            normalizedName,
+            cancellationToken);
 
         if (customers.Count == 0)
         {
@@ -69,25 +76,28 @@ public sealed class CustomerService(
                 []);
         }
 
-        var candidates = customers
-            .Select(x => new CustomerCandidateDto(
-                x.Id,
-                $"{x.FirstName} {x.LastName}".Trim()))
-            .ToArray();
+        var exactCustomer = customers.FirstOrDefault(customer =>
+            CustomerNameNormalizer.Normalize(
+                customer.FirstName,
+                customer.LastName) == normalizedName);
 
-        var exactMatch = candidates.FirstOrDefault(x =>
-            string.Equals(
-                x.DisplayName,
-                name,
-                StringComparison.OrdinalIgnoreCase));
-
-        if (exactMatch is not null)
+        if (exactCustomer is not null)
         {
+            var exactCandidate = new CustomerCandidateDto(
+                exactCustomer.Id,
+                $"{exactCustomer.FirstName} {exactCustomer.LastName}".Trim());
+
             return new CustomerResolutionResultDto(
                 CustomerResolutionStatus.Resolved,
-                exactMatch,
+                exactCandidate,
                 []);
         }
+
+        var candidates = customers
+            .Select(customer => new CustomerCandidateDto(
+                customer.Id,
+                $"{customer.FirstName} {customer.LastName}".Trim()))
+            .ToArray();
 
         if (candidates.Length == 1)
         {
