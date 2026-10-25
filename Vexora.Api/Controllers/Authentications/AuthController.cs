@@ -29,6 +29,7 @@ public sealed class AuthController(IAuthService authService) : ControllerBase
     }
 
     [AllowAnonymous]
+    [EnableRateLimiting("register")]
     [HttpPost("register")]
     public async Task<ApiResult<AuthResultResponse>> Register(
         [FromBody] RegisterContract request,
@@ -40,6 +41,7 @@ public sealed class AuthController(IAuthService authService) : ControllerBase
     }
 
     [AllowAnonymous]
+    [EnableRateLimiting("login")]
     [HttpPost("login")]
     public async Task<ApiResult<AuthResultResponse>> Login(
         [FromBody] LoginContract request,
@@ -51,6 +53,7 @@ public sealed class AuthController(IAuthService authService) : ControllerBase
     }
 
     [AllowAnonymous]
+    [EnableRateLimiting("refresh")]
     [HttpPost("refresh")]
     public async Task<ApiResult<AuthResultResponse>> Refresh(
         [FromBody] RefreshTokenContract request,
@@ -59,6 +62,28 @@ public sealed class AuthController(IAuthService authService) : ControllerBase
         var result = await authService.RefreshAsync(request.RefreshTokenContractMapToRefreshTokenDto(), cancellationToken);
 
         return ApiResult<AuthResultResponse>.SuccessResult(result.AuthResultDtoMapToAuthResultContract());
+    }
+
+    [AllowAnonymous]
+    [EnableRateLimiting("otp")]
+    [HttpPost("forgot-password")]
+    [EndpointSummary("درخواست بازیابی رمز عبور")]
+    [EndpointDescription("در صورت ثبت بودن شماره، کد بازیابی ارسال می‌شود و پاسخ در همه حالت‌ها یکسان است.")]
+    public async Task<ApiResult<object?>> ForgotPassword([FromBody] ForgotPasswordContract request, CancellationToken cancellationToken)
+    {
+        await authService.ForgotPasswordAsync(request.PhoneNumber, cancellationToken);
+        return ApiResult<object?>.SuccessResult(null, "اگر شماره ثبت شده باشد، کد بازیابی ارسال می‌شود.");
+    }
+
+    [AllowAnonymous]
+    [EnableRateLimiting("otp")]
+    [HttpPost("reset-password")]
+    [EndpointSummary("تغییر رمز عبور")]
+    [EndpointDescription("با کد بازیابی معتبر رمز عبور را تغییر می‌دهد و نشست‌های قبلی را باطل می‌کند.")]
+    public async Task<ApiResult<object?>> ResetPassword([FromBody] ResetPasswordContract request, CancellationToken cancellationToken)
+    {
+        await authService.ResetPasswordAsync(request.PhoneNumber, request.OtpCode, request.NewPassword, cancellationToken);
+        return ApiResult<object?>.SuccessResult(null, "رمز عبور با موفقیت تغییر کرد.");
     }
 
     [Authorize]

@@ -32,6 +32,14 @@ public static class AuthExceptions
         "شماره موبایل یا رمز عبور نادرست است.",
         AppErrorType.Unauthorized);
 
+    public sealed class WeakPasswordException() : AppException(
+        "WEAK_PASSWORD", "رمز عبور باید حداقل ۸ نویسه باشد.", AppErrorType.Validation);
+
+    public sealed class LoginTemporarilyLockedException() : AppException(
+        "AUTH_TEMPORARILY_LOCKED",
+        "ورود موقتاً قفل شده است. لطفاً ۱۰ دقیقه دیگر تلاش کنید.",
+        AppErrorType.TooManyRequests);
+
     public sealed class InvalidRefreshTokenException() : AppException(
         "INVALID_REFRESH_TOKEN",
         "توکن شما منقضی شده است. لطفاً دوباره وارد شوید.",
