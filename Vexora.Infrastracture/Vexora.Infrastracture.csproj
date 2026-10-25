@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="QuestPDF" Version="2025.7.4" />
     <PackageReference Include="BCrypt.Net-Next" Version="4.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.12" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.10" />
@@ -29,4 +30,7 @@
     <ProjectReference Include="..\Vexora.Domain\Vexora.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Include="Pdf/Fonts/*.ttf" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
 </Project>

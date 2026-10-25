@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Vexora.Application.Caching.Authentications;
 using Vexora.Application.Caching.Conversations.Interfaces;
 using Vexora.Application.Options;
+using Vexora.Application.Platform.Statements;
 using Vexora.Application.Repositories.Authentications;
 using Vexora.Application.Repositories.Checks;
 using Vexora.Application.Repositories.Customers;
@@ -12,10 +13,10 @@ using Vexora.Application.Repositories.RefreshTokens;
 using Vexora.Application.Repositories.Subscriptions;
 using Vexora.Application.Repositories.Users;
 using Vexora.Application.Services.Interfaces.Authentications;
-using Vexora.Application.Services.Interfaces.CurrentUser;
 using Vexora.Application.UnitOfWorks;
 using Vexora.Infrastracture.Caching.Authentications;
 using Vexora.Infrastracture.Caching.Conversations;
+using Vexora.Infrastracture.Pdf;
 using Vexora.Infrastracture.Percistance.SqlServer.EfCore.Context;
 using Vexora.Infrastracture.Percistance.SqlServer.EfCore.Repositories.Authentications;
 using Vexora.Infrastracture.Percistance.SqlServer.EfCore.Repositories.Checks;
@@ -45,6 +46,7 @@ public static class DependencyInjection
         });
 
         services.AddScoped<IPendingRegistrationStore,RedisPendingRegistrationStore>();
+        services.AddScoped<ILoginAttemptStore, RedisLoginAttemptStore>();
 
         services.Configure<TsmsOptions>(configuration.GetSection("Tsms"));
 
@@ -72,5 +74,7 @@ public static class DependencyInjection
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 
         services.AddScoped<IAccessTokenRevocationStore, RedisAccessTokenRevocationStore>();
+
+        services.AddScoped<IStatementPdfGenerator, QuestPdfStatementGenerator>();
     }
 }

@@ -12,4 +12,13 @@ public sealed class RefreshTokenRepository(ApplicationDbContext context) : IRefr
 
     public Task<RefreshToken?> GetByHashAsync(string tokenHash, CancellationToken cancellationToken = default)
         => context.RefreshTokens.FirstOrDefaultAsync(x => x.TokenHash == tokenHash, cancellationToken);
+
+    public async Task RevokeAllForUserAsync(long userId, CancellationToken cancellationToken = default)
+    {
+        var tokens = await context.RefreshTokens
+            .Where(x => x.UserId == userId && x.RevokedAt == null)
+            .ToListAsync(cancellationToken);
+        foreach (var token in tokens)
+            token.Revoke();
+    }
 }

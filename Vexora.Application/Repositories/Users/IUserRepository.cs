@@ -10,4 +10,6 @@ public interface IUserRepository : IGenericRepository<User>
     Task<User?> FindByIdAsync(long id, CancellationToken cancellationToken = default);
 
     Task<bool> ExistsByPhoneNumberAsync(string phoneNumber, CancellationToken cancellationToken = default);
+    Task<bool> HasSystemAdminAsync(CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<User>> SearchAsync(string? search, int page, int pageSize, CancellationToken cancellationToken = default);
 }

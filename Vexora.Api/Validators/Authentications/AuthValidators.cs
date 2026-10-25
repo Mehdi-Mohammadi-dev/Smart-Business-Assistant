@@ -1,4 +1,5 @@
 using FluentValidation;
+using Vexora.Application.Common;
 
 namespace Vexora.Api.Validators.Authentications;
 
@@ -10,5 +11,7 @@ public static class AuthRules
     public static IRuleBuilderOptions<T, string> Phone<T>(this IRuleBuilder<T, string> rule)
         => rule
             .NotEmpty().WithMessage("شماره موبایل الزامی است.")
-            .Matches(PhonePattern).WithMessage(PhoneMessage);
+            .Must(phone => System.Text.RegularExpressions.Regex.IsMatch(
+                PhoneNumberNormalizer.Normalize(phone), PhonePattern))
+            .WithMessage(PhoneMessage);
 }

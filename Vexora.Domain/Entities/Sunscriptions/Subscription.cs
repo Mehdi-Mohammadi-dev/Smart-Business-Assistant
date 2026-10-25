@@ -80,6 +80,19 @@ public class Subscription : UserBaseEntity
         Status = SubscriptionStatus.Active;
     }
 
+    public void Extend(int days) => Extend(days, DateTimeOffset.UtcNow);
+
+    public void Extend(int days, DateTimeOffset now)
+    {
+        if (days is < 1 or > 365)
+            throw new ArgumentOutOfRangeException(nameof(days));
+
+        var isActive = IsActiveAt(now);
+        StartAt = isActive ? StartAt : now;
+        EndAt = (isActive && EndAt > now ? EndAt : now).AddDays(days);
+        Status = SubscriptionStatus.Active;
+    }
+
     public void Cancel()
     {
         if (Status == SubscriptionStatus.Cancelled)
