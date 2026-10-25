@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.RateLimiting;
+using Vexora.Api.Commons.Filters;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Vexora.Api.Commons.Results;
 using Vexora.Api.Contracts.Chats;
@@ -17,6 +19,8 @@ public sealed class ChatController(
     ICurrentUser currentUser)
     : ControllerBase
 {
+    [EnableRateLimiting("chat")]
+    [RequireActiveSubscription]
     [HttpPost]
     public async Task<ApiResult<ChatResponse>> Post(
         [FromBody] ChatRequest request,
@@ -44,6 +48,8 @@ public sealed class ChatController(
             response?.ChatResponseDtoMapToContract());
     }
 
+    [EnableRateLimiting("chat")]
+    [RequireActiveSubscription]
     [HttpPost("reset")]
     public async Task<ApiResult<object?>> Reset(
         CancellationToken cancellationToken)
