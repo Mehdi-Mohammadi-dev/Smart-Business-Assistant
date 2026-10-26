@@ -102,8 +102,6 @@ public sealed class AuthService(
         await smsSender.SendAsync(
             phone,
             $"کد تأیید نوتا: {code}");
-        Console.WriteLine("کد");
-        Console.WriteLine(code);
 
         return new SendOtpResultDto
         (
@@ -225,8 +223,6 @@ public sealed class AuthService(
         await otpRepository.AddAsync(otp, cancellationToken);
         await unitOfWork.SaveAsync(cancellationToken);
         await smsSender.SendAsync(phone, $"کد بازیابی رمز نوتا: {code}");
-        Console.WriteLine("کد");
-        Console.WriteLine(code);
     }
 
     public async Task ResetPasswordAsync(string phoneNumber, string otpCode, string newPassword, CancellationToken cancellationToken = default)

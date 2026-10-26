@@ -67,7 +67,7 @@ Vexora.Application.Test/Platform/**
 
 ## ج۳) PDF حساب مشتری
 
-**خروجی:** `GET /api/customers/{id}/statement.pdf?from=&to=` (کنترلر جدید در `Controllers/Reports`، چون `customers` را نفر دوم دارد).
+**خروجی:** `GET /api/customers/{id}/statement?from=&to=` (JSON، مشاهده) و `GET /api/customers/{id}/statement/pdf?from=&to=` (PDF) (کنترلر جدید در `Controllers/Reports`، چون `customers` را نفر دوم دارد).
 
 - `IStatementPdfGenerator.Generate(CustomerStatementDto)` (تعریف در صفر) را در `Vexora.Infrastracture/Pdf` پیاده کن.
 - کتابخانه: **QuestPDF** (مجوز Community برای شرکت‌های زیر یک میلیون دلار درآمد سالانه رایگان است؛ شرایط را قبل از استفاده بخوان و در PR بنویس که چک کردی). `QuestPDF.Settings.License = LicenseType.Community`.

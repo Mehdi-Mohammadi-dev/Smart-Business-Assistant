@@ -14,3 +14,9 @@ Verification limitations:
 - The .NET SDK was not available in the execution environment, so `dotnet build` and `dotnet test` could not be run.
 - The source archive did not include Vazirmatn font files. The PDF generator registers those files when supplied, but Persian shaping and the required Chrome/Acrobat visual check remain unverified.
 - No Docker, compose, environment example, deployment, or CI/release files were changed.
+
+## تغییرات تحویل نهایی
+- صورتحساب مشتری: `GET /api/customers/{id}/statement` (JSON، مشاهده) و `GET /api/customers/{id}/statement/pdf` (PDF). مسیر قدیمی `statement.pdf` حذف شد.
+- حذف `Console.WriteLine` که کد OTP را در لاگ چاپ می‌کرد (`AuthService`).
+- پیامک فقط برای ثبت‌نام/بازیابی رمز؛ متن شامل نام «نوتا».
+- بدون build و تست در محیط توسعه؛ اجرا: `dotnet test Vexora.Application.Test`.
