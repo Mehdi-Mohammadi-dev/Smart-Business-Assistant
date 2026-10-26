@@ -42,7 +42,7 @@ public sealed class QuestPdfStatementGenerator : IStatementPdfGenerator
                 page.DefaultTextStyle(style => (HasVazirmatn ? style.FontFamily("Vazirmatn") : style).FontSize(9));
                 page.Header().Column(column =>
                 {
-                    column.Item().AlignRight().Text("نوتا").FontSize(18).Bold();
+                    column.Item().AlignRight().Text(string.IsNullOrWhiteSpace(statement.BusinessName) ? "گردش حساب" : statement.BusinessName).FontSize(18).Bold();
                     column.Item().AlignRight().Text($"حساب مشتری: {statement.CustomerName}");
                     column.Item().AlignRight().Text($"بازه: {FormatDate(statement.From)} تا {FormatDate(statement.To)}");
                     column.Item().AlignRight().Text($"تاریخ تولید: {PersianDate(statement.GeneratedAt)}");
