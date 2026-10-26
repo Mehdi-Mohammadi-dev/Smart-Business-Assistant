@@ -1,4 +1,4 @@
-﻿using Vexora.Api.Contracts.Authentications;
+using Vexora.Api.Contracts.Authentications;
 using Vexora.Application.Common;
 using Vexora.Api.Contracts.Authentications.Profiles;
 using Vexora.Api.Contracts.Authentications.Subscriptions;
@@ -20,7 +20,8 @@ public static class AuthenticationMapper
             contract.FirstName,
             contract.LastName,
             PhoneNumberNormalizer.Normalize(contract.PhoneNumber),
-            contract.Password
+            contract.Password,
+            contract.BusinessName
             );
 
     public static RegisterDto RegisterContractMapToRegisterDto
@@ -78,7 +79,8 @@ public static class AuthenticationMapper
             contract.Id,
             contract.FirstName,
             contract.LastName,
-            contract.PhoneNumber
+            contract.PhoneNumber,
+            contract.BusinessName
         );
 
     public static UserContract UserDtoMapToUserContract(this UserDto dto) =>
@@ -87,7 +89,8 @@ public static class AuthenticationMapper
         dto.Id,
         dto.FirstName,
         dto.LastName,
-        dto.PhoneNumber
+        dto.PhoneNumber,
+        dto.BusinessName
     );
 
     public static SubscriptionContract SubscriptionDtoMapToSubscriptionContract(this     SubscriptionDto dto) =>

@@ -94,7 +94,8 @@ public sealed class AuthService(
                  dto.FirstName,
                  dto.LastName,
                  phone,
-                 passwordHasher.Hash(dto.Password)
+                 passwordHasher.Hash(dto.Password),
+                 dto.BusinessName
             ),
             registrationLifetime,
             cancellationToken);
@@ -157,7 +158,8 @@ public sealed class AuthService(
             pending.FirstName,
             pending.LastName,
             pending.PhoneNumber,
-            pending.PasswordHash);
+            pending.PasswordHash,
+            pending.BusinessName);
 
         AuthResultDto? result = null;
 
@@ -335,7 +337,7 @@ public sealed class AuthService(
         }
 
         return new ProfileDto(
-            new UserDto(user.Id, user.FirstName, user.LastName, user.PhoneNumber),
+            new UserDto(user.Id, user.FirstName, user.LastName, user.PhoneNumber, user.BusinessName),
             subscriptionDto);
     }
 

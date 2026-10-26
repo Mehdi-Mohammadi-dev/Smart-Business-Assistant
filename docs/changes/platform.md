@@ -20,3 +20,9 @@ Verification limitations:
 - حذف `Console.WriteLine` که کد OTP را در لاگ چاپ می‌کرد (`AuthService`).
 - پیامک فقط برای ثبت‌نام/بازیابی رمز؛ متن شامل نام «نوتا».
 - بدون build و تست در محیط توسعه؛ اجرا: `dotnet test Vexora.Application.Test`.
+
+## تغییرات نهایی (۱۴۰۵)
+- فیلد اختیاری `BusinessName` به ثبت‌نام (`send-otp`)، `User` و پاسخ کاربر اضافه شد؛ `User.DisplayName` در نبود نام کسب‌وکار، نام و نام‌خانوادگی را برمی‌گرداند. مایگریشن: `Add_User_BusinessName`.
+- `DateTime.Now` در ConversationProcessor به `UtcNow` تغییر کرد.
+- `InvalidOperationException` اکنون 409 با کد `INVALID_OPERATION` برمی‌گرداند (قبلاً 500).
+- نام «نوتا» فقط در پیامک OTP است، نه در فاکتور/PDF.

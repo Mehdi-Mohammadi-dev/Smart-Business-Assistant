@@ -1,4 +1,4 @@
-﻿namespace Vexora.Application.Dtos.Authentications;
+namespace Vexora.Application.Dtos.Authentications;
 
 public record PendingRegistration
 (
@@ -6,4 +6,5 @@ public record PendingRegistration
     string FirstName,
     string LastName,
     string PhoneNumber,
-    string PasswordHash);
+    string PasswordHash,
+    string? BusinessName = null);

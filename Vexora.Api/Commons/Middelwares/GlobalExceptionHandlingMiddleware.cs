@@ -131,6 +131,9 @@ public sealed class GlobalExceptionHandlingMiddleware(
             UnitPriceException
                 => BadRequest("INVALID_UNIT_PRICE", exception.Message),
 
+            InvalidOperationException
+                => Conflict("INVALID_OPERATION", exception.Message),
+
             _ => (
                 StatusCodes.Status500InternalServerError,
                 ApiResult<object>.Failure(

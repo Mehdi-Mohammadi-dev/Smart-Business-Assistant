@@ -1,4 +1,4 @@
-﻿using Vexora.Domain.Enums.UserRoles;
+using Vexora.Domain.Enums.UserRoles;
 using Vexora.Domain.sharedKernel.BaseEntities;
 using Vexora.Domain.Validators.Users;
 
@@ -8,6 +8,8 @@ public class User : BaseEntity
 {
     public string FirstName { get; private set; } = null!;
     public string LastName { get; private set; } = null!;
+    public string? BusinessName { get; private set; }
+    public string DisplayName => string.IsNullOrWhiteSpace(BusinessName) ? $"{FirstName} {LastName}".Trim() : BusinessName!;
     public string PhoneNumber { get; private set; } = null!;
     public string PasswordHasher { get; private set; } = null!;
     public UserRole Role { get; private set; } = UserRole.User;
@@ -22,7 +24,7 @@ public class User : BaseEntity
 
     #region Functions
 
-    public static User Register(string firstName, string lastName, string phoneNumber, string passwordHasher)
+    public static User Register(string firstName, string lastName, string phoneNumber, string passwordHasher, string? businessName = null)
     {
         UserValidations.ValidatName(firstName, lastName);
 
@@ -34,10 +36,11 @@ public class User : BaseEntity
         {
             FirstName = firstName,
             LastName = lastName,
+            BusinessName = string.IsNullOrWhiteSpace(businessName) ? null : businessName.Trim(),
             PhoneNumber = phoneNumber,
             PasswordHasher = passwordHasher,
-            CreateAt = DateTime.UtcNow,
-            UpdateAt = DateTime.UtcNow,
+            CreateAt = DateTimeOffset.UtcNow,
+            UpdateAt = DateTimeOffset.UtcNow,
         };
     }
 

@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Vexora.Domain.Constants.Users;
 using Vexora.Domain.Entities.Users;
@@ -19,6 +19,11 @@ public sealed class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(x => x.LastName)
             .IsRequired()
             .HasMaxLength(UserConstants.NameLength);
+
+        builder.Property(x => x.BusinessName)
+            .HasMaxLength(UserConstants.NameLength * 2);
+
+        builder.Ignore(x => x.DisplayName);
 
         builder.Property(x => x.PhoneNumber)
             .IsRequired()

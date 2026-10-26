@@ -5,4 +5,5 @@ public record UserContract
     long Id,
     string FirstName,
     string LastName,
-    string PhoneNumber);
+    string PhoneNumber,
+    string? BusinessName = null);

@@ -267,7 +267,7 @@ public sealed class ConversationProcessor(
                 null,
                 money.AmountInToman,
                 MoneyUnit.Toman,
-                DateTime.Now);
+                DateTime.UtcNow);
 
             await SaveCustomerSelectionStateAsync(
                 conversationId,
@@ -290,7 +290,7 @@ public sealed class ConversationProcessor(
                 null,
                 money.AmountInToman,
                 MoneyUnit.Toman,
-                DateTime.Now);
+                DateTime.UtcNow);
 
             await SaveCustomerCreationConfirmationStateAsync(
                 conversationId,
@@ -316,7 +316,7 @@ public sealed class ConversationProcessor(
             new RegisterPaymentDto(
                 resolution.Customer.CustomerId,
                 money.AmountInToman,
-                DateTime.Now),
+                DateTime.UtcNow),
             cancellationToken);
 
         return new ConversationProcessingResult(
