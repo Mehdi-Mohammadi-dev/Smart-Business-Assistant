@@ -201,11 +201,6 @@ public sealed class ConversationProcessor(
                     nluResult,
                     cancellationToken),
 
-            IntentType.GetCustomerBalance =>
-                await ProcessBalanceAsync(
-                    nluResult,
-                    cancellationToken),
-
             _ =>
                 new ConversationProcessingResult(
                     ProcessingStatus.Failed,
