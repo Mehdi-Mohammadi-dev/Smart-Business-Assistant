@@ -16,7 +16,7 @@ Verification limitations:
 - No Docker, compose, environment example, deployment, or CI/release files were changed.
 
 ## تغییرات تحویل نهایی
-- صورتحساب مشتری: `GET /api/customers/{id}/statement` (JSON، مشاهده) و `GET /api/customers/{id}/statement/pdf` (PDF). مسیر قدیمی `statement.pdf` حذف شد.
+- صورتحساب مشتری: `GET /api/customers/{id}/statement` (JSON، از قبل در CustomersController) و `GET /api/customers/{id}/statement/pdf` (PDF). مسیر قدیمی `statement.pdf` حذف شد.
 - حذف `Console.WriteLine` که کد OTP را در لاگ چاپ می‌کرد (`AuthService`).
 - پیامک فقط برای ثبت‌نام/بازیابی رمز؛ متن شامل نام «نوتا».
 - بدون build و تست در محیط توسعه؛ اجرا: `dotnet test Vexora.Application.Test`.

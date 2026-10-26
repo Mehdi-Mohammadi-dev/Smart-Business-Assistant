@@ -11,13 +11,6 @@ public sealed class CustomerStatementController(
     IStatementService statementService,
     IStatementPdfGenerator pdfGenerator) : ControllerBase
 {
-    [HttpGet]
-    [EndpointSummary("مشاهده صورتحساب مشتری")]
-    [EndpointDescription("فهرست پرداخت‌ها و چک‌های دریافتی از مشتری را به‌صورت JSON برمی‌گرداند.")]
-    [ProducesResponseType(typeof(CustomerStatementDto), StatusCodes.Status200OK)]
-    public async Task<ActionResult<CustomerStatementDto>> View(long id, [FromQuery] DateTime? from, [FromQuery] DateTime? to, CancellationToken cancellationToken)
-        => Ok(await statementService.GetAsync(id, from, to, cancellationToken));
-
     [HttpGet("pdf")]
     [EndpointSummary("دریافت PDF گردش حساب مشتری")]
     [EndpointDescription("گزارش گردش دریافت‌های مشتری را به‌صورت فایل PDF دریافت می‌کند.")]
