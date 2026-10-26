@@ -7,6 +7,7 @@ using Vexora.Application.Dtos.Chats;
 using Vexora.Application.Dtos.Checks;
 using Vexora.Application.Dtos.Customers;
 using Vexora.Application.Dtos.Payments;
+using Vexora.Application.Ledger.Customers;
 using Vexora.Application.NLU.Abstractions.Dates;
 using Vexora.Application.NLU.Abstractions.Pipeline;
 using Vexora.Application.NLU.Models.Entities;
@@ -16,6 +17,7 @@ using Vexora.Application.NLU.Models.Results;
 using Vexora.Application.Services.Interfaces.Checks;
 using Vexora.Application.Services.Interfaces.Customers;
 using Vexora.Application.Services.Interfaces.Payments;
+using Vexora.Domain.Enums.BankRegistrationStatuses;
 
 namespace Vexora.Application.Caching.Conversations.Implementations;
 
@@ -25,7 +27,8 @@ public sealed class ConversationProcessor(
     ICustomerService customerService,
     IPaymentService paymentService,
     ICheckService checkService,
-    IDateExtractor dateExtractor)
+    IDateExtractor dateExtractor,
+    ILedgerCustomerService ledgerCustomerService)
     : IConversationProcessor
 {
     public async Task<ConversationProcessingResult> ProcessAsync(
@@ -56,7 +59,11 @@ public sealed class ConversationProcessor(
             var newCommand =
                 nluPipeline.Analyze(request.Message);
 
-            if (IsNewCommand(newCommand))
+            var keepWaitingForAmount =
+                state.Status == ConversationStatus.WaitingForAmount &&
+                !newCommand.Entities.Any(x => x.Type == EntityType.Customer);
+
+            if (!keepWaitingForAmount && IsNewCommand(newCommand))
             {
                 await conversationStateStore.RemoveAsync(
                     request.ConversationId,
@@ -101,6 +108,18 @@ public sealed class ConversationProcessor(
                 new ConversationProcessingResult(
                     ProcessingStatus.Failed,
                     ConversationMessages.CheckDueDateRequired,
+                    null),
+
+            ConversationStatus.WaitingForAmount =>
+                new ConversationProcessingResult(
+                    ProcessingStatus.Failed,
+                    AmountRequiredMessage(state.PendingAction),
+                    null),
+
+            ConversationStatus.WaitingForCheckRegistration =>
+                new ConversationProcessingResult(
+                    ProcessingStatus.Failed,
+                    ConversationMessages.CheckRegistrationQuestion,
                     null),
 
             ConversationStatus.WaitingForCustomerSelection =>
@@ -182,6 +201,11 @@ public sealed class ConversationProcessor(
                     nluResult,
                     cancellationToken),
 
+            IntentType.GetCustomerBalance =>
+                await ProcessBalanceAsync(
+                    nluResult,
+                    cancellationToken),
+
             _ =>
                 new ConversationProcessingResult(
                     ProcessingStatus.Failed,
@@ -245,86 +269,20 @@ public sealed class ConversationProcessor(
                 null);
         }
 
-        if (moneyEntity?.Value is not MoneyAmount money)
-        {
-            return new ConversationProcessingResult(
-                ProcessingStatus.Failed,
-                ConversationMessages.PaymentAmountRequired,
-                null);
-        }
+        var action = new PendingAction(
+            IntentType.RegisterPayment,
+            customer.RawValue,
+            null,
+            (moneyEntity?.Value as MoneyAmount)?.AmountInToman,
+            MoneyUnit.Toman,
+            DateTime.UtcNow);
 
-        var resolution =
-            await customerService.ResolveByNameAsync(
-                customer.RawValue,
-                cancellationToken);
+        if (action.Amount is null)
+            return await AskForAmountAsync(
+                conversationId, action, cancellationToken);
 
-        if (resolution.Status ==
-            CustomerResolutionStatus.Ambiguous)
-        {
-            var pendingAction = new PendingAction(
-                IntentType.RegisterPayment,
-                customer.RawValue,
-                null,
-                money.AmountInToman,
-                MoneyUnit.Toman,
-                DateTime.UtcNow);
-
-            await SaveCustomerSelectionStateAsync(
-                conversationId,
-                pendingAction,
-                resolution.Candidates,
-                cancellationToken);
-
-            return new ConversationProcessingResult(
-                ProcessingStatus.Failed,
-                ConversationMessages.CustomerSelectionRequired,
-                resolution.Candidates);
-        }
-
-        if (resolution.Status ==
-            CustomerResolutionStatus.NotFound)
-        {
-            var pendingAction = new PendingAction(
-                IntentType.RegisterPayment,
-                customer.RawValue,
-                null,
-                money.AmountInToman,
-                MoneyUnit.Toman,
-                DateTime.UtcNow);
-
-            await SaveCustomerCreationConfirmationStateAsync(
-                conversationId,
-                pendingAction,
-                cancellationToken);
-
-            return new ConversationProcessingResult(
-                ProcessingStatus.Failed,
-                ConversationMessages.CustomerNotFound(
-                    customer.RawValue),
-                null);
-        }
-
-        if (resolution.Customer is null)
-        {
-            return new ConversationProcessingResult(
-                ProcessingStatus.Failed,
-                ConversationMessages.CustomerInformationInvalid,
-                null);
-        }
-
-        await paymentService.RegisterAsync(
-            new RegisterPaymentDto(
-                resolution.Customer.CustomerId,
-                money.AmountInToman,
-                DateTime.UtcNow),
-            cancellationToken);
-
-        return new ConversationProcessingResult(
-            ProcessingStatus.Success,
-            ConversationMessages.PaymentRegistered(
-                money.AmountInToman,
-                resolution.Customer.DisplayName),
-            null);
+        return await ResolveAndCompleteAsync(
+            conversationId, action, cancellationToken);
     }
 
     private async Task<ConversationProcessingResult>
@@ -353,33 +311,71 @@ public sealed class ConversationProcessor(
                 null);
         }
 
-        if (moneyEntity?.Value is not MoneyAmount money)
-        {
-            return new ConversationProcessingResult(
-                ProcessingStatus.Failed,
-                ConversationMessages.CheckAmountRequired,
-                null);
-        }
+        var action = new PendingAction(
+            IntentType.RegisterCheck,
+            customer.RawValue,
+            null,
+            (moneyEntity?.Value as MoneyAmount)?.AmountInToman,
+            MoneyUnit.Toman,
+            dateEntity?.Value as DateTime?,
+            null,
+            DetectRegistration(nluResult.NormalizedText));
 
+        if (action.Amount is null)
+            return await AskForAmountAsync(
+                conversationId, action, cancellationToken);
+
+        return await ResolveAndCompleteAsync(
+            conversationId, action, cancellationToken);
+    }
+
+    private async Task<ConversationProcessingResult>
+        AskForAmountAsync(
+            string conversationId,
+            PendingAction action,
+            CancellationToken cancellationToken)
+    {
+        await conversationStateStore.SaveAsync(
+            new ConversationState
+            {
+                ConversationId = conversationId,
+                Status = ConversationStatus.WaitingForAmount,
+                PendingAction = action
+            },
+            cancellationToken);
+
+        return new ConversationProcessingResult(
+            ProcessingStatus.Failed,
+            AmountRequiredMessage(action),
+            null);
+    }
+
+    private static string AmountRequiredMessage(PendingAction? action) =>
+        action?.Intent == IntentType.RegisterCheck
+            ? ConversationMessages.CheckAmountRequired
+            : ConversationMessages.PaymentAmountRequired;
+
+    /// <summary>
+    /// Shared path: resolve customer (ambiguous -> selection,
+    /// not found -> creation confirmation, found -> complete).
+    /// </summary>
+    private async Task<ConversationProcessingResult>
+        ResolveAndCompleteAsync(
+            string conversationId,
+            PendingAction action,
+            CancellationToken cancellationToken)
+    {
         var resolution =
             await customerService.ResolveByNameAsync(
-                customer.RawValue,
+                action.CustomerName ?? string.Empty,
                 cancellationToken);
 
         if (resolution.Status ==
             CustomerResolutionStatus.Ambiguous)
         {
-            var pendingAction = new PendingAction(
-                IntentType.RegisterCheck,
-                customer.RawValue,
-                null,
-                money.AmountInToman,
-                MoneyUnit.Toman,
-                dateEntity?.Value as DateTime?);
-
             await SaveCustomerSelectionStateAsync(
                 conversationId,
-                pendingAction,
+                action,
                 resolution.Candidates,
                 cancellationToken);
 
@@ -392,73 +388,218 @@ public sealed class ConversationProcessor(
         if (resolution.Status ==
             CustomerResolutionStatus.NotFound)
         {
-            var pendingAction = new PendingAction(
-                IntentType.RegisterCheck,
-                customer.RawValue,
-                null,
-                money.AmountInToman,
-                MoneyUnit.Toman,
-                dateEntity?.Value as DateTime?);
-
             await SaveCustomerCreationConfirmationStateAsync(
                 conversationId,
-                pendingAction,
+                action,
                 cancellationToken);
 
             return new ConversationProcessingResult(
                 ProcessingStatus.Failed,
                 ConversationMessages.CustomerNotFound(
-                    customer.RawValue),
+                    action.CustomerName ?? string.Empty),
                 null);
         }
 
         if (resolution.Customer is null)
         {
+            await conversationStateStore.RemoveAsync(
+                conversationId,
+                cancellationToken);
+
             return new ConversationProcessingResult(
                 ProcessingStatus.Failed,
                 ConversationMessages.CustomerInformationInvalid,
                 null);
         }
 
-        if (dateEntity?.Value is not DateTime date)
-        {
-            var pendingAction = new PendingAction(
-                IntentType.RegisterCheck,
-                resolution.Customer.DisplayName,
-                resolution.Customer.CustomerId,
-                money.AmountInToman,
-                MoneyUnit.Toman,
-                null);
+        return await CompletePendingActionAsync(
+            new ConversationState { ConversationId = conversationId },
+            action with
+            {
+                CustomerId = resolution.Customer.CustomerId,
+                CustomerName = resolution.Customer.DisplayName
+            },
+            cancellationToken);
+    }
 
-            await conversationStateStore.SaveAsync(
-                new ConversationState
-                {
-                    ConversationId = conversationId,
-                    Status = ConversationStatus.WaitingForCheckDate,
-                    PendingAction = pendingAction
-                },
+    private async Task<ConversationProcessingResult>
+        ProcessBalanceAsync(
+            NluResult nluResult,
+            CancellationToken cancellationToken)
+    {
+        var customerEntity =
+            nluResult.Entities.FirstOrDefault(
+                x => x.Type == EntityType.Customer);
+
+        if (customerEntity?.Value is not CustomerMention customer)
+        {
+            return new ConversationProcessingResult(
+                ProcessingStatus.Failed,
+                ConversationMessages.CustomerNameRequired,
+                null);
+        }
+
+        var resolution =
+            await customerService.ResolveByNameAsync(
+                customer.RawValue,
+                cancellationToken);
+
+        if (resolution.Status == CustomerResolutionStatus.Ambiguous)
+        {
+            return new ConversationProcessingResult(
+                ProcessingStatus.Failed,
+                ConversationMessages.BalanceCustomerAmbiguous,
+                resolution.Candidates);
+        }
+
+        if (resolution.Status == CustomerResolutionStatus.NotFound ||
+            resolution.Customer is null)
+        {
+            return new ConversationProcessingResult(
+                ProcessingStatus.Failed,
+                ConversationMessages.BalanceCustomerNotFound(
+                    customer.RawValue),
+                null);
+        }
+
+        var summary =
+            await ledgerCustomerService.GetAsync(
+                resolution.Customer.CustomerId,
+                cancellationToken);
+
+        return new ConversationProcessingResult(
+            ProcessingStatus.Success,
+            ConversationMessages.CustomerBalance(
+                resolution.Customer.DisplayName,
+                summary.CashReceived,
+                summary.ChecksPendingTotal,
+                summary.TotalReceived),
+            null);
+    }
+
+    private static BankRegistrationStatus? DetectRegistration(
+        string? text)
+    {
+        if (string.IsNullOrWhiteSpace(text))
+            return null;
+
+        var t = text.Replace('\u200c', ' ');
+
+        if (t.Contains("ثبت نشده") ||
+            t.Contains("صیادی نیست") ||
+            t.Contains("غیر صیادی"))
+            return BankRegistrationStatus.NotRegistered;
+
+        if (t.Contains("صیادی") ||
+            t.Contains("ثبت شده"))
+            return BankRegistrationStatus.Registered;
+
+        return null;
+    }
+
+    private async Task<ConversationProcessingResult>
+        HandleAmountAsync(
+            ConversationState state,
+            string message,
+            CancellationToken cancellationToken)
+    {
+        var action = state.PendingAction;
+
+        if (action is null)
+        {
+            await conversationStateStore.RemoveAsync(
+                state.ConversationId,
                 cancellationToken);
 
             return new ConversationProcessingResult(
                 ProcessingStatus.Failed,
-                ConversationMessages.CheckDueDateRequired,
+                ConversationMessages.PreviousActionNotFound,
                 null);
         }
 
-        await checkService.RegisterAsync(
-            new RegisterCheckDto(
-                resolution.Customer.CustomerId,
-                money.AmountInToman,
-                date,
-                null),
-            cancellationToken);
+        var reply = nluPipeline.Analyze(message);
 
-        return new ConversationProcessingResult(
-            ProcessingStatus.Success,
-            ConversationMessages.CheckRegistered(
-                money.AmountInToman,
-                resolution.Customer.DisplayName),
-            null);
+        var amounts = reply.Entities
+            .Where(x => x.Type == EntityType.Money)
+            .Select(x => ((MoneyAmount)x.Value!).AmountInToman)
+            .Distinct()
+            .ToArray();
+
+        if (amounts.Length == 0)
+        {
+            return new ConversationProcessingResult(
+                ProcessingStatus.Failed,
+                AmountRequiredMessage(action),
+                null);
+        }
+
+        if (amounts.Length > 1)
+        {
+            return new ConversationProcessingResult(
+                ProcessingStatus.Failed,
+                ConversationMessages.MultipleAmounts,
+                null);
+        }
+
+        var updated = action with { Amount = amounts[0] };
+
+        if (action.Intent == IntentType.RegisterCheck)
+        {
+            var dateEntity = reply.Entities.FirstOrDefault(
+                x => x.Type == EntityType.Date);
+
+            updated = updated with
+            {
+                Date = action.Date ?? dateEntity?.Value as DateTime?,
+                Registration = action.Registration ??
+                               DetectRegistration(reply.NormalizedText)
+            };
+        }
+
+        return await ResolveAndCompleteAsync(
+            state.ConversationId,
+            updated,
+            cancellationToken);
+    }
+
+    private async Task<ConversationProcessingResult>
+        HandleCheckRegistrationAsync(
+            ConversationState state,
+            string message,
+            CancellationToken cancellationToken)
+    {
+        var action = state.PendingAction;
+
+        if (action is null)
+        {
+            await conversationStateStore.RemoveAsync(
+                state.ConversationId,
+                cancellationToken);
+
+            return new ConversationProcessingResult(
+                ProcessingStatus.Failed,
+                ConversationMessages.CheckInformationNotFound,
+                null);
+        }
+
+        BankRegistrationStatus? answer =
+            DetectRegistration(message) ??
+            (IsYes(message) ? BankRegistrationStatus.Registered :
+             IsNo(message) ? BankRegistrationStatus.NotRegistered :
+             null);
+
+        if (answer is null)
+        {
+            return new ConversationProcessingResult(
+                ProcessingStatus.Failed,
+                ConversationMessages.CheckRegistrationQuestion,
+                null);
+        }
+
+        return await CompletePendingActionAsync(
+            state,
+            action with { Registration = answer },
+            cancellationToken);
     }
 
     private async Task<ConversationProcessingResult>
@@ -471,6 +612,18 @@ public sealed class ConversationProcessor(
         {
             ConversationStatus.WaitingForCheckDate =>
                 await HandleCheckDateAsync(
+                    state,
+                    message,
+                    cancellationToken),
+
+            ConversationStatus.WaitingForAmount =>
+                await HandleAmountAsync(
+                    state,
+                    message,
+                    cancellationToken),
+
+            ConversationStatus.WaitingForCheckRegistration =>
+                await HandleCheckRegistrationAsync(
                     state,
                     message,
                     cancellationToken),
@@ -533,24 +686,10 @@ public sealed class ConversationProcessor(
                 null);
         }
 
-        await checkService.RegisterAsync(
-            new RegisterCheckDto(
-                action.CustomerId.Value,
-                action.Amount.Value,
-                date.Value,
-                action.CheckNumber),
+        return await CompletePendingActionAsync(
+            state,
+            action with { Date = date.Value },
             cancellationToken);
-
-        await conversationStateStore.RemoveAsync(
-            state.ConversationId,
-            cancellationToken);
-
-        return new ConversationProcessingResult(
-            ProcessingStatus.Success,
-            ConversationMessages.CheckRegistered(
-                action.Amount.Value,
-                action.CustomerName ?? string.Empty),
-            null);
     }
 
     private async Task<ConversationProcessingResult>
@@ -855,12 +994,30 @@ public sealed class ConversationProcessor(
                     null);
             }
 
+            if (pendingAction.Registration is null)
+            {
+                state.PendingAction = pendingAction;
+
+                state.Status =
+                    ConversationStatus.WaitingForCheckRegistration;
+
+                await conversationStateStore.SaveAsync(
+                    state,
+                    cancellationToken);
+
+                return new ConversationProcessingResult(
+                    ProcessingStatus.Failed,
+                    ConversationMessages.CheckRegistrationQuestion,
+                    null);
+            }
+
             await checkService.RegisterAsync(
                 new RegisterCheckDto(
                     pendingAction.CustomerId.Value,
                     pendingAction.Amount.Value,
                     pendingAction.Date.Value,
-                    pendingAction.CheckNumber),
+                    pendingAction.CheckNumber,
+                    pendingAction.Registration),
                 cancellationToken);
 
             await conversationStateStore.RemoveAsync(

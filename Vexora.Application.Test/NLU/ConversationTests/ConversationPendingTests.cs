@@ -32,7 +32,8 @@ public sealed class ConversationPendingTests
             new ThrowingCustomerService(),
             new ThrowingPaymentService(),
             new ThrowingCheckService(),
-            new ThrowingDateExtractor());
+            new ThrowingDateExtractor(),
+            new global::Moq.Mock<global::Vexora.Application.Ledger.Customers.ILedgerCustomerService>().Object);
     }
 
     [Fact]

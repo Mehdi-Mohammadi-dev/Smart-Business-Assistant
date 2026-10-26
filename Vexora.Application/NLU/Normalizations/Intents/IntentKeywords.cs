@@ -69,7 +69,10 @@ internal static class IntentKeywords
                 "مانده حساب",
                 "حسابش",
                 "حساب",
-                "بدهکار است"
+                "بدهکار است",
+                "مانده",
+                "مانده حساب",
+                "تراز"
             ],
 
             [IntentType.GetCustomerTransactions] =

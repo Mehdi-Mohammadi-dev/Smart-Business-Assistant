@@ -7,6 +7,7 @@ using Vexora.Application.Services.Interfaces.CurrentUser;
 using Vexora.Application.UnitOfWorks;
 using Vexora.Domain.Entities.Checks;
 using Vexora.Domain.Entities.Customers;
+using Vexora.Domain.Enums.BankRegistrationStatuses;
 
 namespace Vexora.Application.Services.Implementations.Checks;
 
@@ -36,7 +37,9 @@ public sealed class CheckService(
             dto.CustomerId,
             dto.Amount,
             dto.DueDate,
-            dto.CheckNumber);
+            dto.CheckNumber,
+            bankRegistrationStatus: dto.Registration ??
+                                    BankRegistrationStatus.NotRegistered);
 
         await checkRepository.InsertAsync(
             check,

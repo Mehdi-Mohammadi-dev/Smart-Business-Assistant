@@ -87,6 +87,26 @@ public static class ConversationMessages
         string customerName) =>
         $"چک {amount:N0} تومانی برای «{customerName}» با موفقیت ثبت شد.";
 
+    public const string CheckRegistrationQuestion =
+        "چک در سامانه صیاد ثبت شده است؟ (بله / خیر)";
+
+    public const string BalanceCustomerAmbiguous =
+        "چند مشتری با این نام وجود دارد. نام کامل‌تر را بنویسید.";
+
+    public static string BalanceCustomerNotFound(string name) =>
+        $"مشتری «{name}» پیدا نشد.";
+
+    public static string CustomerBalance(
+        string customerName,
+        decimal cashReceived,
+        decimal checksPendingTotal,
+        decimal totalReceived) =>
+        $"خلاصه دریافتی‌های «{customerName}»:\n" +
+        $"نقد دریافتی: {cashReceived:N0} تومان\n" +
+        $"چک‌های در انتظار: {checksPendingTotal:N0} تومان\n" +
+        $"جمع دریافتی: {totalReceived:N0} تومان\n" +
+        "توجه: این عدد فقط مبالغ دریافتی را نشان می‌دهد و بدهی یا فروش در آن لحاظ نشده است.";
+
     public static string CustomerAndPaymentRegistered(
         string customerName) =>
         $"مشتری «{customerName}» ثبت شد و پرداخت با موفقیت ثبت شد.";

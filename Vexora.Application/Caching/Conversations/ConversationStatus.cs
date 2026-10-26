@@ -12,5 +12,9 @@ public enum ConversationStatus
 
     WaitingForCustomerName = 4,
 
-   WaitingForCheckDate= 5
+   WaitingForCheckDate= 5,
+
+    WaitingForAmount = 6,
+
+    WaitingForCheckRegistration = 7
 }

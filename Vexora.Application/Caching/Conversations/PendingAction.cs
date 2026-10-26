@@ -1,5 +1,6 @@
 ﻿using Vexora.Application.NLU.Models.Intents;
 using Vexora.Application.NLU.Models.Money;
+using Vexora.Domain.Enums.BankRegistrationStatuses;
 
 namespace Vexora.Application.Caching.Conversations;
 
@@ -17,5 +18,7 @@ public sealed record PendingAction
 
     DateTime? Date,
 
-    string? CheckNumber = null
+    string? CheckNumber = null,
+
+    BankRegistrationStatus? Registration = null
 );

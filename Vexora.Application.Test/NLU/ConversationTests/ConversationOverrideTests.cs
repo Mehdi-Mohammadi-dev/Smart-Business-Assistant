@@ -50,7 +50,8 @@ public sealed class ConversationOverrideTests
             new NotFoundCustomerService(),
             new ThrowingPaymentService(),
             new ThrowingCheckService(),
-            new PersianDateExtractor());
+            new PersianDateExtractor(),
+            new global::Moq.Mock<global::Vexora.Application.Ledger.Customers.ILedgerCustomerService>().Object);
     }
 
     [Theory]

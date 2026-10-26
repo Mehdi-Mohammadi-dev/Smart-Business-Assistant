@@ -76,7 +76,8 @@ public sealed class ConversationProcessorTests
                 customerService.Object,
                 paymentService.Object,
                 checkService.Object,
-                dateExtractor.Object);
+                dateExtractor.Object,
+            new global::Moq.Mock<global::Vexora.Application.Ledger.Customers.ILedgerCustomerService>().Object);
 
         var request = new ChatRequestDto(
             "conversation-1",
@@ -187,7 +188,8 @@ public sealed class ConversationProcessorTests
                 customerService.Object,
                 paymentService.Object,
                 checkService.Object,
-                dateExtractor.Object);
+                dateExtractor.Object,
+            new global::Moq.Mock<global::Vexora.Application.Ledger.Customers.ILedgerCustomerService>().Object);
 
         var request = new ChatRequestDto(
             "conversation-1",
@@ -281,7 +283,8 @@ public sealed class ConversationProcessorTests
                 customerService.Object,
                 paymentService.Object,
                 checkService.Object,
-                dateExtractor.Object);
+                dateExtractor.Object,
+            new global::Moq.Mock<global::Vexora.Application.Ledger.Customers.ILedgerCustomerService>().Object);
 
         var result =
             await service.ProcessAsync(
@@ -362,7 +365,8 @@ public sealed class ConversationProcessorTests
                 customerService.Object,
                 paymentService.Object,
                 checkService.Object,
-                dateExtractor.Object);
+                dateExtractor.Object,
+            new global::Moq.Mock<global::Vexora.Application.Ledger.Customers.ILedgerCustomerService>().Object);
 
         var result =
             await service.ProcessAsync(
@@ -475,7 +479,8 @@ public sealed class ConversationProcessorTests
             customerService.Object,
             paymentService.Object,
             checkService.Object,
-            dateExtractor.Object);
+            dateExtractor.Object,
+            new global::Moq.Mock<global::Vexora.Application.Ledger.Customers.ILedgerCustomerService>().Object);
 
         var result = await service.ProcessAsync(
             new ChatRequestDto(
@@ -550,7 +555,8 @@ public sealed class ConversationProcessorTests
             customerService.Object,
             paymentService.Object,
             checkService.Object,
-            dateExtractor.Object);
+            dateExtractor.Object,
+            new global::Moq.Mock<global::Vexora.Application.Ledger.Customers.ILedgerCustomerService>().Object);
 
         var result = await service.ProcessAsync(
             new ChatRequestDto(
@@ -617,7 +623,8 @@ public sealed class ConversationProcessorTests
             customerService.Object,
             paymentService.Object,
             checkService.Object,
-            dateExtractor.Object);
+            dateExtractor.Object,
+            new global::Moq.Mock<global::Vexora.Application.Ledger.Customers.ILedgerCustomerService>().Object);
 
         var result = await service.ProcessAsync(
             new ChatRequestDto(
@@ -642,8 +649,8 @@ public sealed class ConversationProcessorTests
     DateTime dueDate)
     {
         return new NluResult(
-            "از علی یک چک 50 میلیون تومنی برای 10 مهر گرفتم",
-            "از علی یک چک 50 میلیون تومنی برای 10 مهر گرفتم",
+            "از علی یک چک صیادی 50 میلیون تومنی برای 10 مهر گرفتم",
+            "از علی یک چک صیادی 50 میلیون تومنی برای 10 مهر گرفتم",
             IntentType.RegisterCheck,
             0.95,
             [],
@@ -721,7 +728,8 @@ public sealed class ConversationProcessorTests
             customerService.Object,
             paymentService.Object,
             checkService.Object,
-            dateExtractor.Object);
+            dateExtractor.Object,
+            new global::Moq.Mock<global::Vexora.Application.Ledger.Customers.ILedgerCustomerService>().Object);
 
         var result = await service.ProcessAsync(
             new ChatRequestDto(
@@ -831,7 +839,9 @@ public sealed class ConversationProcessorTests
                 5,
                 50000000,
                 MoneyUnit.Toman,
-                null)
+                null,
+                null,
+                global::Vexora.Domain.Enums.BankRegistrationStatuses.BankRegistrationStatus.NotRegistered)
         };
 
         conversationStore
@@ -850,7 +860,8 @@ public sealed class ConversationProcessorTests
             customerService.Object,
             paymentService.Object,
             checkService.Object,
-            dateExtractor.Object);
+            dateExtractor.Object,
+            new global::Moq.Mock<global::Vexora.Application.Ledger.Customers.ILedgerCustomerService>().Object);
 
         var result = await service.ProcessAsync(
             new ChatRequestDto(

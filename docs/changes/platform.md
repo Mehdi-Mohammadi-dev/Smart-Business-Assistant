@@ -26,3 +26,8 @@ Verification limitations:
 - `DateTime.Now` در ConversationProcessor به `UtcNow` تغییر کرد.
 - `InvalidOperationException` اکنون 409 با کد `INVALID_OPERATION` برمی‌گرداند (قبلاً 500).
 - نام «نوتا» فقط در پیامک OTP است، نه در فاکتور/PDF.
+
+## Chat: partial state, balance, check registration
+- When the customer's amount or date is missing, state is kept in Redis (`WaitingForAmount`, `WaitingForCheckDate`) and the next reply completes the flow.
+- Balance inquiry in chat («مانده فلانی») returns the received-amount summary (cash + checks); it does not track debt.
+- Check registration (صیادی/ثبت‌شده) is detected from text; if unstated, the user is asked (بله/خیر).
