@@ -10,6 +10,7 @@ using Vexora.Application.Repositories.Checks;
 using Vexora.Application.Repositories.Customers;
 using Vexora.Application.Repositories.Payments;
 using Vexora.Application.Repositories.RefreshTokens;
+using Vexora.Application.Repositories.SubscriptionPlans;
 using Vexora.Application.Repositories.Subscriptions;
 using Vexora.Application.Repositories.Users;
 using Vexora.Application.Services.Interfaces.Authentications;
@@ -24,6 +25,7 @@ using Vexora.Infrastracture.Percistance.SqlServer.EfCore.Repositories.Customers;
 using Vexora.Infrastracture.Percistance.SqlServer.EfCore.Repositories.Ledger;
 using Vexora.Infrastracture.Percistance.SqlServer.EfCore.Repositories.Payments;
 using Vexora.Infrastracture.Percistance.SqlServer.EfCore.Repositories.RefreshTokens;
+using Vexora.Infrastracture.Percistance.SqlServer.EfCore.Repositories.SubscriptionPlans;
 using Vexora.Infrastracture.Percistance.SqlServer.EfCore.Repositories.Subscriptions;
 using Vexora.Infrastracture.Percistance.SqlServer.EfCore.Repositories.Users;
 using Vexora.Infrastracture.Percistance.SqlServer.EfCore.UnitOfWorks;
@@ -73,6 +75,7 @@ public static class DependencyInjection
         services.AddScoped<IOtpVerificationRepository, OtpVerificationRepository>();
         services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+        services.AddScoped<ISubscriptionPlanRepository, SubscriptionPlanRepository>();
 
         services.AddScoped<IAccessTokenRevocationStore, RedisAccessTokenRevocationStore>();
 

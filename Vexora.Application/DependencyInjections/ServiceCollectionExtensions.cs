@@ -32,6 +32,8 @@ using Vexora.Application.NLU.Pipeline;
 using Vexora.Application.Caching.Conversations.Implementations;
 using Vexora.Application.Caching.Conversations.Interfaces;
 using Vexora.Application.Ledger;
+using Vexora.Application.Services.Interfaces.SubscriptionPlans;
+using Vexora.Application.Services.Implementations.SubscriptionPlans;
 
 namespace Vexora.Application.DependencyInjections;
 
@@ -71,6 +73,8 @@ public static class ServiceCollectionExtensions
 
         services.AddScoped<ICustomerService, CustomerService>();
         services.AddScoped<IPaymentService, PaymentService>();
+
+        services.AddScoped<ISubscriptionPlanService, SubscriptionPlanService>();
 
         services.AddLedgerServices();
 

@@ -7,6 +7,7 @@ using Vexora.Domain.Entities.Payments;
 using Vexora.Domain.Entities.RefreshTokens;
 using Vexora.Domain.Entities.Sales;
 using Vexora.Domain.Entities.Sales.Items;
+using Vexora.Domain.Entities.SubscriptionPlans;
 using Vexora.Domain.Entities.Sunscriptions;
 using Vexora.Domain.Entities.Users;
 using Vexora.Domain.sharedKernel.BaseEntities;
@@ -24,6 +25,11 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<OtpVerification> OtpVerifications { get; set; }
     public DbSet<RefreshToken> RefreshTokens { get; set; }
     public DbSet<Subscription> Subscriptions { get; set; }
+    public DbSet<SubscriptionPlan> SubscriptionPlans { get; set; }
+    public DbSet<ReferralSetting> ReferralSettings { get; set; }
+    public DbSet<Referral> Referrals { get; set; }
+
+
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
