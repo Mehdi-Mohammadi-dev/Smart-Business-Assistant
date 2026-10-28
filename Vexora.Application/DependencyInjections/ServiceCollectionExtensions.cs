@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Vexora.Application.NLU.Abstractions.Dates;
 using Vexora.Application.NLU.Abstractions.Extractions;
@@ -75,6 +75,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IPaymentService, PaymentService>();
 
         services.AddScoped<ISubscriptionPlanService, SubscriptionPlanService>();
+        services.AddScoped<IReferralService, ReferralService>();
 
         services.AddLedgerServices();
 
