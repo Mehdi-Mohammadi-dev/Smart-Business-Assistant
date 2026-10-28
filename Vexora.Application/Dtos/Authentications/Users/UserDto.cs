@@ -5,4 +5,5 @@ public record UserDto(
     string FirstName,
     string LastName,
     string PhoneNumber,
-    string? BusinessName = null);
+    string? BusinessName = null,
+    string? InviteCode = null);

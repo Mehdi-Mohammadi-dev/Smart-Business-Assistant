@@ -2,6 +2,7 @@ using FluentValidation;
 using Vexora.Api.Commons.Results;
 using Vexora.Api.Constants.Shared;
 using Vexora.Application.Exceptions;
+using Vexora.Application.Exceptions.SubscriptionPlans;
 using Vexora.Domain.Exceptions.Authentications;
 using Vexora.Domain.Exceptions.Checks;
 using Vexora.Domain.Exceptions.Customers;
@@ -78,6 +79,12 @@ public sealed class GlobalExceptionHandlingMiddleware(
             InvalidStartAndEndDate
                 => BadRequest("INVALID_SUBSCRIPTION_DATES", exception.Message),
 
+            ReferralCodeInvalidException
+                => BadRequest("INVALID_REFERRAL_CODE", exception.Message),
+
+            ReferralProgramDisabledException
+                => Conflict("REFERRAL_PROGRAM_DISABLED", exception.Message),
+
             // General application/domain exception must come after specific exceptions.
             Vexora.Domain.sharedKernel.Exceptions.AppException appException
                 => (
@@ -87,7 +94,7 @@ public sealed class GlobalExceptionHandlingMiddleware(
                         new ApiError(appException.Code, appException.Message))
                 ),
 
-            ArgumentNullException or BadHttpRequestException
+            ArgumentNullException or ArgumentOutOfRangeException or BadHttpRequestException
                 => BadRequest("INVALID_REQUEST", "اطلاعات درخواست نامعتبر است."),
 
             EntityNotFoundException

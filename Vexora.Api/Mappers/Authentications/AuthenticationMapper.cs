@@ -29,7 +29,8 @@ public static class AuthenticationMapper
         new RegisterDto
         (
             contract.RegistrationToken,
-            DigitNormalizer.Normalize(contract.OtpCode)
+            DigitNormalizer.Normalize(contract.OtpCode),
+            string.IsNullOrWhiteSpace(contract.ReferralCode) ? null : contract.ReferralCode.Trim().ToUpperInvariant()
         );
 
     public static LoginDto LoginContractMapToLoginDto
@@ -80,7 +81,8 @@ public static class AuthenticationMapper
             contract.FirstName,
             contract.LastName,
             contract.PhoneNumber,
-            contract.BusinessName
+            contract.BusinessName,
+            contract.InviteCode
         );
 
     public static UserContract UserDtoMapToUserContract(this UserDto dto) =>
@@ -90,7 +92,8 @@ public static class AuthenticationMapper
         dto.FirstName,
         dto.LastName,
         dto.PhoneNumber,
-        dto.BusinessName
+        dto.BusinessName,
+        dto.InviteCode
     );
 
     public static SubscriptionContract SubscriptionDtoMapToSubscriptionContract(this     SubscriptionDto dto) =>

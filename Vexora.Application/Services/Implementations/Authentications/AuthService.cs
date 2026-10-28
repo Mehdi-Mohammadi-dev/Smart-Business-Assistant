@@ -10,6 +10,8 @@ using Vexora.Application.Exceptions.Authentications;
 using Vexora.Application.Repositories.Authentications;
 using Vexora.Application.Repositories.RefreshTokens;
 using Vexora.Application.Repositories.Subscriptions;
+using Vexora.Application.Repositories.SubscriptionPlans;
+using Vexora.Application.Exceptions.SubscriptionPlans;
 using Vexora.Application.Repositories.Users;
 using Vexora.Application.Services.Interfaces.Authentications;
 using Vexora.Application.Services.Interfaces.CurrentUser;
@@ -26,6 +28,8 @@ public sealed class AuthService(
     IUserRepository userRepository,
     IOtpVerificationRepository otpRepository,
     ISubscriptionRepository subscriptionRepository,
+    IReferralRepository referralRepository,
+    IReferralSettingRepository referralSettingRepository,
     IRefreshTokenRepository refreshTokenRepository,
     IUnitOfWork unitOfWork,
     ISmsSender smsSender,
@@ -152,14 +156,35 @@ public sealed class AuthService(
             throw new PhoneNumberAlreadyExistsException();
         }
 
+        User? referrer = null;
+        if (!string.IsNullOrWhiteSpace(dto.ReferralCode))
+        {
+            var referralSetting = await referralSettingRepository.GetCurrentAsync(cancellationToken);
+            if (referralSetting?.IsEnabled != true)
+                throw new ReferralProgramDisabledException();
+
+            referrer = await userRepository.FindByInviteCodeAsync(
+                dto.ReferralCode.Trim().ToUpperInvariant(), cancellationToken);
+            if (referrer is null)
+                throw new ReferralCodeInvalidException();
+        }
+
         otp.MarkAsUsed();
+
+        string inviteCode;
+        do
+        {
+            inviteCode = $"NOTA_{RandomNumberGenerator.GetInt32(100000000, 1000000000)}";
+        }
+        while (await userRepository.ExistsByInviteCodeAsync(inviteCode, cancellationToken));
 
         var user = User.Register(
             pending.FirstName,
             pending.LastName,
             pending.PhoneNumber,
             pending.PasswordHash,
-            pending.BusinessName);
+            pending.BusinessName,
+            inviteCode);
 
         AuthResultDto? result = null;
 
@@ -167,6 +192,12 @@ public sealed class AuthService(
         {
             await userRepository.InsertAsync(user, token);
             await unitOfWork.SaveAsync(token);
+
+            if (referrer is not null)
+            {
+                var referral = Vexora.Domain.Entities.SubscriptionPlans.Referral.Create(referrer.Id, user.Id);
+                await referralRepository.AddAsync(referral, token);
+            }
 
             var trial = Subscription.CreateTrial(user.Id);
             await subscriptionRepository.AddAsync(trial, token);
@@ -337,7 +368,7 @@ public sealed class AuthService(
         }
 
         return new ProfileDto(
-            new UserDto(user.Id, user.FirstName, user.LastName, user.PhoneNumber, user.BusinessName),
+            new UserDto(user.Id, user.FirstName, user.LastName, user.PhoneNumber, user.BusinessName, user.InviteCode),
             subscriptionDto);
     }
 

@@ -1,7 +1,8 @@
-﻿namespace Vexora.Application.Dtos.Authentications;
+namespace Vexora.Application.Dtos.Authentications;
 
 public record RegisterDto
 (
     string RegistrationToken,
-    string OtpCode
+    string OtpCode,
+    string? ReferralCode = null
 );

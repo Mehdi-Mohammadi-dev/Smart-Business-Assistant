@@ -1,4 +1,4 @@
-﻿namespace Vexora.Api.Contracts.Authentications.Users;
+namespace Vexora.Api.Contracts.Authentications.Users;
 
 public record UserContract
 (
@@ -6,4 +6,5 @@ public record UserContract
     string FirstName,
     string LastName,
     string PhoneNumber,
-    string? BusinessName = null);
+    string? BusinessName = null,
+    string? InviteCode = null);

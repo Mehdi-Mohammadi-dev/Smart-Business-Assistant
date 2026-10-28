@@ -1,7 +1,8 @@
-﻿namespace Vexora.Api.Contracts.Authentications;
+namespace Vexora.Api.Contracts.Authentications;
 
 public record RegisterContract
 (
     string RegistrationToken,
-    string OtpCode
+    string OtpCode,
+    string? ReferralCode = null
 );
