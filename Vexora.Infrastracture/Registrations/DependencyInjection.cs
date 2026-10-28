@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Vexora.Application.Caching.Authentications;
@@ -76,6 +76,8 @@ public static class DependencyInjection
         services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
         services.AddScoped<ISubscriptionPlanRepository, SubscriptionPlanRepository>();
+        services.AddScoped<IReferralRepository, ReferralRepository>();
+        services.AddScoped<IReferralSettingRepository, ReferralSettingRepository>();
 
         services.AddScoped<IAccessTokenRevocationStore, RedisAccessTokenRevocationStore>();
 

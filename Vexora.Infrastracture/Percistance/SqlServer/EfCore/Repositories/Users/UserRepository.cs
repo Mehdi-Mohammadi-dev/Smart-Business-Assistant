@@ -15,6 +15,12 @@ public sealed class UserRepository(ApplicationDbContext context)
     public Task<User?> FindByPhoneNumberAsync(string phoneNumber, CancellationToken cancellationToken = default)
         => context.Users.FirstOrDefaultAsync(x => x.PhoneNumber == phoneNumber, cancellationToken);
 
+    public Task<User?> FindByInviteCodeAsync(string inviteCode, CancellationToken cancellationToken = default)
+        => context.Users.FirstOrDefaultAsync(x => x.InviteCode == inviteCode, cancellationToken);
+
+    public Task<bool> ExistsByInviteCodeAsync(string inviteCode, CancellationToken cancellationToken = default)
+        => context.Users.AnyAsync(x => x.InviteCode == inviteCode, cancellationToken);
+
     public Task<User?> FindByIdAsync(long id, CancellationToken cancellationToken = default)
         => context.Users.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
 

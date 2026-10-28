@@ -11,6 +11,7 @@ public class User : BaseEntity
     public string? BusinessName { get; private set; }
     public string DisplayName => string.IsNullOrWhiteSpace(BusinessName) ? $"{FirstName} {LastName}".Trim() : BusinessName!;
     public string PhoneNumber { get; private set; } = null!;
+    public string InviteCode { get; private set; } = null!;
     public string PasswordHasher { get; private set; } = null!;
     public UserRole Role { get; private set; } = UserRole.User;
 
@@ -24,7 +25,7 @@ public class User : BaseEntity
 
     #region Functions
 
-    public static User Register(string firstName, string lastName, string phoneNumber, string passwordHasher, string? businessName = null)
+    public static User Register(string firstName, string lastName, string phoneNumber, string passwordHasher, string? businessName = null, string? inviteCode = null)
     {
         UserValidations.ValidatName(firstName, lastName);
 
@@ -38,6 +39,7 @@ public class User : BaseEntity
             LastName = lastName,
             BusinessName = string.IsNullOrWhiteSpace(businessName) ? null : businessName.Trim(),
             PhoneNumber = phoneNumber,
+            InviteCode = string.IsNullOrWhiteSpace(inviteCode) ? CreateInviteCode() : inviteCode.Trim().ToUpperInvariant(),
             PasswordHasher = passwordHasher,
             CreateAt = DateTimeOffset.UtcNow,
             UpdateAt = DateTimeOffset.UtcNow,
@@ -54,12 +56,16 @@ public class User : BaseEntity
             FirstName = "System",
             LastName = "Admin",
             PhoneNumber = phoneNumber,
+            InviteCode = CreateInviteCode(),
             PasswordHasher = passwordHash,
             Role = UserRole.SystemAdmin,
             CreateAt = DateTimeOffset.UtcNow,
             UpdateAt = DateTimeOffset.UtcNow
         };
     }
+
+    private static string CreateInviteCode()
+        => $"NOTA_{System.Security.Cryptography.RandomNumberGenerator.GetInt32(100000000, 1000000000)}";
 
     public void UpdatePassword(string passwordHash)
     {

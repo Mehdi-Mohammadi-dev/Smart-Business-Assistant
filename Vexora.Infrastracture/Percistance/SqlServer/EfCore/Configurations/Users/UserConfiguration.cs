@@ -25,6 +25,12 @@ public sealed class UserConfiguration : IEntityTypeConfiguration<User>
 
         builder.Ignore(x => x.DisplayName);
 
+        builder.Property(x => x.InviteCode)
+            .IsRequired()
+            .HasMaxLength(32);
+
+        builder.HasIndex(x => x.InviteCode).IsUnique();
+
         builder.Property(x => x.PhoneNumber)
             .IsRequired()
             .HasMaxLength(UserConstants.PhoneNumberLength);
