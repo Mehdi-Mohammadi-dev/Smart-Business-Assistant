@@ -96,6 +96,18 @@ public sealed class AuthController(IAuthService authService) : ControllerBase
     }
 
     [Authorize]
+    [HttpPut("me")]
+    public async Task<ApiResult<ProfileResponse>> UpdateMe(
+        [FromBody] UpdateProfileContract request,
+        CancellationToken cancellationToken)
+    {
+        var profile = await authService.UpdateProfileAsync(request.MapToDto(), cancellationToken);
+        return ApiResult<ProfileResponse>.SuccessResult(
+            profile.ProfileContractMapToProfileDto(),
+            "اطلاعات پروفایل با موفقیت به‌روزرسانی شد.");
+    }
+
+    [Authorize]
     [HttpPost("logout")]
     public async Task<ApiResult<object?>> Logout(
     [FromBody] RefreshTokenContract request,

@@ -10,7 +10,7 @@ public sealed class StatementService(
     TimeProvider timeProvider)
     : IStatementService
 {
-    public const int MaxRows = 5000;
+    public const int MaxRows = 2000;
 
     public async Task<CustomerStatementDto> GetAsync(
         long customerId,

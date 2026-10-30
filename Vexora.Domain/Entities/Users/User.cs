@@ -89,5 +89,15 @@ public class User : BaseEntity
         PasswordHasher = passwordHasher;
     }
 
+    public void UpdateProfile(string firstName, string lastName, string? businessName)
+    {
+        UserValidations.ValidatName(firstName, lastName);
+
+        FirstName = firstName.Trim();
+        LastName = lastName.Trim();
+        BusinessName = string.IsNullOrWhiteSpace(businessName) ? null : businessName.Trim();
+        UpdateAt = DateTimeOffset.UtcNow;
+    }
+
     #endregion
 }

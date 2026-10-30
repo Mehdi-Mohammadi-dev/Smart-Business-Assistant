@@ -42,14 +42,10 @@ public static class DependencyInjection
         services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
 
-        services.AddStackExchangeRedisCache(options =>
-        {
-            options.Configuration =
-                configuration.GetConnectionString("Redis");
-        });
+        services.AddDistributedMemoryCache();
 
-        services.AddScoped<IPendingRegistrationStore,RedisPendingRegistrationStore>();
-        services.AddScoped<ILoginAttemptStore, RedisLoginAttemptStore>();
+        services.AddScoped<IPendingRegistrationStore, MemoryPendingRegistrationStore>();
+        services.AddScoped<ILoginAttemptStore, MemoryLoginAttemptStore>();
 
         services.Configure<TsmsOptions>(configuration.GetSection("Tsms"));
 
@@ -66,7 +62,7 @@ public static class DependencyInjection
 
         services.AddScoped<ICustomerRepository, CustomerRepository>();
 
-        services.AddScoped<IConversationStateStore,RedisConversationStateStore>();
+        services.AddScoped<IConversationStateStore, MemoryConversationStateStore>();
 
         services.AddScoped<IPaymentRepository,PaymentRepository>();
         services.AddScoped<IUnitOfWork,UnitOfWork>();
@@ -79,7 +75,7 @@ public static class DependencyInjection
         services.AddScoped<IReferralRepository, ReferralRepository>();
         services.AddScoped<IReferralSettingRepository, ReferralSettingRepository>();
 
-        services.AddScoped<IAccessTokenRevocationStore, RedisAccessTokenRevocationStore>();
+        services.AddScoped<IAccessTokenRevocationStore, MemoryAccessTokenRevocationStore>();
 
         services.AddScoped<IStatementPdfGenerator, QuestPdfStatementGenerator>();
 

@@ -179,7 +179,7 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
 builder.Services.AddHealthChecks()
     .AddCheck("self", () => HealthCheckResult.Healthy(), tags: new[] { "live" })
     .AddCheck<Vexora.Api.Platform.SqlServerHealthCheck>("sqlserver", tags: new[] { "ready" })
-    .AddCheck<Vexora.Api.Platform.RedisHealthCheck>("redis", tags: new[] { "ready" });
+    .AddCheck<Vexora.Api.Platform.CacheHealthCheck>("cache", tags: new[] { "ready" });
 
 var app = builder.Build();
 

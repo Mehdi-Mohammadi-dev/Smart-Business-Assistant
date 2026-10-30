@@ -18,5 +18,7 @@ public interface IAuthService
 
     Task<ProfileDto> GetProfileAsync(CancellationToken cancellationToken = default);
 
+    Task<ProfileDto> UpdateProfileAsync(UpdateProfileDto dto, CancellationToken cancellationToken = default);
+
     Task LogoutAsync(RefreshTokenDto dto,string accessTokenId,DateTimeOffset accessTokenExpiresAt,CancellationToken cancellationToken = default);
 }

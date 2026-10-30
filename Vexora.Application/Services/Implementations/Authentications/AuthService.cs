@@ -320,6 +320,22 @@ public sealed class AuthService(
         return ToProfile(user, subscription);
     }
 
+    public async Task<ProfileDto> UpdateProfileAsync(
+        UpdateProfileDto dto,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(dto);
+
+        var user = await userRepository.FindByIdAsync(currentUser.UserId, cancellationToken)
+                   ?? throw new UnauthorizedException();
+
+        user.UpdateProfile(dto.FirstName, dto.LastName, dto.BusinessName);
+        await unitOfWork.SaveAsync(cancellationToken);
+
+        var subscription = await subscriptionRepository.GetLatestByUserIdAsync(user.Id, cancellationToken);
+        return ToProfile(user, subscription);
+    }
+
     private async Task<AuthResultDto> IssueTokensAsync(
         User user,
         Subscription? subscription,
