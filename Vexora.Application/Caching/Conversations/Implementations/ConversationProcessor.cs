@@ -1,4 +1,4 @@
-﻿using Vexora.Application.Caching.Conversations.Interfaces;
+using Vexora.Application.Caching.Conversations.Interfaces;
 using Vexora.Application.Caching.Conversations.Mappers.CustomerConversations;
 using Vexora.Application.Constants.Messages.Conversations;
 using Vexora.Application.Dtos.Chats;
@@ -257,6 +257,23 @@ public sealed class ConversationProcessor(
 
         if (customerEntity?.Value is not CustomerMention customer)
         {
+            var pendingAction = new PendingAction(
+                IntentType.RegisterPayment,
+                null,
+                null,
+                (moneyEntity?.Value as MoneyAmount)?.AmountInToman,
+                MoneyUnit.Toman,
+                DateTime.UtcNow);
+
+            await conversationStateStore.SaveAsync(
+                new ConversationState
+                {
+                    ConversationId = conversationId,
+                    Status = ConversationStatus.WaitingForCustomerName,
+                    PendingAction = pendingAction
+                },
+                cancellationToken);
+
             return new ConversationProcessingResult(
                 ProcessingStatus.Failed,
                 ConversationMessages.CustomerNameRequired,
@@ -299,6 +316,25 @@ public sealed class ConversationProcessor(
 
         if (customerEntity?.Value is not CustomerMention customer)
         {
+            var pendingAction = new PendingAction(
+                IntentType.RegisterCheck,
+                null,
+                null,
+                (moneyEntity?.Value as MoneyAmount)?.AmountInToman,
+                MoneyUnit.Toman,
+                dateEntity?.Value as DateTime?,
+                null,
+                DetectRegistration(nluResult.NormalizedText));
+
+            await conversationStateStore.SaveAsync(
+                new ConversationState
+                {
+                    ConversationId = conversationId,
+                    Status = ConversationStatus.WaitingForCustomerName,
+                    PendingAction = pendingAction
+                },
+                cancellationToken);
+
             return new ConversationProcessingResult(
                 ProcessingStatus.Failed,
                 ConversationMessages.CustomerNameRequired,
@@ -714,6 +750,27 @@ public sealed class ConversationProcessor(
                 null);
         }
 
+        if (pendingAction.CustomerName is null)
+        {
+            var actionWithCustomerName = pendingAction with
+            {
+                CustomerName = message.Trim()
+            };
+
+            if (actionWithCustomerName.Amount is null)
+            {
+                return await AskForAmountAsync(
+                    state.ConversationId,
+                    actionWithCustomerName,
+                    cancellationToken);
+            }
+
+            return await ResolveAndCompleteAsync(
+                state.ConversationId,
+                actionWithCustomerName,
+                cancellationToken);
+        }
+
         var customerDto =
             CustomerConversationMapper.ToCreateCustomerDto(
                 message);
@@ -735,7 +792,7 @@ public sealed class ConversationProcessor(
                 CustomerName = customerDisplayName
             };
 
-        return await CompletePendingActionAsync(
+        return await CompletePendingActionAsync(    
             state,
             updatedPendingAction,
             cancellationToken);
