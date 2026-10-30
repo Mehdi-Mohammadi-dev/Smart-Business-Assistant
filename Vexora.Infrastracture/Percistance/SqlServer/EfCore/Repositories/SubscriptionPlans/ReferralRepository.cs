@@ -17,6 +17,13 @@ public sealed class ReferralRepository(ApplicationDbContext context) : IReferral
         => await context.Referrals.AsNoTracking().OrderByDescending(x => x.CreateAt)
             .Skip((page - 1) * pageSize).Take(pageSize).ToListAsync(cancellationToken);
 
+    public async Task<IReadOnlyList<Referral>> ListByReferrerAsync(long referrerUserId, int page, int pageSize, CancellationToken cancellationToken = default)
+        => await context.Referrals.AsNoTracking()
+            .Where(x => x.ReferrerUserId == referrerUserId)
+            .OrderByDescending(x => x.CreateAt)
+            .Skip((page - 1) * pageSize).Take(pageSize)
+            .ToListAsync(cancellationToken);
+
     public async Task<IReadOnlyDictionary<long, int>> GetReferralCountsAsync(CancellationToken cancellationToken = default)
         => await context.Referrals.AsNoTracking().GroupBy(x => x.ReferrerUserId)
             .Select(group => new { UserId = group.Key, Count = group.Count() })

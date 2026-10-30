@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc.Filters;
 using Vexora.Application.Exceptions;
 using Vexora.Application.Repositories.Subscriptions;
+using Vexora.Domain.Enums.UserRoles;
 
 namespace Vexora.Api.Commons.Filters;
 
@@ -11,6 +12,12 @@ public sealed class RequireActiveSubscriptionAttribute : Attribute, IAsyncAction
 
     public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
     {
+        if (context.HttpContext.User.IsInRole(nameof(UserRole.SystemAdmin)))
+        {
+            await next();
+            return;
+        }
+
         var method = context.HttpContext.Request.Method;
         if (HttpMethods.IsGet(method) || HttpMethods.IsHead(method) || HttpMethods.IsOptions(method))
         {

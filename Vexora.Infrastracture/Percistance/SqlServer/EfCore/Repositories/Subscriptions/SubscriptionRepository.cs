@@ -15,4 +15,13 @@ public sealed class SubscriptionRepository(ApplicationDbContext context) : ISubs
             .Where(x => x.UserId == userId)
             .OrderByDescending(x => x.EndAt)
             .FirstOrDefaultAsync(cancellationToken);
+
+    public Task<Subscription?> GetLatestPurchasedByUserIdAsync(long userId, CancellationToken cancellationToken = default)
+        => context.Subscriptions
+            .Where(x => x.UserId == userId &&
+                        x.PlanType != Vexora.Domain.Enums.Subscriptions.SubscriptionPlanType.Trial &&
+                        x.PlanType != Vexora.Domain.Enums.Subscriptions.SubscriptionPlanType.Free &&
+                        x.Status != Vexora.Domain.Enums.Subscriptions.SubscriptionStatus.Pending)
+            .OrderByDescending(x => x.EndAt)
+            .FirstOrDefaultAsync(cancellationToken);
 }

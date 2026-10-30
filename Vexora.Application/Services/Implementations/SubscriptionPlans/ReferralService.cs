@@ -1,5 +1,6 @@
 using Vexora.Application.Dtos.SubscriptionPlans;
 using Vexora.Application.Repositories.SubscriptionPlans;
+using Vexora.Application.Repositories.Subscriptions;
 using Vexora.Application.Repositories.Users;
 using Vexora.Application.Services.Interfaces.SubscriptionPlans;
 using Vexora.Application.UnitOfWorks;
@@ -11,11 +12,25 @@ public sealed class ReferralService(
     IReferralRepository referrals,
     IReferralSettingRepository settings,
     IUserRepository users,
+    ISubscriptionRepository subscriptions,
     IUnitOfWork unitOfWork) : IReferralService
 {
     public async Task<IReadOnlyList<ReferralRowDto>> ListAsync(int page, int pageSize, CancellationToken cancellationToken = default)
     {
         var rows = await referrals.ListAsync(page, pageSize, cancellationToken);
+        return await MapRowsAsync(rows, cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<ReferralRowDto>> ListByReferrerAsync(long referrerUserId, int page, int pageSize, CancellationToken cancellationToken = default)
+    {
+        var rows = await referrals.ListByReferrerAsync(referrerUserId, page, pageSize, cancellationToken);
+        return await MapRowsAsync(rows, cancellationToken);
+    }
+
+    private async Task<IReadOnlyList<ReferralRowDto>> MapRowsAsync(
+        IReadOnlyList<Referral> rows,
+        CancellationToken cancellationToken)
+    {
         var counts = await referrals.GetReferralCountsAsync(cancellationToken);
         var result = new List<ReferralRowDto>(rows.Count);
         foreach (var row in rows)
@@ -23,9 +38,16 @@ public sealed class ReferralService(
             var referrer = await users.FindByIdAsync(row.ReferrerUserId, cancellationToken);
             var referred = await users.FindByIdAsync(row.ReferredUserId, cancellationToken);
             if (referrer is null || referred is null) continue;
-            result.Add(new ReferralRowDto(row.Id, referrer.Id, referrer.DisplayName, referrer.PhoneNumber,
+
+            var purchasedSubscription = await subscriptions.GetLatestPurchasedByUserIdAsync(referred.Id, cancellationToken);
+            var subscriptionActive = purchasedSubscription?.IsActiveAt(DateTimeOffset.UtcNow) == true;
+
+            result.Add(new ReferralRowDto(
+                row.Id, referrer.Id, referrer.DisplayName, referrer.PhoneNumber,
                 referrer.InviteCode, referred.Id, referred.DisplayName, referred.PhoneNumber, referred.CreateAt,
-                counts.GetValueOrDefault(referrer.Id), row.RewardGranted, row.RewardDays));
+                counts.GetValueOrDefault(referrer.Id), row.RewardGranted, row.RewardDays,
+                purchasedSubscription is not null, subscriptionActive,
+                purchasedSubscription?.PlanType.ToString(), purchasedSubscription?.EndAt));
         }
         return result;
     }

@@ -12,6 +12,10 @@ public sealed record ReferralRowDto(
     DateTimeOffset RegisteredAt,
     int TotalReferredByReferrer,
     bool RewardGranted,
-    int RewardDays);
+    int RewardDays,
+    bool HasPurchasedSubscription,
+    bool SubscriptionActive,
+    string? SubscriptionPlanType,
+    DateTimeOffset? SubscriptionEndAt);
 
 public sealed record ReferralSettingDto(bool IsEnabled, int RewardDays, int MaxRewardDaysPerUser);
