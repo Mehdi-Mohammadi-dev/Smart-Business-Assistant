@@ -1,6 +1,4 @@
-﻿using Vexora.Application.NLU.Intent;
-using Vexora.Application.Caching.Conversations;
-using Vexora.Application.Caching.Conversations.Interfaces;
+﻿using Vexora.Application.Caching.Conversations.Interfaces;
 using Vexora.Application.Caching.Conversations.Mappers.CustomerConversations;
 using Vexora.Application.Constants.Messages.Conversations;
 using Vexora.Application.Dtos.Chats;
@@ -10,6 +8,7 @@ using Vexora.Application.Dtos.Payments;
 using Vexora.Application.Ledger.Customers;
 using Vexora.Application.NLU.Abstractions.Dates;
 using Vexora.Application.NLU.Abstractions.Pipeline;
+using Vexora.Application.NLU.Intent;
 using Vexora.Application.NLU.Models.Entities;
 using Vexora.Application.NLU.Models.Intents;
 using Vexora.Application.NLU.Models.Money;
