@@ -80,6 +80,7 @@ public sealed class AdminUsersController(
         if (subscription is null)
             throw new Vexora.Application.Exceptions.EntityNotFoundException("Subscription", id);
         subscription.Cancel();
+        subscription.SoftDelete();
         await unitOfWork.SaveAsync(cancellationToken);
         logger.LogInformation("Admin {AdminId} cancelled subscription for user {TargetUserId}", currentUser.UserId, id);
         return ApiResult<object?>.SuccessResult(null);
